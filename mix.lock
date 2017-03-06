@@ -1,0 +1,2 @@
+%{"fs": {:hex, :fs, "2.12.0", "ad631efacc9a5683c8eaa1b274e24fa64a1b8eb30747e9595b93bec7e492e25e", [:rebar3], []},
+  "mix_test_watch": {:hex, :mix_test_watch, "0.3.3", "70859889a8d1d43d1b75d69d87258a301f43209a17787cdb2bd9cab42adf271d", [:mix], [{:fs, "~> 2.12", [hex: :fs, optional: false]}]}}
