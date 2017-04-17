@@ -66,4 +66,36 @@ defmodule ExfmtTest do
   test "functions" do
     "inspect/1" ~> "inspect/1\n"
   end
+
+  test "function calls" do
+    "hello()" ~> "hello()\n"
+    "reverse(\"hi\")" ~> "reverse(\"hi\")\n"
+    "add(1, 2)" ~> "add(1, 2)\n"
+    "add(1, 2, 3)" ~> "add(1, 2, 3)\n"
+    """
+    very_long_function_name_here(:hello, :world)
+    """ ~> """
+    very_long_function_name_here(:hello,
+                                 :world)
+    """
+    """
+    very_long_function_name_here([100, 200, 300])
+    """ ~> """
+    very_long_function_name_here([100, 200,
+                                  300])
+    """
+  end
+
+  test "anon function calls" do
+    "hello.()" ~> "hello.()\n"
+    "reverse.(\"hi\")" ~> "reverse.(\"hi\")\n"
+    "add.(1, 2)" ~> "add.(1, 2)\n"
+    "add.(1, 2, 3)" ~> "add.(1, 2, 3)\n"
+    """
+    very_long_function_name_here.(:hello, :world)
+    """ ~> """
+    very_long_function_name_here.(:hello,
+                                  :world)
+    """
+  end
 end

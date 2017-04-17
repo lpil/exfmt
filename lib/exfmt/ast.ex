@@ -76,6 +76,26 @@ defmodule Exfmt.AST do
   end
 
   #
+  # Anon function calls
+  #
+  def to_algebra({{:., _, [{name, _, nil}]}, meta, args}, ctx) do
+    fn_name = to_string(name) <> "."
+    to_algebra({fn_name, meta, args}, ctx)
+  end
+
+  #
+  # Function calls
+  #
+  def to_algebra({name, _, args}, ctx) do
+    str_name = to_string(name)
+    name_len = String.length(str_name)
+    arg_list = surround_many("(", args, ")",
+                             ctx.opts,
+                             fn(elem, _opts) -> to_algebra(elem, ctx) end)
+    concat(to_string(str_name), nest(arg_list, name_len))
+  end
+
+  #
   # Atoms, strings, numbers
   #
   def to_algebra(value, ctx)
