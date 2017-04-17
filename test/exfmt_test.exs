@@ -46,6 +46,42 @@ defmodule ExfmtTest do
     "%{1 => 1}" ~> "%{1 => 1}\n"
   end
 
+  test "keyword lists" do
+    "[]" ~> "[]\n"
+    "[a: 1]" ~> "[a: 1]\n"
+    "[ b:  {} ]" ~> "[b: {}]\n"
+    "[a: 1, b: 2]" ~> "[a: 1, b: 2]\n"
+    "[{:a, 1}]" ~> "[a: 1]\n"
+  end
+
+  test "charlists" do
+    "''" ~> "[]\n"
+    "'a'" ~> "[97]\n" # TODO: Hmm...
+  end
+
+  test "r sigils" do
+    "~r/hello/" ~> "~r/hello/\n"
+    "~r/hello/ugi" ~> "~r/hello/ugi\n"
+    "~R/hello/" ~> "~R/hello/\n"
+    "~R/hello/ugi" ~> "~R/hello/ugi\n"
+    "~r(hello)" ~> "~r/hello/\n"
+    "~r[hello]" ~> "~r/hello/\n"
+    "~r{hello}" ~> "~r/hello/\n"
+    ~S"~r/\//" ~> "~r(/)\n"
+    ~S"~r/\/)/" ~> "~r(/\))\n"
+  end
+
+  test "s sigils" do
+    ~S(~s"hello") ~> ~s[~s(hello)\n]
+    ~S(~s/hello/ugi) ~> ~s[~s(hello)ugi\n]
+    ~S(~S"hello") ~> ~s[~S(hello)\n]
+    ~S(~S/hello/ugi) ~> ~s[~S(hello)ugi\n]
+    ~S(~s[hello]) ~> ~s[~s(hello)\n]
+    ~S(~s{hello}) ~> ~s[~s(hello)\n]
+    ~S[~s(hello)] ~> ~s[~s(hello)\n]
+    ~S[~s"()"] ~> ~s{~s[()]\n}
+  end
+
   test "lists" do
     "[ ]" ~> "[]\n"
     """

@@ -12,9 +12,13 @@ defmodule Exfmt.AST do
   # Lists
   #
   def to_algebra(list, ctx) when is_list(list) do
-    surround_many("[", list, "]",
-                  ctx.opts,
-                  fn(elem, _opts) -> to_algebra(elem, ctx) end)
+    fun =
+      if Inspect.List.keyword?(list) do
+        &keyword_to_algebra(&1, &2, ctx)
+      else
+        fn(elem, _opts) -> to_algebra(elem, ctx) end
+      end
+    surround_many("[", list, "]", ctx.opts, fun)
   end
 
   #
@@ -23,9 +27,7 @@ defmodule Exfmt.AST do
   def to_algebra({:%{}, _, pairs}, ctx) do
     fun =
       if Inspect.List.keyword?(pairs) do
-        fn({k, v}, _) ->
-          concat(concat(to_string(k), ": "), to_algebra(v, ctx))
-        end
+        &keyword_to_algebra(&1, &2, ctx)
       else
         fn({k, v}, _) ->
           concat(concat(to_algebra(k, ctx), " => "), to_algebra(v, ctx))
@@ -84,15 +86,15 @@ defmodule Exfmt.AST do
   end
 
   #
-  # Function calls
+  # Function calls & sigils
   #
   def to_algebra({name, _, args}, ctx) do
-    str_name = to_string(name)
-    name_len = String.length(str_name)
-    arg_list = surround_many("(", args, ")",
-                             ctx.opts,
-                             fn(elem, _opts) -> to_algebra(elem, ctx) end)
-    concat(to_string(str_name), nest(arg_list, name_len))
+    case to_string(name) do
+      "sigil_" <> <<char::utf8>> ->
+        sigil_to_algebra(char, args, ctx)
+      str_name ->
+        call_to_algebra(str_name, args, ctx)
+    end
   end
 
   #
@@ -101,5 +103,38 @@ defmodule Exfmt.AST do
   def to_algebra(value, ctx)
   when is_atom(value) or is_binary(value) or is_number(value) do
     to_doc(value, ctx.opts)
+  end
+
+  #
+  # Private
+  #
+
+  defp keyword_to_algebra({k, v}, _, ctx) do
+    concat(concat(to_string(k), ": "), to_algebra(v, ctx))
+  end
+
+  def sigil_to_algebra(char, [{:<<>>, _, [contents]}, mods], ctx) do
+    {primary_open, primary_close, alt_open, alt_close} =
+      case char do
+        c when c in [?r, ?R] ->
+          {"/", "/", "(", ")"}
+        _ ->
+          {"(", ")", "[", "]"}
+      end
+    {open, close} =
+      if String.contains?(contents, primary_close) do
+        {alt_open, alt_close}
+      else
+        {primary_open, primary_close}
+      end
+    ["~", char, open, Inspect.BitString.escape(contents, close), close, mods]
+    |> IO.iodata_to_binary()
+  end
+
+  def call_to_algebra(name, args, ctx) do
+    name_len = String.length(name)
+    fun = fn(elem, _opts) -> to_algebra(elem, ctx) end
+    arg_list = surround_many("(", args, ")", ctx.opts, fun)
+    concat(name, nest(arg_list, name_len))
   end
 end
