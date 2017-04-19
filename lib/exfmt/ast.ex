@@ -86,7 +86,26 @@ defmodule Exfmt.AST do
   end
 
   #
-  # Function calls & sigils
+  # Module attributes
+  #
+  def to_algebra({:@, _, [{name, _, nil}]}, _ctx) do
+    "@#{name}"
+  end
+
+  def to_algebra({:@, _, [{name, _, [value]}]}, ctx) do
+    len = String.length(to_string(name)) + 2
+    concat("@#{name} ", nest(to_algebra(value, ctx), len))
+  end
+
+  #
+  # Zero arity calls and variables
+  #
+  def to_algebra({name, _, nil}, _ctx) do
+    to_string(name)
+  end
+
+  #
+  # Function calls and sigils
   #
   def to_algebra({name, _, args}, ctx) do
     case to_string(name) do
@@ -113,7 +132,7 @@ defmodule Exfmt.AST do
     concat(concat(to_string(k), ": "), to_algebra(v, ctx))
   end
 
-  def sigil_to_algebra(char, [{:<<>>, _, [contents]}, mods], ctx) do
+  def sigil_to_algebra(char, [{:<<>>, _, [contents]}, mods], _ctx) do
     {primary_open, primary_close, alt_open, alt_close} =
       case char do
         c when c in [?r, ?R] ->

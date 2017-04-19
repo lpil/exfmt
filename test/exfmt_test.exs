@@ -134,4 +134,22 @@ defmodule ExfmtTest do
                                   :world)
     """
   end
+
+  test "variables" do
+    "some_var" ~> "some_var\n"
+    "_another_var" ~> "_another_var\n"
+    "thing1" ~> "thing1\n"
+  end
+
+  test "module attributes" do
+    "@size" ~> "@size\n"
+    "@foo 1" ~> "@foo 1\n"
+    "@tag :skip" ~> "@tag :skip\n"
+    """
+    @sizes [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+    """ ~> """
+    @sizes [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+            11, 12, 13, 14, 15, 16]
+    """
+  end
 end
