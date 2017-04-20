@@ -105,6 +105,23 @@ defmodule Exfmt.AST do
   end
 
   #
+  # Zero arity qualified function calls
+  #
+  def to_algebra({{:., _, [aliases, name]}, _, []}, ctx) do
+    module = to_algebra(aliases, ctx)
+    "#{module}.#{name}"
+  end
+
+  #
+  # Qualified function calls
+  #
+  def to_algebra({{:., _, [aliases, name]}, _, args}, ctx) do
+    module = to_algebra(aliases, ctx)
+    name = "#{module}.#{name}"
+    call_to_algebra(name, args, ctx)
+  end
+
+  #
   # Function calls and sigils
   #
   def to_algebra({name, _, args}, ctx) do

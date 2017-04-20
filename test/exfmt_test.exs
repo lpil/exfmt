@@ -152,4 +152,12 @@ defmodule ExfmtTest do
             11, 12, 13, 14, 15, 16]
     """
   end
+
+  test "qualified calls" do
+    "Process.get()" ~> "Process.get\n"
+    "Process.get" ~> "Process.get\n"
+    "my_mod.get" ~> "my_mod.get\n"
+    "my_mod.get(0)" ~> "my_mod.get(0)\n"
+    "String.length( my_string )" ~> "String.length(my_string)\n"
+  end
 end
