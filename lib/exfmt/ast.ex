@@ -105,6 +105,14 @@ defmodule Exfmt.AST do
   end
 
   #
+  # Access protocol
+  #
+  def to_algebra({{:., _, [Access, :get]}, _, [structure, key]}, ctx) do
+    algebra = to_algebra(structure, ctx)
+    "#{algebra}[#{to_algebra(key, ctx)}]"
+  end
+
+  #
   # Zero arity qualified function calls
   #
   def to_algebra({{:., _, [aliases, name]}, _, []}, ctx) do

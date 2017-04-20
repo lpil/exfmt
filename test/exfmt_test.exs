@@ -160,4 +160,9 @@ defmodule ExfmtTest do
     "my_mod.get(0)" ~> "my_mod.get(0)\n"
     "String.length( my_string )" ~> "String.length(my_string)\n"
   end
+
+  test "Access protocol" do
+    "keys[:name]" ~> "keys[:name]\n"
+    "some_list[\n   :name\n]" ~> "some_list[:name]\n"
+  end
 end
