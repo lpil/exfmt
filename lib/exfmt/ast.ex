@@ -5,6 +5,12 @@ defmodule Exfmt.AST do
   require Algebra
   import Algebra
 
+  defmacrop is_call(c) do
+    quote do
+      unquote(c) in [:call, :no_param_call]
+    end
+  end
+
   @spec to_algebra(Macro.t, Context.t) :: Algebra.t
   def to_algebra(ast, context)
 
@@ -12,13 +18,20 @@ defmodule Exfmt.AST do
   # Lists
   #
   def to_algebra(list, ctx) when is_list(list) do
-    fun =
-      if Inspect.List.keyword?(list) do
-        &keyword_to_algebra(&1, &2, ctx)
-      else
-        fn(elem, _opts) -> to_algebra(elem, ctx) end
-      end
-    surround_many("[", list, "]", ctx.opts, fun)
+    new_ctx = Context.push_stack(ctx, :list)
+    with {:kw, true} <- {:kw, Inspect.List.keyword?(list)},
+         {:cl, [c | _]} when is_call(c) <- {:cl, ctx.stack} do
+      fun = &keyword_to_algebra(&1, &2, new_ctx)
+      surround_many("", list, "", ctx.opts, fun)
+    else
+      {:kw, false} ->
+        fun = fn(elem, _opts) -> to_algebra(elem, new_ctx) end
+        surround_many("[", list, "]", ctx.opts, fun)
+
+      {:cl, _} ->
+        fun = &keyword_to_algebra(&1, &2, new_ctx)
+        surround_many("[", list, "]", ctx.opts, fun)
+    end
   end
 
   #
@@ -27,10 +40,12 @@ defmodule Exfmt.AST do
   def to_algebra({:%{}, _, pairs}, ctx) do
     fun =
       if Inspect.List.keyword?(pairs) do
-        &keyword_to_algebra(&1, &2, ctx)
+        new_ctx = Context.push_stack(ctx, :keyword)
+        &keyword_to_algebra(&1, &2, new_ctx)
       else
         fn({k, v}, _) ->
-          concat(concat(to_algebra(k, ctx), " => "), to_algebra(v, ctx))
+          new_ctx = Context.push_stack(ctx, :rocket_pair)
+          concat(concat(to_algebra(k, ctx), " => "), to_algebra(v, new_ctx))
         end
       end
     surround_many("%{", pairs, "}", ctx.opts, fun)
@@ -40,9 +55,9 @@ defmodule Exfmt.AST do
   # Tuples
   #
   def to_algebra({:{}, _, elems}, ctx) do
-    surround_many("{", elems, "}",
-                  ctx.opts,
-                  fn(elem, _opts) -> to_algebra(elem, ctx) end)
+    new_ctx = Context.push_stack(ctx, :tuple)
+    fun = fn(elem, _opts) -> to_algebra(elem, new_ctx) end
+    surround_many("{", elems, "}", ctx.opts, fun)
   end
 
   def to_algebra({a, b}, ctx) do
@@ -65,7 +80,8 @@ defmodule Exfmt.AST do
   end
 
   def to_algebra({:-, _, [number]}, ctx) do
-    concat("-", to_algebra(number, ctx))
+    new_ctx = Context.push_stack(ctx, :-)
+    concat("-", to_algebra(number, new_ctx))
   end
 
   #
@@ -81,8 +97,9 @@ defmodule Exfmt.AST do
   # Anon function calls
   #
   def to_algebra({{:., _, [{name, _, nil}]}, meta, args}, ctx) do
+    new_ctx = Context.push_stack(ctx, :anon_fn_call)
     fn_name = to_string(name) <> "."
-    to_algebra({fn_name, meta, args}, ctx)
+    to_algebra({fn_name, meta, args}, new_ctx)
   end
 
   #
@@ -93,8 +110,9 @@ defmodule Exfmt.AST do
   end
 
   def to_algebra({:@, _, [{name, _, [value]}]}, ctx) do
+    new_ctx = Context.push_stack(ctx, :module_attribute)
     len = String.length(to_string(name)) + 2
-    concat("@#{name} ", nest(to_algebra(value, ctx), len))
+    concat("@#{name} ", nest(to_algebra(value, new_ctx), len))
   end
 
   #
@@ -108,15 +126,17 @@ defmodule Exfmt.AST do
   # Access protocol
   #
   def to_algebra({{:., _, [Access, :get]}, _, [structure, key]}, ctx) do
-    algebra = to_algebra(structure, ctx)
-    "#{algebra}[#{to_algebra(key, ctx)}]"
+    new_ctx = Context.push_stack(ctx, :access_protocol)
+    algebra = to_algebra(structure, new_ctx)
+    "#{algebra}[#{to_algebra(key, new_ctx)}]"
   end
 
   #
   # Zero arity qualified function calls
   #
   def to_algebra({{:., _, [aliases, name]}, _, []}, ctx) do
-    module = to_algebra(aliases, ctx)
+    new_ctx = Context.push_stack(ctx, :call)
+    module = to_algebra(aliases, new_ctx)
     "#{module}.#{name}"
   end
 
@@ -124,20 +144,29 @@ defmodule Exfmt.AST do
   # Qualified function calls
   #
   def to_algebra({{:., _, [aliases, name]}, _, args}, ctx) do
-    module = to_algebra(aliases, ctx)
+    new_ctx = Context.push_stack(ctx, :call)
+    module = to_algebra(aliases, new_ctx)
     name = "#{module}.#{name}"
-    call_to_algebra(name, args, ctx)
+    call_to_algebra(name, args, new_ctx)
   end
 
   #
   # Function calls and sigils
   #
+  @no_param_calls ~w(require import)a
   def to_algebra({name, _, args}, ctx) do
     case to_string(name) do
       "sigil_" <> <<char::utf8>> ->
-        sigil_to_algebra(char, args, ctx)
+        new_ctx = Context.push_stack(ctx, :sigil)
+        sigil_to_algebra(char, args, new_ctx)
+
+      str_name when name in @no_param_calls ->
+        new_ctx = Context.push_stack(ctx, :no_param_call)
+        call_to_algebra(str_name, args, new_ctx)
+
       str_name ->
-        call_to_algebra(str_name, args, ctx)
+        new_ctx = Context.push_stack(ctx, :call)
+        call_to_algebra(str_name, args, new_ctx)
     end
   end
 
@@ -176,9 +205,15 @@ defmodule Exfmt.AST do
   end
 
   def call_to_algebra(name, args, ctx) do
+    {open, close} = case ctx.stack do
+      [:no_param_call | _] ->
+        {" ", ""}
+      _ ->
+        {"(", ")"}
+    end
     name_len = String.length(name)
     fun = fn(elem, _opts) -> to_algebra(elem, ctx) end
-    arg_list = surround_many("(", args, ")", ctx.opts, fun)
+    arg_list = surround_many(open, args, close, ctx.opts, fun)
     concat(name, nest(arg_list, name_len))
   end
 end

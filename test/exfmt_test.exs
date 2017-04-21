@@ -161,8 +161,47 @@ defmodule ExfmtTest do
     "String.length( my_string )" ~> "String.length(my_string)\n"
   end
 
+  test "calls with keyword args" do
+    "hello(foo: 1)" ~> "hello(foo: 1)\n"
+    "hello([foo: 1])" ~> "hello(foo: 1)\n"
+    "hello([  foo:   1])" ~> "hello(foo: 1)\n"
+  end
+
   test "Access protocol" do
     "keys[:name]" ~> "keys[:name]\n"
     "some_list[\n   :name\n]" ~> "some_list[:name]\n"
+  end
+
+  test "require" do
+    "require Foo" ~> "require Foo\n"
+    "require(Foo)" ~> "require Foo\n"
+    "require    Foo" ~> "require Foo\n"
+    "require Foo.Bar" ~> "require Foo.Bar\n"
+    """
+    require Really.Long.Module.Name, Another.Really.Long.Module.Name
+    """ ~> """
+    require Really.Long.Module.Name,
+            Another.Really.Long.Module.Name
+    """
+  end
+
+  test "import" do
+    "import Foo" ~> "import Foo\n"
+    "import(Foo)" ~> "import Foo\n"
+    "import    Foo" ~> "import Foo\n"
+    "import Foo.Bar" ~> "import Foo.Bar\n"
+    """
+    import Really.Long.Module.Name, Another.Really.Long.Module.Name
+    """ ~> """
+    import Really.Long.Module.Name,
+           Another.Really.Long.Module.Name
+    """
+    """
+    import Foo,
+      only: [{:bar, 7}]
+    """ ~>
+    """
+    import Foo, only: [bar: 7]
+    """
   end
 end
