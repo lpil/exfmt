@@ -242,6 +242,10 @@ defmodule ExfmtTest do
   test "maths" do
     "1 + 2" ~> "1 + 2\n"
     "1 - 2" ~> "1 - 2\n"
+    "1 * 2" ~> "1 * 2\n"
+    "1 * 2 + 3" ~> "1 * 2 + 3\n"
+    "1 + 2 * 3" ~> "1 + 2 * 3\n"
+    "(1 + 2) * 3" ~> "(1 + 2) * 3\n"
     """
     something_really_really_really_really_long + 2
     """ ~> """

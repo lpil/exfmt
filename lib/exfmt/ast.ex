@@ -80,10 +80,27 @@ defmodule Exfmt.AST do
   # Addition, subtraction
   #
   def to_algebra({op, _, [l, r]}, ctx) when op in [:+, :-] do
-    new_ctx = Context.push_stack(ctx, :addition)
+    new_ctx = Context.push_stack(ctx, op)
     lhs = to_algebra(l, new_ctx)
     rhs = to_algebra(r, new_ctx)
-    nest(glue(concat(lhs, " #{op}"), rhs), 2)
+    algebra = nest(glue(concat(lhs, " #{op}"), rhs), 2)
+    case ctx.stack do
+      [:* | _] ->
+        nest(concat("(", concat(algebra, ")")), 1)
+
+      _ ->
+        algebra
+    end
+  end
+
+  #
+  # Multiplication
+  #
+  def to_algebra({:*, _, [l, r]}, ctx) do
+    new_ctx = Context.push_stack(ctx, :*)
+    lhs = to_algebra(l, new_ctx)
+    rhs = to_algebra(r, new_ctx)
+    nest(glue(concat(lhs, " *"), rhs), 2)
   end
 
   #
