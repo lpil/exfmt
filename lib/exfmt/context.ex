@@ -13,6 +13,9 @@ defmodule Exfmt.Context do
     %__MODULE__{}
   end
 
+  @valid_layers ~w(list call no_param_call keyword access negative sigil
+                   tuple module_attribute map)a
+
   @doc """
   Push a new value onto the stack, signifying another layer in the code.
 
@@ -23,12 +26,13 @@ defmodule Exfmt.Context do
       ...> ctx.stack
       [:call]
 
-      iex> ctx = new() |> push_stack(:call) |> push_stack(:cast)
+      iex> ctx = new() |> push_stack(:call) |> push_stack(:list)
       ...> ctx.stack
-      [:cast, :call]
+      [:list, :call]
+
   """
   @spec push_stack(t, term) :: t
-  def push_stack(ctx, value) do
-    call_ctx = %{ctx | stack: [value|ctx.stack]}
+  def push_stack(ctx, value) when value in @valid_layers do
+    %{ctx | stack: [value | ctx.stack]}
   end
 end

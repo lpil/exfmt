@@ -44,7 +44,7 @@ defmodule Exfmt.AST do
         &keyword_to_algebra(&1, &2, new_ctx)
       else
         fn({k, v}, _) ->
-          new_ctx = Context.push_stack(ctx, :rocket_pair)
+          new_ctx = Context.push_stack(ctx, :map)
           concat(concat(to_algebra(k, ctx), " => "), to_algebra(v, new_ctx))
         end
       end
@@ -80,7 +80,7 @@ defmodule Exfmt.AST do
   end
 
   def to_algebra({:-, _, [number]}, ctx) do
-    new_ctx = Context.push_stack(ctx, :-)
+    new_ctx = Context.push_stack(ctx, :negative)
     concat("-", to_algebra(number, new_ctx))
   end
 
@@ -97,7 +97,7 @@ defmodule Exfmt.AST do
   # Anon function calls
   #
   def to_algebra({{:., _, [{name, _, nil}]}, meta, args}, ctx) do
-    new_ctx = Context.push_stack(ctx, :anon_fn_call)
+    new_ctx = Context.push_stack(ctx, :call)
     fn_name = to_string(name) <> "."
     to_algebra({fn_name, meta, args}, new_ctx)
   end
@@ -126,7 +126,7 @@ defmodule Exfmt.AST do
   # Access protocol
   #
   def to_algebra({{:., _, [Access, :get]}, _, [structure, key]}, ctx) do
-    new_ctx = Context.push_stack(ctx, :access_protocol)
+    new_ctx = Context.push_stack(ctx, :access)
     algebra = to_algebra(structure, new_ctx)
     "#{algebra}[#{to_algebra(key, new_ctx)}]"
   end
