@@ -14,7 +14,7 @@ defmodule Exfmt.Context do
   end
 
   @valid_layers ~w(list call no_param_call keyword access negative sigil
-                   tuple module_attribute map)a
+                   tuple module_attribute map addition)a
 
   @doc """
   Push a new value onto the stack, signifying another layer in the code.

@@ -19,7 +19,8 @@ defmodule Exfmt.AST do
   #
   def to_algebra(list, ctx) when is_list(list) do
     new_ctx = Context.push_stack(ctx, :list)
-    with {:kw, true} <- {:kw, Inspect.List.keyword?(list)},
+    with {:"[]", [_|_]} <- {:"[]", list},
+         {:kw, true} <- {:kw, Inspect.List.keyword?(list)},
          {:cl, [c | _]} when is_call(c) <- {:cl, ctx.stack} do
       fun = &keyword_to_algebra(&1, &2, new_ctx)
       surround_many("", list, "", ctx.opts, fun)
@@ -31,6 +32,9 @@ defmodule Exfmt.AST do
       {:cl, _} ->
         fun = &keyword_to_algebra(&1, &2, new_ctx)
         surround_many("[", list, "]", ctx.opts, fun)
+
+      {:"[]", _} ->
+        "[]"
     end
   end
 
@@ -38,17 +42,17 @@ defmodule Exfmt.AST do
   # Maps
   #
   def to_algebra({:%{}, _, pairs}, ctx) do
-    fun =
-      if Inspect.List.keyword?(pairs) do
-        new_ctx = Context.push_stack(ctx, :keyword)
-        &keyword_to_algebra(&1, &2, new_ctx)
-      else
-        fn({k, v}, _) ->
-          new_ctx = Context.push_stack(ctx, :map)
-          concat(concat(to_algebra(k, ctx), " => "), to_algebra(v, new_ctx))
-        end
+    if Inspect.List.keyword?(pairs) do
+      new_ctx = Context.push_stack(ctx, :keyword)
+      fun = &keyword_to_algebra(&1, &2, new_ctx)
+      surround_many("%{", pairs, "}", ctx.opts, fun)
+    else
+      new_ctx = Context.push_stack(ctx, :map)
+      fun = fn({k, v}, _) ->
+        concat(concat(to_algebra(k, ctx), " => "), to_algebra(v, new_ctx))
       end
-    surround_many("%{", pairs, "}", ctx.opts, fun)
+      surround_many("%{", pairs, "}", ctx.opts, fun)
+    end
   end
 
   #
@@ -70,6 +74,16 @@ defmodule Exfmt.AST do
   def to_algebra({:/, _, [{name, _, nil}, arity]}, _ctx)
   when is_atom(name) and is_number(arity) do
     "#{name}/#{arity}"
+  end
+
+  #
+  # Addition, subtraction
+  #
+  def to_algebra({op, _, [l, r]}, ctx) when op in [:+, :-] do
+    new_ctx = Context.push_stack(ctx, :addition)
+    lhs = to_algebra(l, new_ctx)
+    rhs = to_algebra(r, new_ctx)
+    nest(glue(concat(lhs, " #{op}"), rhs), 2)
   end
 
   #
@@ -164,7 +178,7 @@ defmodule Exfmt.AST do
   #
   # Function calls and sigils
   #
-  @no_param_calls ~w(alias require import)a
+  @no_param_calls ~w(alias require import doctest defstruct)a
   def to_algebra({name, _, args}, ctx) do
     case to_string(name) do
       "sigil_" <> <<char::utf8>> ->
@@ -202,6 +216,7 @@ defmodule Exfmt.AST do
       case char do
         c when c in [?r, ?R] ->
           {"/", "/", "(", ")"}
+
         _ ->
           {"(", ")", "[", "]"}
       end
@@ -219,6 +234,7 @@ defmodule Exfmt.AST do
     {open, close} = case ctx.stack do
       [:no_param_call | _] ->
         {" ", ""}
+
       _ ->
         {"(", ")"}
     end

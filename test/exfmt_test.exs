@@ -23,6 +23,7 @@ defmodule ExfmtTest do
   test "atoms" do
     ":ok" ~> ":ok\n"
     ":\"hello-world\"" ~> ":\"hello-world\"\n"
+    ":\"[]\"" ~> ":\"[]\"\n"
     ":_" ~> ":_\n"
   end
 
@@ -224,6 +225,28 @@ defmodule ExfmtTest do
     alias Really.Long.Module.Name.That.Does.Not.Fit.In.Width
     """ ~> """
     alias Really.Long.Module.Name.That.Does.Not.Fit.In.Width
+    """
+  end
+
+  test "doctest" do
+    "doctest Foo" ~> "doctest Foo\n"
+  end
+
+  test "defstruct" do
+    "defstruct attrs" ~> "defstruct attrs\n"
+    "defstruct []" ~> "defstruct []\n"
+    "defstruct [:size, :age]" ~> "defstruct [:size, :age]\n"
+    "defstruct [size: 1, age: 2]" ~> "defstruct size: 1, age: 2\n"
+  end
+
+  test "maths" do
+    "1 + 2" ~> "1 + 2\n"
+    "1 - 2" ~> "1 - 2\n"
+    """
+    something_really_really_really_really_long + 2
+    """ ~> """
+    something_really_really_really_really_long +
+      2
     """
   end
 end
