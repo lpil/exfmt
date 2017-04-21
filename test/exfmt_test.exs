@@ -158,7 +158,9 @@ defmodule ExfmtTest do
     "Process.get" ~> "Process.get\n"
     "my_mod.get" ~> "my_mod.get\n"
     "my_mod.get(0)" ~> "my_mod.get(0)\n"
+    "my_mod.get 0" ~> "my_mod.get(0)\n"
     "String.length( my_string )" ~> "String.length(my_string)\n"
+    ":lists.reverse my_list" ~> ":lists.reverse(my_list)\n"
   end
 
   test "calls with keyword args" do
@@ -202,6 +204,26 @@ defmodule ExfmtTest do
     """ ~>
     """
     import Foo, only: [bar: 7]
+    """
+  end
+
+  test "alias" do
+    "alias Foo" ~> "alias Foo\n"
+    "alias(Foo)" ~> "alias Foo\n"
+    "alias    Foo" ~> "alias Foo\n"
+    "alias Foo.Bar" ~> "alias Foo.Bar\n"
+    "alias String, as: S" ~> "alias String, as: S\n"
+    "alias Element.{Storm,Earth,Fire}" ~> "alias Element.{Storm, Earth, Fire}\n"
+    """
+    alias Element.{Storm,Earth,Fire,Nature,Courage,Heart}
+    """ ~> """
+    alias Element.{Storm, Earth, Fire,
+                   Nature, Courage, Heart}
+    """
+    """
+    alias Really.Long.Module.Name.That.Does.Not.Fit.In.Width
+    """ ~> """
+    alias Really.Long.Module.Name.That.Does.Not.Fit.In.Width
     """
   end
 end

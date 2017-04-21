@@ -141,6 +141,17 @@ defmodule Exfmt.AST do
   end
 
   #
+  # Group alias syntax
+  # alias Pet.{Dog, Cat}
+  #
+  def to_algebra({{:., m, [aliases, :{}]}, _, args}, ctx) do
+    new_ctx = Context.push_stack(ctx, :call)
+    module = to_algebra(aliases, new_ctx) <> "."
+    mod_len = String.length(module)
+    concat(module, nest(to_algebra({:{}, m, args}, new_ctx), mod_len))
+  end
+
+  #
   # Qualified function calls
   #
   def to_algebra({{:., _, [aliases, name]}, _, args}, ctx) do
@@ -153,7 +164,7 @@ defmodule Exfmt.AST do
   #
   # Function calls and sigils
   #
-  @no_param_calls ~w(require import)a
+  @no_param_calls ~w(alias require import)a
   def to_algebra({name, _, args}, ctx) do
     case to_string(name) do
       "sigil_" <> <<char::utf8>> ->
