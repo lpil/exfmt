@@ -106,8 +106,8 @@ defmodule Exfmt.AST do
   #
   # Negatives
   #
-  def to_algebra({:-, _, [0]}, _ctx) do
-    "0"
+  def to_algebra({:-, _, [value]}, _ctx) when value in [0, 0.0] do
+    to_string(value)
   end
 
   def to_algebra({:-, _, [number]}, ctx) do

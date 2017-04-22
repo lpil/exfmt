@@ -8,16 +8,23 @@ defmodule ExfmtTest do
     end
   end
 
-  test "positive ints" do
+  test "ints" do
     "0" ~> "0\n"
     "1" ~> "1\n"
     "2" ~> "2\n"
-  end
-
-  test "negative numbers" do
     "-0" ~> "0\n"
     "-1" ~> "-1\n"
     "-2" ~> "-2\n"
+  end
+
+  test "floats" do
+    "0.000" ~> "0.0\n"
+    "1.111" ~> "1.111\n"
+    "2.08" ~> "2.08\n"
+    "-0.000" ~> "0.0\n"
+    "-0.123" ~> "-0.123\n"
+    "-1.123" ~> "-1.123\n"
+    "-2.123" ~> "-2.123\n"
   end
 
   test "atoms" do
