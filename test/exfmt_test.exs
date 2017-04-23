@@ -268,4 +268,15 @@ defmodule ExfmtTest do
       2
     """
   end
+
+  test "@spec" do
+    "@spec bar() :: 1" ~> "@spec bar() :: 1\n"
+    "@spec ok :: :ok" ~> "@spec ok() :: :ok\n"
+    """
+    @spec run(String.t, [tern]) :: atom
+    """ ~> """
+    @spec run(String.t, [tern]) :: atom
+    """
+    # TODO: More
+  end
 end

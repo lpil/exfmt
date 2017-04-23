@@ -149,8 +149,14 @@ defmodule Exfmt.AST do
   #
   # Zero arity calls and variables
   #
-  def to_algebra({name, _, nil}, _ctx) do
-    to_string(name)
+  def to_algebra({name, _, nil}, ctx) do
+    case ctx.stack do
+      [:spec_lhs|_] ->
+        to_string(name) <> "()"
+
+      _ ->
+        to_string(name)
+    end
   end
 
   #
@@ -160,6 +166,17 @@ defmodule Exfmt.AST do
     new_ctx = Context.push_stack(ctx, :access)
     algebra = to_algebra(structure, new_ctx)
     "#{algebra}[#{to_algebra(key, new_ctx)}]"
+  end
+
+  #
+  # spec ::
+  #
+  def to_algebra({:::, _, [fun, result]}, ctx) do
+    lhs_ctx = Context.push_stack(ctx, :spec_lhs)
+    rhs_ctx = Context.push_stack(ctx, :spec_rhs)
+    lhs = to_algebra(fun, lhs_ctx)
+    rhs = to_algebra(result, rhs_ctx)
+    glue(concat(lhs, " ::"), nest(rhs, 2))
   end
 
   #
