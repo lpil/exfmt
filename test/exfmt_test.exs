@@ -277,6 +277,19 @@ defmodule ExfmtTest do
     """ ~> """
     @spec run(String.t, [tern]) :: atom
     """
-    # TODO: More
+    # FIXME: Nesting correctly here is hard as we don't know
+    # the string length of the args. We would need to indent
+    # by this much to match the style used in the Elixir
+    # compiler.
+    """
+    @spec run(String.t, [tern]) :: atom | String.t | :hello
+    """ ~> """
+    @spec run(String.t, [tern]) :: atom |
+            String.t | :hello
+    """
+  end
+
+  test "list patterns" do
+    "[head1, head2|tail]" ~> "[head1, head2 | tail]\n"
   end
 end

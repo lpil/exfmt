@@ -169,7 +169,7 @@ defmodule Exfmt.AST do
   end
 
   #
-  # spec ::
+  # @spec ::
   #
   def to_algebra({:::, _, [fun, result]}, ctx) do
     lhs_ctx = Context.push_stack(ctx, :spec_lhs)
@@ -177,6 +177,15 @@ defmodule Exfmt.AST do
     lhs = to_algebra(fun, lhs_ctx)
     rhs = to_algebra(result, rhs_ctx)
     glue(concat(lhs, " ::"), nest(rhs, 2))
+  end
+
+  #
+  # | (@spec, list patterns)
+  #
+  def to_algebra({:|, _, [l, r]}, ctx) do
+    lhs = to_algebra(l, ctx)
+    rhs = to_algebra(r, ctx)
+    glue(concat(lhs, " |"), rhs)
   end
 
   #
