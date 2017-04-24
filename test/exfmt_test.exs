@@ -338,4 +338,18 @@ defmodule ExfmtTest do
   test ">>>" do
     "x >>> [1, 2]" ~> "x >>> [1, 2]\n"
   end
+
+  test "<>" do
+    "x <> y" ~> "x <> y\n"
+  end
+
+  test "|>" do
+    """
+    1 |> double() |> Number.triple()
+    """ ~> """
+    1
+    |> double()
+    |> Number.triple
+    """
+  end
 end

@@ -92,7 +92,7 @@ defmodule Exfmt.AST do
     new_ctx = Context.push_stack(ctx, op)
     lhs = to_algebra(l, new_ctx)
     rhs = to_algebra(r, new_ctx)
-    algebra = nest(glue(concat(lhs, " #{op}"), rhs), 2)
+    algebra = nest(glue(space(lhs, to_string(op)), rhs), 2)
     case ctx.stack do
       [o | _] when o in [:/, :*] ->
         nest(concat("(", concat(algebra, ")")), 1)
@@ -109,7 +109,7 @@ defmodule Exfmt.AST do
     new_ctx = Context.push_stack(ctx, op)
     lhs = to_algebra(l, new_ctx)
     rhs = to_algebra(r, new_ctx)
-    nest(glue(concat(lhs, " #{op}"), rhs), 2)
+    nest(glue(space(lhs, to_string(op)), rhs), 2)
   end
 
   #
@@ -189,14 +189,23 @@ defmodule Exfmt.AST do
   end
 
   #
+  # Pipes
+  #
+  def to_algebra({:|>, _, [l, r]}, ctx) do
+    lhs = to_algebra(l, ctx)
+    rhs = to_algebra(r, ctx)
+    glue(line(lhs, "|>"), rhs)
+  end
+
+  #
   # Infix operators
   # TODO: Unify with maths ops. Handle precedences
   #
-  @infix_ops ~W(| || && ~> >>> or and in)a
+  @infix_ops ~W(| || && ~> >>> <> or and in)a
   def to_algebra({op, _, [l, r]}, ctx) when op in @infix_ops do
     lhs = to_algebra(l, ctx)
     rhs = to_algebra(r, ctx)
-    glue(concat(lhs, " #{op}"), rhs)
+    glue(space(lhs, to_string(op)), rhs)
   end
 
   #
