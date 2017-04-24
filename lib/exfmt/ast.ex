@@ -1,7 +1,9 @@
 defmodule Exfmt.AST do
+  @moduledoc """
+  See to_algebra/2
+  """
   alias Exfmt.Context
   alias Inspect.Algebra
-
   require Algebra
   import Algebra
 
@@ -11,6 +13,13 @@ defmodule Exfmt.AST do
     end
   end
 
+  @doc """
+  Converting Elixir AST into Algebra that can be printed.
+
+  For more information on the Algebra used see the Inspect.Algebra
+  module.
+
+  """
   @spec to_algebra(Macro.t, Context.t) :: Algebra.t
   def to_algebra(ast, context)
 
@@ -180,12 +189,14 @@ defmodule Exfmt.AST do
   end
 
   #
-  # | (@spec, list patterns)
+  # Infix operators
+  # TODO: Unify with maths ops. Handle precedences
   #
-  def to_algebra({:|, _, [l, r]}, ctx) do
+  @infix_ops ~W(| || && ~> >>> or and in)a
+  def to_algebra({op, _, [l, r]}, ctx) when op in @infix_ops do
     lhs = to_algebra(l, ctx)
     rhs = to_algebra(r, ctx)
-    glue(concat(lhs, " |"), rhs)
+    glue(concat(lhs, " #{op}"), rhs)
   end
 
   #
@@ -221,7 +232,7 @@ defmodule Exfmt.AST do
   #
   # Function calls and sigils
   #
-  @no_param_calls ~w(alias require import doctest defstruct)a
+  @no_param_calls ~w(use alias require import doctest defstruct send)a
   def to_algebra({name, _, args}, ctx) do
     case to_string(name) do
       "sigil_" <> <<char::utf8>> ->

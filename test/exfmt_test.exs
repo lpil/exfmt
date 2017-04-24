@@ -292,4 +292,50 @@ defmodule ExfmtTest do
   test "list patterns" do
     "[head1, head2|tail]" ~> "[head1, head2 | tail]\n"
   end
+
+  test "use" do
+    "use ExUnit.Case, async: true" ~> "use ExUnit.Case, async: true\n"
+  end
+
+  test "send" do
+    "send my_pid, :hello" ~> "send my_pid, :hello\n"
+  end
+
+  test "magic variables" do
+    "__MODULE__" ~> "__MODULE__\n"
+    "__CALLER__" ~> "__CALLER__\n"
+  end
+
+  test "booleans" do
+    "true" ~> "true\n"
+    "false" ~> "false\n"
+  end
+
+  test "||" do
+    "true || true" ~> "true || true\n"
+  end
+
+  test "&&" do
+    "true && true" ~> "true && true\n"
+  end
+
+  test "or" do
+    "true or true" ~> "true or true\n"
+  end
+
+  test "and" do
+    "true and true" ~> "true and true\n"
+  end
+
+  test "in" do
+    "x in [1, 2]" ~> "x in [1, 2]\n"
+  end
+
+  test "~>" do
+    "x ~> [1, 2]" ~> "x ~> [1, 2]\n"
+  end
+
+  test ">>>" do
+    "x >>> [1, 2]" ~> "x >>> [1, 2]\n"
+  end
 end
