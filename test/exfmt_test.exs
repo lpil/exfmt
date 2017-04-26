@@ -271,7 +271,7 @@ defmodule ExfmtTest do
 
   test "@spec" do
     "@spec bar() :: 1" ~> "@spec bar() :: 1\n"
-    "@spec ok :: :ok" ~> "@spec ok() :: :ok\n"
+    "@spec ok :: :ok" ~> "@spec ok :: :ok\n"
     """
     @spec run(String.t, [tern]) :: atom
     """ ~> """
@@ -343,7 +343,7 @@ defmodule ExfmtTest do
     "x <> y" ~> "x <> y\n"
   end
 
-  test "|>" do
+  test "pipes |>" do
     """
     1 |> double() |> Number.triple()
     """ ~> """

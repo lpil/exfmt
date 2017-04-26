@@ -2,9 +2,10 @@ defmodule Exfmt.AST do
   @moduledoc """
   See to_algebra/2
   """
-  alias Exfmt.Context
+  alias Exfmt.{Context, AST.Infix}
   alias Inspect.Algebra
   require Algebra
+  require Infix
   import Algebra
 
   defmacrop is_call(c) do
@@ -78,7 +79,7 @@ defmodule Exfmt.AST do
   end
 
   #
-  # Functions
+  # Arity labelled functions
   #
   def to_algebra({:/, _, [{name, _, nil}, arity]}, _ctx)
   when is_atom(name) and is_number(arity) do
@@ -86,30 +87,22 @@ defmodule Exfmt.AST do
   end
 
   #
-  # Addition, subtraction
+  # Infix operators
   #
-  def to_algebra({op, _, [l, r]}, ctx) when op in [:+, :-] do
+  def to_algebra({op, _, [l, r]}, ctx) when op in Infix.infix_ops do
     new_ctx = Context.push_stack(ctx, op)
-    lhs = to_algebra(l, new_ctx)
-    rhs = to_algebra(r, new_ctx)
-    algebra = nest(glue(space(lhs, to_string(op)), rhs), 2)
-    case ctx.stack do
-      [o | _] when o in [:/, :*] ->
-        nest(concat("(", concat(algebra, ")")), 1)
+    lhs = infix_child_to_algebra(l, :left, new_ctx)
+    rhs = infix_child_to_algebra(r, :right, new_ctx)
+    case op do
+      :|> ->
+        glue(line(lhs, to_string(op)), rhs)
+
+      :| ->
+        glue(space(lhs, to_string(op)), rhs)
 
       _ ->
-        algebra
+        nest(glue(space(lhs, to_string(op)), rhs), 2)
     end
-  end
-
-  #
-  # Multiplication, division
-  #
-  def to_algebra({op, _, [l, r]}, ctx) when op in [:/, :*] do
-    new_ctx = Context.push_stack(ctx, op)
-    lhs = to_algebra(l, new_ctx)
-    rhs = to_algebra(r, new_ctx)
-    nest(glue(space(lhs, to_string(op)), rhs), 2)
   end
 
   #
@@ -158,14 +151,8 @@ defmodule Exfmt.AST do
   #
   # Zero arity calls and variables
   #
-  def to_algebra({name, _, nil}, ctx) do
-    case ctx.stack do
-      [:spec_lhs|_] ->
-        to_string(name) <> "()"
-
-      _ ->
-        to_string(name)
-    end
+  def to_algebra({name, _, nil}, _ctx) do
+    to_string(name)
   end
 
   #
@@ -186,26 +173,6 @@ defmodule Exfmt.AST do
     lhs = to_algebra(fun, lhs_ctx)
     rhs = to_algebra(result, rhs_ctx)
     glue(concat(lhs, " ::"), nest(rhs, 2))
-  end
-
-  #
-  # Pipes
-  #
-  def to_algebra({:|>, _, [l, r]}, ctx) do
-    lhs = to_algebra(l, ctx)
-    rhs = to_algebra(r, ctx)
-    glue(line(lhs, "|>"), rhs)
-  end
-
-  #
-  # Infix operators
-  # TODO: Unify with maths ops. Handle precedences
-  #
-  @infix_ops ~W(| || && ~> >>> <> or and in)a
-  def to_algebra({op, _, [l, r]}, ctx) when op in @infix_ops do
-    lhs = to_algebra(l, ctx)
-    rhs = to_algebra(r, ctx)
-    glue(space(lhs, to_string(op)), rhs)
   end
 
   #
@@ -305,5 +272,14 @@ defmodule Exfmt.AST do
     fun = fn(elem, _opts) -> to_algebra(elem, ctx) end
     arg_list = surround_many(open, args, close, ctx.opts, fun)
     concat(name, nest(arg_list, name_len))
+  end
+
+  def infix_child_to_algebra(child, side, ctx) do
+    algebra = to_algebra(child, ctx)
+    if Infix.wrap?(child, side, ctx) do
+      concat("(", concat(algebra, ")"))
+    else
+      algebra
+    end
   end
 end

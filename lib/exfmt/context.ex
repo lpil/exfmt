@@ -1,4 +1,7 @@
 defmodule Exfmt.Context do
+  alias Exfmt.AST.Infix
+  require Infix
+
   @type t :: %__MODULE__{opts: Inspect.Opts.t}
 
   defstruct opts: %Inspect.Opts{},
@@ -14,7 +17,8 @@ defmodule Exfmt.Context do
   end
 
   @valid_layers ~W(list call no_param_call keyword access negative sigil
-                   spec_lhs spec_rhs tuple module_attribute map + - * /)a
+                   spec_lhs spec_rhs tuple module_attribute map)a ++
+                  Infix.infix_ops
 
   @doc """
   Push a new value onto the stack, signifying another layer in the code.
