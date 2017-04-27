@@ -352,4 +352,31 @@ defmodule ExfmtTest do
     |> Number.triple
     """
   end
+
+  test "blocks" do
+    """
+    1 + 1
+    """ ~>
+    """
+    1 + 1
+    """
+    """
+    1 + 1
+    2 / 3
+    """ ~>
+    """
+    1 + 1
+    2 / 3
+    """
+    """
+    run(1)
+    run(2)
+    run(3)
+    """ ~>
+    """
+    run(1)
+    run(2)
+    run(3)
+    """
+  end
 end

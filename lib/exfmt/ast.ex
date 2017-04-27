@@ -81,6 +81,14 @@ defmodule Exfmt.AST do
   #
   # Arity labelled functions
   #
+  def to_algebra({:__block__, _, [head|tail]}, ctx) do
+    fun = &line(&2, to_algebra(&1, ctx))
+    Enum.reduce(tail, to_algebra(head, ctx), fun)
+  end
+
+  #
+  # Arity labelled functions
+  #
   def to_algebra({:/, _, [{name, _, nil}, arity]}, _ctx)
   when is_atom(name) and is_number(arity) do
     "#{name}/#{arity}"
