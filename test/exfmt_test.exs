@@ -109,6 +109,9 @@ defmodule ExfmtTest do
 
   test "functions" do
     "inspect/1" ~> "inspect/1\n"
+    "&inspect/1" ~> "&inspect/1\n"
+    "&inspect(&1)" ~> "&inspect(&1)\n"
+    "&merge(&2, &1)" ~> "&merge(&2, &1)\n"
   end
 
   test "function calls" do

@@ -17,7 +17,7 @@ defmodule Exfmt.Context do
   end
 
   @valid_layers ~W(list call no_param_call keyword access negative sigil
-                   spec_lhs spec_rhs tuple module_attribute map)a ++
+                   spec_lhs spec_rhs tuple module_attribute map &)a ++
                   Infix.infix_ops
 
   @doc """

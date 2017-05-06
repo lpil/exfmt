@@ -87,6 +87,14 @@ defmodule Exfmt.AST do
   end
 
   #
+  # Captured functions
+  #
+  def to_algebra({:&, _, [fun]}, ctx) do
+    new_ctx = Context.push_stack(ctx, :&)
+    concat("&", to_algebra(fun, new_ctx))
+  end
+
+  #
   # Arity labelled functions
   #
   def to_algebra({:/, _, [{name, _, nil}, arity]}, _ctx)
