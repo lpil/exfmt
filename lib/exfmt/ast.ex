@@ -9,12 +9,6 @@ defmodule Exfmt.AST do
   require Infix
   import Algebra
 
-  defmacrop is_call(c) do
-    quote do
-      unquote(c) == :call
-    end
-  end
-
   @doc """
   Converting Elixir AST into Algebra that can be printed.
 
@@ -32,7 +26,7 @@ defmodule Exfmt.AST do
     new_ctx = Context.push_stack(ctx, :list)
     with {:"[]", [_|_]} <- {:"[]", list},
          {:kw, true} <- {:kw, Inspect.List.keyword?(list)},
-         {:cl, [c | _]} when is_call(c) <- {:cl, ctx.stack} do
+         {:cl, [:call | _]} <- {:cl, ctx.stack} do
       fun = &keyword_to_algebra(&1, &2, new_ctx)
       surround_many("", list, "", ctx.opts, fun)
     else
