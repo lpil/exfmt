@@ -95,6 +95,22 @@ defmodule Exfmt.AST do
   end
 
   #
+  # fn -> ... end
+  #
+  def to_algebra({:fn, _, [{:->, _, [args, body]}]}, ctx) do
+    new_ctx = Context.push_stack(ctx, :fn)
+    head = fn_head(args, new_ctx)
+    body_algebra = to_algebra(body, new_ctx)
+    case body do
+      {:__block__, _, _} ->
+        line(nest(line(head, body_algebra), 2), "end")
+
+      _single_expr ->
+        glue(glue(head, body_algebra), "end")
+    end
+  end
+
+  #
   # Arity labelled functions
   #
   def to_algebra({:/, _, [{name, _, nil}, arity]}, _ctx)
@@ -296,6 +312,16 @@ defmodule Exfmt.AST do
       concat("(", concat(algebra, ")"))
     else
       algebra
+    end
+  end
+
+  defp fn_head(args, ctx) do
+    case args do
+      [] ->
+        "fn->"
+
+      _ ->
+        glue(call_to_algebra("fn", args, ctx), "->")
     end
   end
 end

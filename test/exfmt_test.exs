@@ -107,11 +107,24 @@ defmodule ExfmtTest do
     "{1,2,3}" ~> "{1, 2, 3}\n"
   end
 
-  test "functions" do
+  test "captured functions" do
     "inspect/1" ~> "inspect/1\n"
     "&inspect/1" ~> "&inspect/1\n"
     "&inspect(&1)" ~> "&inspect(&1)\n"
     "&merge(&2, &1)" ~> "&merge(&2, &1)\n"
+  end
+
+  test "fn functions" do
+    "fn -> :ok end" ~> "fn-> :ok end\n"
+    "fn(x) -> x end" ~> "fn(x) -> x end\n"
+    """
+    fn(x) -> y = x + x; y end
+    """ ~> """
+    fn(x) ->
+      y = x + x
+      y
+    end
+    """
   end
 
   test "function calls" do
