@@ -104,7 +104,7 @@ defmodule Exfmt.AST do
   #
   def to_algebra({:fn, _, [{:->, _, [args, body]}]}, ctx) do
     new_ctx = Context.push_stack(ctx, :fn)
-    head = fn_head(args, new_ctx)
+    head = fn_head_algebra(args, new_ctx)
     body_algebra = to_algebra(body, new_ctx)
     case body do
       {:__block__, _, _} ->
@@ -323,7 +323,7 @@ defmodule Exfmt.AST do
     end
   end
 
-  defp fn_head(args, ctx) do
+  defp fn_head_algebra(args, ctx) do
     case args do
       [] ->
         "fn->"
