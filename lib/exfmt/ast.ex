@@ -1,7 +1,6 @@
 defmodule Exfmt.AST do
-  @moduledoc """
-  See to_algebra/2
-  """
+  @moduledoc false
+
   alias Exfmt.Context
   alias __MODULE__.{Infix, Util}
   alias Inspect.Algebra

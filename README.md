@@ -1,4 +1,4 @@
-# Exfmt
+# exfmt
 
 ## Plan
 

@@ -1,4 +1,6 @@
 defmodule Exfmt.AST.Util do
+  @moduledoc false
+
   @doc """
   Given the arguments of a function call node, split the `do end`
   block arguments off, assuming any are present.
