@@ -2,9 +2,9 @@ defmodule ExfmtTest do
   use ExUnit.Case
   doctest Exfmt
 
-  defmacro src ~> output do
+  defmacro src ~> expected do
     quote bind_quoted: binding() do
-      assert Exfmt.format(src, 40) == output
+      assert Exfmt.format(src, 40) == expected
     end
   end
 
@@ -112,6 +112,7 @@ defmodule ExfmtTest do
     "&inspect/1" ~> "&inspect/1\n"
     "&inspect(&1)" ~> "&inspect(&1)\n"
     "&merge(&2, &1)" ~> "&merge(&2, &1)\n"
+    "&(&2 + &1)" ~> "& &2 + &1\n"
   end
 
   test "fn functions" do

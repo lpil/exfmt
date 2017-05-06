@@ -89,9 +89,19 @@ defmodule Exfmt.AST do
   #
   # Captured functions
   #
-  def to_algebra({:&, _, [fun]}, ctx) do
+  def to_algebra({:&, _, [arg]}, ctx) do
     new_ctx = Context.push_stack(ctx, :&)
-    concat("&", to_algebra(fun, new_ctx))
+    arg_algebra = to_algebra(arg, new_ctx)
+    case arg do
+      {:/, _, [_name, arity]} when is_integer(arity) ->
+        concat("&", arg_algebra)
+
+      {op, _, _} when op in Infix.infix_ops ->
+        space("&", arg_algebra)
+
+      _ ->
+        concat("&", arg_algebra)
+    end
   end
 
   #
