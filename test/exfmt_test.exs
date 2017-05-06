@@ -396,4 +396,31 @@ defmodule ExfmtTest do
     run(3)
     """
   end
+
+  test "do end blocks" do
+    """
+    test "hello" do
+      :ok
+    end
+    """ ~>
+    """
+    test "hello" do
+      :ok
+    end
+    """
+    """
+    if x do
+      :ok
+    else
+      :ok
+    end
+    """ ~>
+    """
+    if x do
+      :ok
+    else
+      :ok
+    end
+    """
+  end
 end

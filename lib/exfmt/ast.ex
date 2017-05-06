@@ -2,7 +2,8 @@ defmodule Exfmt.AST do
   @moduledoc """
   See to_algebra/2
   """
-  alias Exfmt.{Context, AST.Infix}
+  alias Exfmt.Context
+  alias __MODULE__.{Infix, Util}
   alias Inspect.Algebra
   require Algebra
   require Infix
@@ -10,7 +11,7 @@ defmodule Exfmt.AST do
 
   defmacrop is_call(c) do
     quote do
-      unquote(c) in [:call, :no_param_call]
+      unquote(c) == :call
     end
   end
 
@@ -257,13 +258,9 @@ defmodule Exfmt.AST do
         new_ctx = Context.push_stack(ctx, :sigil)
         sigil_to_algebra(char, args, new_ctx)
 
-      str_name when name in @no_param_calls ->
-        new_ctx = Context.push_stack(ctx, :no_param_call)
-        call_to_algebra(str_name, args, new_ctx)
-
-      str_name ->
+      _ ->
         new_ctx = Context.push_stack(ctx, :call)
-        call_to_algebra(str_name, args, new_ctx)
+        call_to_algebra(name, args, new_ctx)
     end
   end
 
@@ -303,17 +300,24 @@ defmodule Exfmt.AST do
   end
 
   def call_to_algebra(name, args, ctx) do
-    {open, close} = case ctx.stack do
-      [:no_param_call | _] ->
-        {" ", ""}
-
-      _ ->
-        {"(", ")"}
-    end
-    name_len = String.length(name)
+    str_name = to_string(name)
+    name_len = String.length(str_name)
     fun = fn(elem, _opts) -> to_algebra(elem, ctx) end
-    arg_list = surround_many(open, args, close, ctx.opts, fun)
-    concat(name, nest(arg_list, name_len))
+
+    with {_, []} <- Util.split_do_block(args),
+         n when n in @no_param_calls <- name do
+      arg_list = surround_many(" ", args, "", ctx.opts, fun)
+      concat(str_name, nest(arg_list, name_len))
+    else
+      {normal_args, block_args} ->
+        arg_list = surround_many(" ", normal_args, "", ctx.opts, fun)
+        block = do_block_algebra(block_args, ctx)
+        glue(concat(str_name, nest(arg_list, name_len)), block)
+
+      _name ->
+        arg_list = surround_many("(", args, ")", ctx.opts, fun)
+        concat(str_name, nest(arg_list, name_len))
+    end
   end
 
   def infix_child_to_algebra(child, side, ctx) do
@@ -333,5 +337,17 @@ defmodule Exfmt.AST do
       _ ->
         glue(call_to_algebra("fn", args, ctx), "->")
     end
+  end
+
+  defp do_block_algebra(block_args, ctx) do
+    new_ctx = Context.push_stack(ctx, :do)
+    section_to_algebra = fn({k, body}) ->
+      body_algebra = to_algebra(body, new_ctx)
+      nest(line(to_string(k), body_algebra), 2)
+    end
+    block_args
+    |> Enum.map(section_to_algebra)
+    |> Enum.reduce(&line(&2, &1))
+    |> line("end")
   end
 end
