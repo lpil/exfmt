@@ -130,20 +130,20 @@ defmodule ExfmtTest do
 
   test "function calls" do
     "hello()" ~> "hello()\n"
-    "reverse(\"hi\")" ~> "reverse(\"hi\")\n"
-    "add(1, 2)" ~> "add(1, 2)\n"
-    "add(1, 2, 3)" ~> "add(1, 2, 3)\n"
+    "reverse \"hi\"" ~> "reverse \"hi\"\n"
+    "add 1, 2" ~> "add 1, 2\n"
+    "add 1, 2, 3" ~> "add 1, 2, 3\n"
     """
-    very_long_function_name_here(:hello, :world)
+    very_long_function_name_here :hello, :world
     """ ~> """
-    very_long_function_name_here(:hello,
-                                 :world)
+    very_long_function_name_here :hello,
+                                 :world
     """
     """
     very_long_function_name_here([100, 200, 300])
     """ ~> """
-    very_long_function_name_here([100, 200,
-                                  300])
+    very_long_function_name_here [100, 200,
+                                  300]
     """
   end
 
@@ -182,16 +182,16 @@ defmodule ExfmtTest do
     "Process.get()" ~> "Process.get\n"
     "Process.get" ~> "Process.get\n"
     "my_mod.get" ~> "my_mod.get\n"
-    "my_mod.get(0)" ~> "my_mod.get(0)\n"
-    "my_mod.get 0" ~> "my_mod.get(0)\n"
-    "String.length( my_string )" ~> "String.length(my_string)\n"
-    ":lists.reverse my_list" ~> ":lists.reverse(my_list)\n"
+    "my_mod.get(0)" ~> "my_mod.get 0\n"
+    "my_mod.get 0" ~> "my_mod.get 0\n"
+    "String.length( my_string )" ~> "String.length my_string\n"
+    ":lists.reverse my_list" ~> ":lists.reverse my_list\n"
   end
 
   test "calls with keyword args" do
-    "hello(foo: 1)" ~> "hello(foo: 1)\n"
-    "hello([foo: 1])" ~> "hello(foo: 1)\n"
-    "hello([  foo:   1])" ~> "hello(foo: 1)\n"
+    "hello(foo: 1)" ~> "hello foo: 1\n"
+    "hello([foo: 1])" ~> "hello foo: 1\n"
+    "hello([  foo:   1])" ~> "hello foo: 1\n"
   end
 
   test "Access protocol" do
@@ -391,9 +391,9 @@ defmodule ExfmtTest do
     run(3)
     """ ~>
     """
-    run(1)
-    run(2)
-    run(3)
+    run 1
+    run 2
+    run 3
     """
   end
 
@@ -420,6 +420,36 @@ defmodule ExfmtTest do
       :ok
     else
       :ok
+    end
+    """
+  end
+
+  test "calls at top level of do block" do
+    """
+    defmodule FooMod do
+      use(Foo)
+      import(Foo)
+      require(Foo)
+      alias(Foo)
+      doctest(Foo)
+      save use(Foo)
+      save import(Foo)
+      save require(Foo)
+      save alias(Foo)
+      save doctest(Foo)
+    end
+    """ ~> """
+    defmodule FooMod do
+      use Foo
+      import Foo
+      require Foo
+      alias Foo
+      doctest Foo
+      save use(Foo)
+      save import(Foo)
+      save require(Foo)
+      save alias(Foo)
+      save doctest(Foo)
     end
     """
   end

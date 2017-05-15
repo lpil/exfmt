@@ -244,7 +244,6 @@ defmodule Exfmt.AST do
   #
   # Function calls and sigils
   #
-  @no_param_calls ~w(use alias require import doctest defstruct send)a
   def to_algebra({name, _, args}, ctx) do
     case to_string(name) do
       "sigil_" <> <<char::utf8>> ->
@@ -292,22 +291,29 @@ defmodule Exfmt.AST do
     |> IO.iodata_to_binary()
   end
 
-  def call_to_algebra(name, args, ctx) do
+  def call_to_algebra(name, all_args, ctx) do
     str_name = to_string(name)
     name_len = String.length(str_name)
     fun = fn(elem, _opts) -> to_algebra(elem, ctx) end
+    {args, blocks} = Util.split_do_block(all_args)
+    case %{args: args, blocks: blocks, stack: ctx.stack} do
+      %{blocks: b} when b != [] ->
+        arg_list = surround_many(" ", args, "", ctx.opts, fun)
+        blocks_algebra = do_block_algebra(blocks, ctx)
+        glue(concat(str_name, nest(arg_list, name_len)), blocks_algebra)
 
-    with {_, []} <- Util.split_do_block(args),
-         n when n in @no_param_calls <- name do
-      arg_list = surround_many(" ", args, "", ctx.opts, fun)
-      concat(str_name, nest(arg_list, name_len))
-    else
-      {normal_args, block_args} ->
-        arg_list = surround_many(" ", normal_args, "", ctx.opts, fun)
-        block = do_block_algebra(block_args, ctx)
-        glue(concat(str_name, nest(arg_list, name_len)), block)
+      %{args: []} ->
+        concat(str_name, "()")
 
-      _name ->
+      %{stack: [:call]} ->
+        arg_list = surround_many(" ", args, "", ctx.opts, fun)
+        concat(str_name, nest(arg_list, name_len))
+
+      %{stack: [:call, :do | _]} ->
+        arg_list = surround_many(" ", args, "", ctx.opts, fun)
+        concat(str_name, nest(arg_list, name_len))
+
+      _ ->
         arg_list = surround_many("(", args, ")", ctx.opts, fun)
         concat(str_name, nest(arg_list, name_len))
     end
