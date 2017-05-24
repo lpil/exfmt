@@ -341,12 +341,41 @@ defmodule Exfmt.AST do
   defp do_block_algebra(block_args, ctx) do
     new_ctx = Context.push_stack(ctx, :do)
     section_to_algebra = fn({k, body}) ->
-      body_algebra = to_algebra(body, new_ctx)
+      body_algebra = block_arg_body_to_algebra(body, new_ctx)
       nest(line(to_string(k), body_algebra), 2)
     end
     block_args
     |> Enum.map(section_to_algebra)
     |> Enum.reduce(&line(&2, &1))
     |> line("end")
+  end
+
+  defp block_arg_body_to_algebra(body, ctx) do
+    stab? = fn
+      {:->, _, _} -> true
+      _ -> false
+    end
+    if is_list(body) and Enum.all?(body, stab?) do
+      stabs_to_algebra(body, ctx)
+    else
+      to_algebra(body, ctx)
+    end
+  end
+
+  defp stabs_to_algebra(stabs, ctx) do
+    stabs
+    |> Enum.map(&stab_to_algebra(&1, ctx))
+    |> Enum.reduce(&line(concat(&2, "\n"), &1))
+  end
+
+  #
+  # foo ->
+  #   :foo
+  #
+  defp stab_to_algebra({_, _, [[match], body]}, ctx) do
+    lhs = to_algebra(match,ctx)
+    rhs = to_algebra(body, ctx)
+    stab = space(lhs, "->")
+    nest(line(stab, rhs), 2)
   end
 end

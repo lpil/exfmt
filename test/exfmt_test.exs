@@ -453,4 +453,37 @@ defmodule ExfmtTest do
     end
     """
   end
+
+  test "case" do
+    """
+    case number do
+      1 ->
+        :one
+      2 -> :two
+    end
+    """ ~> """
+    case number do
+      1 ->
+        :one
+
+      2 ->
+        :two
+    end
+    """
+    """
+    case number do
+      x when is_integer(x) ->
+        :int
+      _ -> nil
+    end
+    """ ~> """
+    case number do
+      x when is_integer(x) ->
+        :int
+
+      _ ->
+        nil
+    end
+    """
+  end
 end
