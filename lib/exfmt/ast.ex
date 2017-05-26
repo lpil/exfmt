@@ -122,6 +122,17 @@ defmodule Exfmt.Ast do
   end
 
   #
+  # @spec ::
+  #
+  def to_algebra({:::, _, [fun, result]}, ctx) do
+    lhs_ctx = Context.push_stack(ctx, :spec_lhs)
+    rhs_ctx = Context.push_stack(ctx, :spec_rhs)
+    lhs = to_algebra(fun, lhs_ctx)
+    rhs = to_algebra(result, rhs_ctx)
+    glue(lhs, space("::", group(rhs)))
+  end
+
+  #
   # Infix operators
   #
   def to_algebra({op, _, [l, r]}, ctx) when op in Infix.infix_ops do
@@ -130,10 +141,10 @@ defmodule Exfmt.Ast do
     rhs = infix_child_to_algebra(r, :right, new_ctx)
     case op do
       :|> ->
-        glue(line(lhs, to_string(op)), rhs)
+        glue(line(lhs, "|>"), rhs)
 
       :| ->
-        glue(space(lhs, to_string(op)), rhs)
+        glue(lhs, space("|", rhs))
 
       _ ->
         nest(glue(space(lhs, to_string(op)), rhs), 2)
@@ -197,17 +208,6 @@ defmodule Exfmt.Ast do
     new_ctx = Context.push_stack(ctx, :access)
     algebra = to_algebra(structure, new_ctx)
     "#{algebra}[#{to_algebra(key, new_ctx)}]"
-  end
-
-  #
-  # @spec ::
-  #
-  def to_algebra({:::, _, [fun, result]}, ctx) do
-    lhs_ctx = Context.push_stack(ctx, :spec_lhs)
-    rhs_ctx = Context.push_stack(ctx, :spec_rhs)
-    lhs = to_algebra(fun, lhs_ctx)
-    rhs = to_algebra(result, rhs_ctx)
-    glue(concat(lhs, " ::"), nest(rhs, 2))
   end
 
   #

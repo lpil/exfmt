@@ -93,10 +93,21 @@ defmodule ExfmtTest do
   test "lists" do
     "[ ]" ~> "[]\n"
     """
-    [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
+    [0,1,2,3,4,5,6,7,8,9,10,11,12]
     """ ~> """
-    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-     12, 13, 14, 15, 16, 17, 18, 19]
+    [0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12]
     """
   end
 
@@ -142,7 +153,8 @@ defmodule ExfmtTest do
     """
     very_long_function_name_here([100, 200, 300])
     """ ~> """
-    very_long_function_name_here [100, 200,
+    very_long_function_name_here [100,
+                                  200,
                                   300]
     """
   end
@@ -158,6 +170,14 @@ defmodule ExfmtTest do
     very_long_function_name_here.(:hello,
                                   :world)
     """
+    """
+    very_long_function_name_here.(1, 2, 3, 4)
+    """ ~> """
+    very_long_function_name_here.(1,
+                                  2,
+                                  3,
+                                  4)
+    """
   end
 
   test "variables" do
@@ -171,10 +191,19 @@ defmodule ExfmtTest do
     "@foo 1" ~> "@foo 1\n"
     "@tag :skip" ~> "@tag :skip\n"
     """
-    @sizes [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+    @sizes [1,2,3,4,5,6,7,8,9,10,11]
     """ ~> """
-    @sizes [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-            11, 12, 13, 14, 15, 16]
+    @sizes [1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11]
     """
   end
 
@@ -242,8 +271,12 @@ defmodule ExfmtTest do
     """
     alias Element.{Storm,Earth,Fire,Nature,Courage,Heart}
     """ ~> """
-    alias Element.{Storm, Earth, Fire,
-                   Nature, Courage, Heart}
+    alias Element.{Storm,
+                   Earth,
+                   Fire,
+                   Nature,
+                   Courage,
+                   Heart}
     """
     """
     alias Really.Long.Module.Name.That.Does.Not.Fit.In.Width
@@ -294,15 +327,20 @@ defmodule ExfmtTest do
     """ ~> """
     @spec run(String.t, [tern]) :: atom
     """
-    # FIXME: Nesting correctly here is hard as we don't know
-    # the string length of the args. We would need to indent
-    # by this much to match the style used in the Elixir
-    # compiler.
     """
-    @spec run(String.t, [tern]) :: atom | String.t | :hello
+    @spec run(String.t) :: atom | String.t | :hello
     """ ~> """
-    @spec run(String.t, [tern]) :: atom |
-            String.t | :hello
+    @spec run(String.t)
+          :: atom | String.t | :hello
+    """
+    """
+    @spec run(String.t) :: atom | String.t | :hello | :world
+    """ ~> """
+    @spec run(String.t)
+          :: atom
+          | String.t
+          | :hello
+          | :world
     """
   end
 
