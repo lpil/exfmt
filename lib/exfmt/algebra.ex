@@ -137,6 +137,7 @@ defmodule Exfmt.Algebra do
   @typep mode :: :flat | :break
 
   @spec fits?(integer, [{integer, mode, t}]) :: boolean
+
   defp fits?(limit, _) when limit < 0,
     do: false
 
@@ -152,11 +153,8 @@ defmodule Exfmt.Algebra do
   defp fits?(limit, [{indent, m, doc_cons(x, y)} | t]),
     do: fits?(limit, [{indent, m, x} | [{indent, m, y} | t]])
 
-  defp fits?(limit, [{indent, m, doc_nest(x, j)} | t]),
-    do: fits?(limit, [{indent + j, m, x} | t])
-
-  defp fits?(limit, [{indent, _, doc_group(x)} | t]),
-    do: fits?(limit, [{indent, :flat, x} | t])
+  defp fits?(limit, [{indent, m, doc_nest(x, i)} | t]),
+    do: fits?(limit, [{indent + i, m, x} | t])
 
   defp fits?(limit, [{_, _, s} | t]) when is_binary(s),
     do: fits?((limit - byte_size(s)), t)
@@ -166,6 +164,9 @@ defmodule Exfmt.Algebra do
 
   defp fits?(_, [{_, :break, doc_break(_)} | _]),
     do: true
+
+  defp fits?(limit, [{indent, _, doc_group(x)} | t]),
+    do: fits?(limit, [{indent, :flat, x} | t])
 
 
   @spec format(integer | :infinity, integer, [{integer, mode, t}]) :: [binary]
@@ -186,13 +187,8 @@ defmodule Exfmt.Algebra do
     format(limit, width, docs)
   end
 
-  defp format(limit, width, [{indent, mode, doc_nest(x, j)} | t]) do
-    docs = [{indent + j, mode, x} | t]
-    format(limit, width, docs)
-  end
-
-  defp format(limit, width, [{indent, mode, doc_group(doc)} | t]) do
-    docs = [{indent, mode, doc} | t]
+  defp format(limit, width, [{indent, mode, doc_nest(x, extra_indent)} | t]) do
+    docs = [{indent + extra_indent, mode, x} | t]
     format(limit, width, docs)
   end
 
@@ -207,12 +203,16 @@ defmodule Exfmt.Algebra do
   end
 
   defp format(limit, width, [{indent, :break, doc_break(s)} | t]) do
-    new_width = width + byte_size(s)
+    [line_indent(indent) | format(limit, indent, t)]
+  end
 
-    if limit == :infinity or fits?(limit - new_width, t) do
-      [s | format(limit, new_width, t)]
+  defp format(limit, width, [{indent, mode, doc_group(doc)} | t]) do
+    flat_docs = [{indent, :flat, doc} | t]
+    if fits?(limit - width, flat_docs) do
+      format(limit, width, flat_docs)
     else
-      [line_indent(indent) | format(limit, indent, t)]
+      break_docs = [{indent, :break, doc} | t]
+      format(limit, width, break_docs)
     end
   end
 
