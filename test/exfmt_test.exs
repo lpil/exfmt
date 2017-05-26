@@ -486,4 +486,16 @@ defmodule ExfmtTest do
     end
     """
   end
+
+  test "functions with guards" do
+    """
+    def one?(x) when x in [:one, "one"] do
+      true
+    end
+    """ ~> """
+    def one?(x) when x in [:one, "one"] do
+      true
+    end
+    """
+  end
 end
