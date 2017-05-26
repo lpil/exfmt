@@ -125,14 +125,19 @@ defmodule Exfmt.Algebra do
     format(width, 0, [{0, default_mode(width), doc_group(doc)}])
   end
 
-  defp default_mode(:infinity), do: :flat
-  defp default_mode(_),         do: :break
+
+  defp default_mode(:infinity),
+    do: :flat
+
+  defp default_mode(_),
+    do: :break
+
 
   # Record representing the document mode to be rendered: flat or broken
   @typep mode :: :flat | :break
 
   @spec fits?(integer, [{integer, mode, t}]) :: boolean
-  defp fits?(w, _) when w < 0,
+  defp fits?(limit, _) when limit < 0,
     do: false
 
   defp fits?(_, []),
@@ -141,62 +146,82 @@ defmodule Exfmt.Algebra do
   defp fits?(_, [{_, _, :doc_line} | _]),
     do: true
 
-  defp fits?(w, [{_, _, :doc_nil} | t]),
-    do: fits?(w, t)
+  defp fits?(limit, [{_, _, :doc_nil} | t]),
+    do: fits?(limit, t)
 
-  defp fits?(w, [{i, m, doc_cons(x, y)} | t]),
-    do: fits?(w, [{i, m, x} | [{i, m, y} | t]])
+  defp fits?(limit, [{indent, m, doc_cons(x, y)} | t]),
+    do: fits?(limit, [{indent, m, x} | [{indent, m, y} | t]])
 
-  defp fits?(w, [{i, m, doc_nest(x, j)} | t]),
-    do: fits?(w, [{i + j, m, x} | t])
+  defp fits?(limit, [{indent, m, doc_nest(x, j)} | t]),
+    do: fits?(limit, [{indent + j, m, x} | t])
 
-  defp fits?(w, [{i, _, doc_group(x)} | t]),
-    do: fits?(w, [{i, :flat, x} | t])
+  defp fits?(limit, [{indent, _, doc_group(x)} | t]),
+    do: fits?(limit, [{indent, :flat, x} | t])
 
-  defp fits?(w, [{_, _, s} | t]) when is_binary(s),
-    do: fits?((w - byte_size(s)), t)
+  defp fits?(limit, [{_, _, s} | t]) when is_binary(s),
+    do: fits?((limit - byte_size(s)), t)
 
-  defp fits?(w, [{_, :flat, doc_break(s)} | t]),
-    do: fits?((w - byte_size(s)), t)
+  defp fits?(limit, [{_, :flat, doc_break(s)} | t]),
+    do: fits?((limit - byte_size(s)), t)
 
   defp fits?(_, [{_, :break, doc_break(_)} | _]),
     do: true
 
+
   @spec format(integer | :infinity, integer, [{integer, mode, t}]) :: [binary]
-  defp format(_, _, []),
-    do: []
+  defp format(_, _, []) do
+    []
+  end
 
-  defp format(w, _, [{i, _, :doc_line} | t]),
-    do: [indent(i) | format(w, i, t)]
+  defp format(limit, _, [{indent, _, :doc_line} | t]) do
+    [line_indent(indent) | format(limit, indent, t)]
+  end
 
-  defp format(w, k, [{_, _, :doc_nil} | t]),
-    do: format(w, k, t)
+  defp format(limit, width, [{_, _, :doc_nil} | t]) do
+    format(limit, width, t)
+  end
 
-  defp format(w, k, [{i, m, doc_cons(x, y)} | t]),
-    do: format(w, k, [{i, m, x} | [{i, m, y} | t]])
+  defp format(limit, width, [{indent, mode, doc_cons(x, y)} | t]) do
+    docs = [{indent, mode, x} | [{indent, mode, y} | t]]
+    format(limit, width, docs)
+  end
 
-  defp format(w, k, [{i, m, doc_nest(x, j)} | t]),
-    do: format(w, k, [{i + j, m, x} | t])
+  defp format(limit, width, [{indent, mode, doc_nest(x, j)} | t]) do
+    docs = [{indent + j, mode, x} | t]
+    format(limit, width, docs)
+  end
 
-  defp format(w, k, [{i, m, doc_group(x)} | t]),
-    do: format(w, k, [{i, m, x} | t])
+  defp format(limit, width, [{indent, mode, doc_group(doc)} | t]) do
+    docs = [{indent, mode, doc} | t]
+    format(limit, width, docs)
+  end
 
-  defp format(w, k, [{_, _, s} | t]) when is_binary(s),
-    do: [s | format(w, (k + byte_size(s)), t)]
+  defp format(limit, width, [{_, _, s} | t]) when is_binary(s) do
+    new_width = width + byte_size(s)
+    [s | format(limit, new_width, t)]
+  end
 
-  defp format(w, k, [{_, :flat, doc_break(s)} | t]),
-    do: [s | format(w, (k + byte_size(s)), t)]
+  defp format(limit, width, [{_, :flat, doc_break(s)} | t]) do
+    new_width = width + byte_size(s)
+    [s | format(limit, new_width, t)]
+  end
 
-  defp format(w, k, [{i, :break, doc_break(s)} | t]) do
-    k = k + byte_size(s)
+  defp format(limit, width, [{indent, :break, doc_break(s)} | t]) do
+    new_width = width + byte_size(s)
 
-    if w == :infinity or fits?(w - k, t) do
-      [s | format(w, k, t)]
+    if limit == :infinity or fits?(limit - new_width, t) do
+      [s | format(limit, new_width, t)]
     else
-      [indent(i) | format(w, i, t)]
+      [line_indent(indent) | format(limit, indent, t)]
     end
   end
 
-  defp indent(0), do: "\n"
-  defp indent(i), do: "\n" <> :binary.copy(" ", i)
+
+  defp line_indent(0) do
+    "\n"
+  end
+
+  defp line_indent(i) do
+    "\n" <> :binary.copy(" ", i)
+  end
 end
