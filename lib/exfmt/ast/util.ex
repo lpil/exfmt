@@ -1,4 +1,4 @@
-defmodule Exfmt.AST.Util do
+defmodule Exfmt.Ast.Util do
   @moduledoc false
 
   @doc """

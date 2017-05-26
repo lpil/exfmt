@@ -1,5 +1,5 @@
 defmodule Exfmt.Context do
-  alias Exfmt.AST.Infix
+  alias Exfmt.Ast.Infix
   require Infix
 
   @type t :: %__MODULE__{opts: Inspect.Opts.t}

@@ -1,4 +1,4 @@
-defmodule Exfmt.AST.Infix do
+defmodule Exfmt.Ast.Infix do
   @moduledoc """
   Handling the conversion of infix operators to Algebgra.
 

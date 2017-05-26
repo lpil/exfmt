@@ -1,12 +1,11 @@
-defmodule Exfmt.AST do
+defmodule Exfmt.Ast do
   @moduledoc false
 
-  alias Exfmt.Context
+  alias Exfmt.{Algebra, Context}
   alias __MODULE__.{Infix, Util}
-  alias Inspect.Algebra
+  import Algebra
   require Algebra
   require Infix
-  import Algebra
 
   @doc """
   Converting Elixir AST into Algebra that can be printed.
@@ -144,8 +143,8 @@ defmodule Exfmt.AST do
   #
   # Negatives
   #
-  def to_algebra({:-, _, [value]}, _ctx) when value in [0, 0.0] do
-    to_string(value)
+  def to_algebra({:-, _, [value]}, ctx) when value in [0, 0.0] do
+    to_doc(value, ctx.opts)
   end
 
   def to_algebra({:-, _, [number]}, ctx) do
