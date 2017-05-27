@@ -1,6 +1,7 @@
 defmodule Exfmt.CommentTest do
   use ExUnit.Case, async: true
   import Exfmt.Comment
+  doctest Exfmt.Comment, import: true
 
   describe "extract_comments/1" do
     test "none" do
@@ -8,15 +9,15 @@ defmodule Exfmt.CommentTest do
     end
 
     test "empty comment" do
-      assert extract_comments("#") == {:ok, [{:"#", 1, ""}]}
-      assert extract_comments("#\n") == {:ok, [{:"#", 1, ""}]}
+      assert extract_comments("#") == {:ok, [{:"#", [line: 1], ""}]}
+      assert extract_comments("#\n") == {:ok, [{:"#", [line: 1], ""}]}
     end
 
     test "comment 1" do
       code = """
       # Hi!
       """
-      assert extract_comments(code) == {:ok, [{:"#", 1, " Hi!"}]}
+      assert extract_comments(code) == {:ok, [{:"#", [line: 1], " Hi!"}]}
     end
 
     test "code without comments" do
@@ -38,7 +39,7 @@ defmodule Exfmt.CommentTest do
       4
       5
       """
-      assert extract_comments(code) == {:ok, [{:"#", 3, " a comment!"}]}
+      assert extract_comments(code) == {:ok, [{:"#", [line: 3], " a comment!"}]}
     end
 
     test "hash in string" do
@@ -62,7 +63,7 @@ defmodule Exfmt.CommentTest do
       3"
       # Hi!
       """
-      assert extract_comments(code) == {:ok, [{:"#", 4, " Hi!"}]}
+      assert extract_comments(code) == {:ok, [{:"#", [line: 4], " Hi!"}]}
     end
 
     #
@@ -76,6 +77,56 @@ defmodule Exfmt.CommentTest do
       """
       )
       assert extract_comments(code) == {:ok, []}
+    end
+  end
+
+  describe "merge/2" do
+    test "comments before call" do
+      comments = [{:"#", [line: 1], ""}]
+      ast = {:ok, [line: 2], []}
+      assert merge(comments, ast) ==
+        {:__block__, [], [{:"#", [line: 1], ""}, {:ok, [line: 2], []}]}
+    end
+
+    test "multi-line comments before call" do
+      comments = [{:"#", [line: 1], "a"},
+                  {:"#", [line: 2], "b"},
+                  {:"#", [line: 3], "c"}]
+      ast = {:ok, [line: 4], []}
+      assert {:__block__, [], children} = merge(comments, ast)
+      assert children == [{:"#", [line: 1], "a"},
+                          {:"#", [line: 2], "b"},
+                          {:"#", [line: 3], "c"},
+                          {:ok, [line: 4], []}]
+    end
+
+    test "ast nodes with literal syntax" do
+      ast = Code.string_to_quoted! """
+      1
+      2.0
+      ""
+      :ok
+      [k: 1]
+      ''
+      """
+      comments = [{:"#", [line: 1], ""}]
+      assert {:__block__, [], children} = merge(comments, ast)
+      assert children == [1, 2.0, "", :ok, [k: 1], [], {:"#", [line: 1], ""}]
+    end
+
+    test "comments in function call" do
+      ast = Code.string_to_quoted! """
+      explode(# One here
+              one(),
+              # Two here
+              two())
+      """
+      comments = [{:"#", [line: 1], " One here"}, {:"#", [line: 3], " Two here"}]
+      assert {:explode, [line: 1], [arg1, arg2]} = merge(comments, ast)
+      assert {:__block__, [], arg1_children} = arg1
+      assert arg1_children == [{:"#", [line: 1], " One here"}, {:one, [line: 2], []}]
+      assert {:__block__, [], arg2_children} = arg2
+      assert arg2_children == [{:"#", [line: 3], " Two here"}, {:two, [line: 4], []}]
     end
   end
 end

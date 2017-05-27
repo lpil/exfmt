@@ -30,7 +30,8 @@ defmodule Exfmt.Comment do
 
   defp extract([?# | src], line, comments) do
     {comment_text, rest} = split_comment(src, [])
-    new_comments = [{:"#", line, comment_text} | comments]
+    comment = {:"#", [line: line], comment_text}
+    new_comments = [comment | comments]
     extract(rest, line + 1, new_comments)
   end
 
@@ -70,5 +71,56 @@ defmodule Exfmt.Comment do
       {new_line, _new_col, _interp_parts, rest} ->
         extract(rest, new_line, comments)
     end
+  end
+
+
+  @doc """
+  Merge the given comments into an Elixir abstract syntax tree.
+
+      iex> comments = [{:"#", [line: 1], []}]
+      ...> ast = {:ok, [line: 1], []}
+      ...> merge(comments, ast)
+      {:__block__, [], [{:ok, [line: 1], []}, {:"#", [line: 1], []}]}
+
+  """
+  @spec merge([t], Macro.t) :: Macro.t
+  def merge(comments, ast) do
+    case Macro.postwalk(ast, comments, &merge_node/2) do
+      {merged, []} ->
+        merged
+
+      {{:__block__, meta, merged}, rest} ->
+        {:__block__, meta, merged ++ rest}
+
+      {merged, rest} ->
+        {:__block__, [], [merged | rest]}
+    end
+  end
+
+
+  defp merge_node(ast, []) do
+    {ast, []}
+  end
+
+  defp merge_node(ast, comments) do
+    ast_line = line(ast)
+    before_node = fn(c) -> line(c) < ast_line end
+    case Enum.split_while(comments, before_node) do
+      {[], _} ->
+        {ast, comments}
+
+      {earlier, rest} ->
+        block = {:__block__, [], earlier ++ [ast]}
+        {block, rest}
+    end
+  end
+
+
+  defp line({_, meta, _}) do
+    meta[:line] || 0
+  end
+
+  defp line(_) do
+    0
   end
 end
