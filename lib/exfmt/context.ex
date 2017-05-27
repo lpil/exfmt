@@ -2,7 +2,9 @@ defmodule Exfmt.Context do
   alias Exfmt.Ast.Infix
   require Infix
 
-  @type t :: %__MODULE__{opts: Inspect.Opts.t}
+  @type stack_layer :: atom
+  @type t :: %__MODULE__{opts: Inspect.Opts.t,
+                         stack: [stack_layer]}
 
   defstruct opts: %Inspect.Opts{},
             stack: []
@@ -35,7 +37,7 @@ defmodule Exfmt.Context do
       [:list, :call]
 
   """
-  @spec push_stack(t, term) :: t
+  @spec push_stack(t, stack_layer) :: t
   def push_stack(ctx, value) when value in @valid_layers do
     %{ctx | stack: [value | ctx.stack]}
   end
