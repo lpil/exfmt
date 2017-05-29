@@ -13,6 +13,7 @@ defmodule Exfmt.Mixfile do
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps(),
+     docs: [extras: ["README.md"]],
      package: [maintainers: ["Louis Pilfold"],
                licenses: ["apache-2.0"],
                links: %{"GitHub" => "https://github.com/lpil/exfmt"},
