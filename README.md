@@ -1,4 +1,8 @@
 [![Circle CI](https://circleci.com/gh/lpil/exfmt.svg?style=shield)](https://circleci.com/gh/lpil/exfmt)
+[![Hex version](https://img.shields.io/hexpm/v/exfmt.svg "Hex version")](https://hex.pm/packages/exfmt)
+[![API Docs](https://img.shields.io/badge/api-docs-green.svg?style=flat)](https://hexdocs.pm/exfmt/)
+[![Licence](https://img.shields.io/github/license/lpil/exfmt.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+<!-- [![Hex downloads](https://img.shields.io/hexpm/dt/exfmt.svg "Hex downloads")](https://hex.pm/packages/exfmt) -->
 
 # exfmt 🌸
 

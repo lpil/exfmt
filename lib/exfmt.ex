@@ -1,6 +1,15 @@
 defmodule Exfmt do
   @moduledoc """
-  Turning code into code, hopefully without breaking anything.
+  Exfmt, an opinionated Elixir source code formatter. 🌸
+
+  aka The everyone's favourite Elixir-to-Elixir compiler.
+
+  ## API
+
+  Functions in this module can be considered part of Exfmt's
+  public interface, and can be presumed stable. Functions exposed
+  by other modules may change at any time without warning,
+  especially before v1.0.0.
 
   """
 
@@ -63,6 +72,9 @@ defmodule Exfmt do
     end
   end
 
+  #
+  # Private
+  #
 
   defp do_format(tree, comments, max_width) do
     comments
