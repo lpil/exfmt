@@ -84,6 +84,10 @@ defmodule Exfmt.Comment do
 
   """
   @spec merge([t], Macro.t) :: Macro.t
+  def merge(comments, nil) do
+    {:__block__, [], Enum.reverse(comments)}
+  end
+
   def merge(comments, ast) do
     case Macro.postwalk(ast, comments, &merge_node/2) do
       {merged, []} ->
@@ -107,10 +111,10 @@ defmodule Exfmt.Comment do
     before_node = fn(c) -> line(c) < ast_line end
     case Enum.split_while(comments, before_node) do
       {[], _} ->
-        {ast, comments}
+        {ast, Enum.reverse(comments)}
 
       {earlier, rest} ->
-        block = {:__block__, [], earlier ++ [ast]}
+        block = {:__block__, [], Enum.reverse(earlier) ++ [ast]}
         {block, rest}
     end
   end

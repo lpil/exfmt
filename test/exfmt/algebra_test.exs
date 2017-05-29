@@ -13,26 +13,26 @@ defmodule Exfmt.AlgebraTest do
 
   describe "format/2" do
     test "empty / doc_nil" do
-      assert empty() |> fmt(10) == """
+      assert fmt(empty(), 10) == """
 
       """
     end
 
     test "binary" do
-      assert "Hello, world!" |> fmt(10) == """
+      assert fmt("Hello, world!", 10) == """
       Hello, world!
       """
     end
 
     test "concat / doc_cons" do
-      assert concat("a", "b") |> fmt(10) == """
+      assert fmt(concat("a", "b"), 10) == """
       ab
       """
     end
 
     test "nest / doc_nest" do
       doc = nest(line("hello", "world"), 5)
-      assert doc |> fmt(10) == """
+      assert fmt(doc, 10) == """
       hello
            world
       """
@@ -40,14 +40,23 @@ defmodule Exfmt.AlgebraTest do
 
     test "group / doc_group" do
       doc = group(glue(glue(glue("a", "b"), "c"), "d"))
-      assert doc |> fmt(7) == """
+      assert fmt(doc, 7) == """
       a b c d
       """
-      assert doc |> fmt(6) == """
+      assert fmt(doc, 6) == """
       a
       b
       c
       d
+      """
+    end
+
+    test "wide / doc_wide" do
+      doc = glue("a", glue(wide("b"), "c"))
+      assert fmt(doc, 1000) == """
+      a
+      b
+      c
       """
     end
   end

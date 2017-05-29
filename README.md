@@ -5,11 +5,11 @@
 - [ ] Semantic correctness. Exfmt can rewrite any Elixir code
   without changing the semantic meaning of the code. Running
   Exfmt will not cause breakages.
-- [ ] Presevation of comments. Exfmt will not strip comments
+- [x] Presevation of comments. Exfmt will not strip comments
   from Elixir code.
   - [x] Comment parsing.
-  - [ ] Merging of Elixir AST and comments.
-  - [ ] Printing of AST with comments.
+  - [x] Merging of Elixir AST and comments.
+  - [x] Printing of AST with comments.
 - [ ] Adhere to the Elixir style guide.
   - [x] Capable of forcing a collection of breaks to all either
     be a space or a newline together. For function args, lists, etc.

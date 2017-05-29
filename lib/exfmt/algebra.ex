@@ -4,7 +4,8 @@ defmodule Exfmt.Algebra do
   documents.
 
   This module implements the functionality described in
-  ["Strictly Pretty" (2000) by Christian Lindig][0].
+  ["Strictly Pretty" (2000) by Christian Lindig][0], with a few
+  extensions detailed below.
 
   [0]: http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.34.2200
 
@@ -13,27 +14,16 @@ defmodule Exfmt.Algebra do
   but does not entirely conform to the algorithm described by Christian
   Lindig in a way that makes it unsuitable for use in ExFmt.
 
+
+  ## Extensions
+
+  `wide/1` has been added to support printing of forms that span to the
+  end of the line, such as comments.
+
   """
 
   alias Inspect, as: I
   require I.Algebra
-
-  defdelegate empty(), to: I.Algebra
-  defdelegate break(), to: I.Algebra
-  defdelegate break(doc), to: I.Algebra
-  defdelegate concat(doc), to: I.Algebra
-  defdelegate concat(doc1, doc2), to: I.Algebra
-  defdelegate glue(doc1, doc2), to: I.Algebra
-  defdelegate glue(doc1, sep, doc2), to: I.Algebra
-  defdelegate fold_doc(docs, fun), to: I.Algebra
-  defdelegate group(doc), to: I.Algebra
-  defdelegate line(doc1, doc2), to: I.Algebra
-  defdelegate nest(doc, level), to: I.Algebra
-  defdelegate space(doc1, doc2), to: I.Algebra
-  defdelegate surround(left, doc, right), to: I.Algebra
-  defdelegate surround_many(l, docs, r, opts, fun), to: I.Algebra
-  defdelegate surround_many(l, docs, r, opts, fun, sep), to: I.Algebra
-  defdelegate to_doc(term, opts), to: I.Algebra
 
   #
   # Functional interface to "doc" records
@@ -42,7 +32,20 @@ defmodule Exfmt.Algebra do
   #
   # Lifted from `Inspect.Algebra.is_doc/1`
   #
-  @type t :: :doc_nil | :doc_line | doc_cons | doc_nest | doc_break | doc_group | binary
+  @type t
+    :: :doc_nil
+    | :doc_line
+    | doc_cons
+    | doc_nest
+    | doc_break
+    | doc_group
+    | doc_wide
+    | binary
+
+  @typep doc_wide :: {:doc_wide, t}
+  defmacrop doc_wide(doc) do
+    quote do: {:doc_wide, unquote(doc)}
+  end
 
   #
   # Lifted from `Inspect.Algebra.is_doc/1`
@@ -92,16 +95,124 @@ defmodule Exfmt.Algebra do
   end
 
   #
-  # Lifted from `Inspect.Algebra.do_is_doc/1`
+  # Lifted from `Inspect.Algebra.do_is_doc/1`, and then
+  # extended with the new Algebra.
   #
   defp do_is_doc(doc) do
     quote do
       is_binary(unquote(doc)) or
       unquote(doc) in [:doc_nil, :doc_line] or
       (is_tuple(unquote(doc)) and
-       elem(unquote(doc), 0) in [:doc_cons, :doc_nest, :doc_break, :doc_group])
+       elem(unquote(doc), 0) in
+        [:doc_cons, :doc_nest, :doc_break, :doc_group, :doc_wide])
     end
   end
+
+
+  #
+  # Public interface to algebra
+  #
+
+  defdelegate empty(), to: I.Algebra
+  defdelegate break(), to: I.Algebra
+  defdelegate break(doc), to: I.Algebra
+  defdelegate fold_doc(docs, fun), to: I.Algebra
+  defdelegate group(doc), to: I.Algebra
+  defdelegate line(doc1, doc2), to: I.Algebra
+  defdelegate nest(doc, level), to: I.Algebra
+  defdelegate space(doc1, doc2), to: I.Algebra
+  defdelegate surround(left, doc, right), to: I.Algebra
+  defdelegate surround_many(l, docs, r, opts, fun), to: I.Algebra
+  defdelegate surround_many(l, docs, r, opts, fun, sep), to: I.Algebra
+  defdelegate to_doc(term, opts), to: I.Algebra
+
+
+  @doc ~S"""
+  The wide algebra will never fit, it always causes a break.
+  We use this to represent comments as they span to the end
+  of the line, no matter what the line limit is.
+
+  ## Examples
+
+      iex> doc = glue(wide("hello"), "world")
+      ...> format(doc, 80)
+      ["hello", "\n", "world"]
+
+  """
+  @spec wide(t) :: t
+  def wide(doc) do
+    doc_wide(doc)
+  end
+
+
+  @doc ~S"""
+  Concatenates two document entities returning a new document.
+
+  ## Examples
+
+      iex> doc = concat("hello", "world")
+      ...> format(doc, 80)
+      ["hello", "world"]
+
+  """
+  @spec concat(t, t) :: t
+  def concat(doc1, doc2) when is_doc(doc1) and is_doc(doc2) do
+    doc_cons(doc1, doc2)
+  end
+
+
+  @doc ~S"""
+  Concatenates a list of documents returning a new document.
+
+  ## Examples
+
+      iex> doc = concat(["a", "b", "c"])
+      ...> format(doc, 80)
+      ["a", "b", "c"]
+
+  """
+  @spec concat([t]) :: t
+  def concat(docs) when is_list(docs) do
+    fold_doc(docs, &concat(&1, &2))
+  end
+
+
+  @doc ~S"""
+  Glues two documents together inserting `" "` as a break between them.
+
+  This means the two documents will be separated by `" "` in case they
+  fit in the same line. Otherwise a line break is used.
+
+  ## Examples
+
+      iex> doc = glue("hello", "world")
+      ...> format(doc, 80)
+      ["hello", " ", "world"]
+
+  """
+  @spec glue(t, t) :: t
+  def glue(doc1, doc2), do: concat(doc1, concat(break(), doc2))
+
+  @doc ~S"""
+  Glues two documents (`doc1` and `doc2`) together inserting the given
+  break `break_string` between them.
+
+  For more information on how the break is inserted, see `break/1`.
+
+  ## Examples
+
+      iex> doc = glue("hello", "\t", "world")
+      ...> format(doc, 80)
+      ["hello", "\t", "world"]
+
+  """
+  @spec glue(t, binary, t) :: t
+  def glue(doc1, break_string, doc2) when is_binary(break_string),
+    do: concat(doc1, concat(break(break_string), doc2))
+
+  #
+  # Manipulation functions
+  #
 
   @doc ~S"""
   Formats a given document for a given width.
@@ -126,11 +237,13 @@ defmodule Exfmt.Algebra do
   end
 
 
-  defp default_mode(:infinity),
-    do: :flat
+  defp default_mode(:infinity) do
+    :flat
+  end
 
-  defp default_mode(_),
-    do: :break
+  defp default_mode(_) do
+    :break
+  end
 
 
   # Record representing the document mode to be rendered: flat or broken
@@ -138,35 +251,49 @@ defmodule Exfmt.Algebra do
 
   @spec fits?(integer, [{integer, mode, t}]) :: boolean
 
-  defp fits?(limit, _) when limit < 0,
-    do: false
+  defp fits?(limit, _) when limit < 0 do
+    false
+  end
 
-  defp fits?(_, []),
-    do: true
+  defp fits?(_, []) do
+    true
+  end
 
-  defp fits?(_, [{_, _, :doc_line} | _]),
-    do: true
+  defp fits?(_, [{_, _, :doc_line} | _]) do
+    true
+  end
 
-  defp fits?(limit, [{_, _, :doc_nil} | t]),
-    do: fits?(limit, t)
+  defp fits?(limit, [{_, _, :doc_nil} | t]) do
+    fits?(limit, t)
+  end
 
-  defp fits?(limit, [{indent, m, doc_cons(x, y)} | t]),
-    do: fits?(limit, [{indent, m, x} | [{indent, m, y} | t]])
+  defp fits?(limit, [{indent, m, doc_cons(x, y)} | t]) do
+    fits?(limit, [{indent, m, x} | [{indent, m, y} | t]])
+  end
 
-  defp fits?(limit, [{indent, m, doc_nest(x, i)} | t]),
-    do: fits?(limit, [{indent + i, m, x} | t])
+  defp fits?(limit, [{indent, m, doc_nest(x, i)} | t]) do
+    fits?(limit, [{indent + i, m, x} | t])
+  end
 
-  defp fits?(limit, [{_, _, s} | t]) when is_binary(s),
-    do: fits?((limit - byte_size(s)), t)
+  defp fits?(limit, [{_, _, s} | t]) when is_binary(s) do
+    fits?((limit - byte_size(s)), t)
+  end
 
-  defp fits?(limit, [{_, :flat, doc_break(s)} | t]),
-    do: fits?((limit - byte_size(s)), t)
+  defp fits?(_, [{_, _, doc_wide(_)} | _rest]) do
+    false
+  end
 
-  defp fits?(_, [{_, :break, doc_break(_)} | _]),
-    do: true
+  defp fits?(limit, [{_, :flat, doc_break(s)} | t]) do
+    fits?((limit - byte_size(s)), t)
+  end
 
-  defp fits?(limit, [{indent, _, doc_group(x)} | t]),
-    do: fits?(limit, [{indent, :flat, x} | t])
+  defp fits?(_, [{_, :break, doc_break(_)} | _]) do
+    true
+  end
+
+  defp fits?(limit, [{indent, _, doc_group(x)} | t]) do
+    fits?(limit, [{indent, :flat, x} | t])
+  end
 
 
   @spec format(integer | :infinity, integer, [{integer, mode, t}]) :: [binary]
@@ -192,6 +319,10 @@ defmodule Exfmt.Algebra do
     format(limit, width, docs)
   end
 
+  defp format(limit, _, [{_, _, doc_wide(x)} | t]) do
+    [x | format(limit, limit + 1, t)]
+  end
+
   defp format(limit, width, [{_, _, s} | t]) when is_binary(s) do
     new_width = width + byte_size(s)
     [s | format(limit, new_width, t)]
@@ -202,11 +333,11 @@ defmodule Exfmt.Algebra do
     [s | format(limit, new_width, t)]
   end
 
-  defp format(limit, width, [{indent, :break, doc_break(s)} | t]) do
+  defp format(limit, _width, [{indent, :break, doc_break(_s)} | t]) do
     [line_indent(indent) | format(limit, indent, t)]
   end
 
-  defp format(limit, width, [{indent, mode, doc_group(doc)} | t]) do
+  defp format(limit, width, [{indent, _mode, doc_group(doc)} | t]) do
     flat_docs = [{indent, :flat, doc} | t]
     if fits?(limit - width, flat_docs) do
       format(limit, width, flat_docs)

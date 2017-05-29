@@ -81,6 +81,16 @@ defmodule Exfmt.CommentTest do
   end
 
   describe "merge/2" do
+    test "nil ast and no comments" do
+      assert merge([], nil) == {:__block__, [], []}
+    end
+
+    test "nil ast and some comments" do
+      comments = [{:"#", [line: 2], ""}, {:"#", [line: 1], ""}]
+      expected = [{:"#", [line: 1], ""}, {:"#", [line: 2], ""}]
+      assert merge(comments, nil) == {:__block__, [], expected}
+    end
+
     test "comments before call" do
       comments = [{:"#", [line: 1], ""}]
       ast = {:ok, [line: 2], []}
@@ -89,9 +99,9 @@ defmodule Exfmt.CommentTest do
     end
 
     test "multi-line comments before call" do
-      comments = [{:"#", [line: 1], "a"},
+      comments = [{:"#", [line: 3], "c"},
                   {:"#", [line: 2], "b"},
-                  {:"#", [line: 3], "c"}]
+                  {:"#", [line: 1], "a"}]
       ast = {:ok, [line: 4], []}
       assert {:__block__, [], children} = merge(comments, ast)
       assert children == [{:"#", [line: 1], "a"},

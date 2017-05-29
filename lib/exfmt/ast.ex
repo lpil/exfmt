@@ -8,14 +8,21 @@ defmodule Exfmt.Ast do
   require Infix
 
   @doc """
-  Converting Elixir AST into Algebra that can be printed.
+  Converts Elixir AST into algebra that can be pretty printed.
 
-  For more information on the Algebra used see the Inspect.Algebra
+  For more information on the Algebra used see the Exfmt.Algebra
   module.
 
   """
   @spec to_algebra(Macro.t, Context.t) :: Algebra.t
   def to_algebra(ast, context)
+
+  #
+  # Comments
+  #
+  def to_algebra({:"#", _, text}, _ctx) do
+    concat("#", text)
+  end
 
   #
   # Lists
@@ -304,6 +311,10 @@ defmodule Exfmt.Ast do
       %{args: []} ->
         concat(str_name, "()")
 
+      %{args: [{:__block__, _, _} | _]} ->
+        arg_list = surround_many("(", args, ")", ctx.opts, fun)
+        concat(str_name, nest(arg_list, name_len))
+
       %{stack: [:call]} ->
         arg_list = surround_many(" ", args, "", ctx.opts, fun)
         concat(str_name, nest(arg_list, name_len))
@@ -372,7 +383,7 @@ defmodule Exfmt.Ast do
   #   :foo
   #
   defp stab_to_algebra({_, _, [[match], body]}, ctx) do
-    lhs = to_algebra(match,ctx)
+    lhs = to_algebra(match, ctx)
     rhs = to_algebra(body, ctx)
     stab = space(lhs, "->")
     nest(line(stab, rhs), 2)
