@@ -1,18 +1,37 @@
 [![Circle CI](https://circleci.com/gh/lpil/exfmt.svg?style=shield)](https://circleci.com/gh/lpil/exfmt)
 
-# exfmt
+# exfmt 🌸
 
-> exfmt is still in alpha.  If you run into any problems, please
+> `exfmt` is still in alpha.  If you run into any problems, please
 > [report them][issues].
 >
 > **The format produced by exfmt may change significantly before the 1.0.0
 > release.**  If this will cause problems for you, please refrain from using
 > exfmt during the alpha- and beta-test periods.
 
-exfmt formats [Elixir][elixir] source code according to a standard set of
+`exfmt` formats [Elixir][elixir] source code according to a standard set of
 rules. It is inspired by Aaron VonderHaar's [gofmt][elm-format].
 
-The benefits of exfmt:
+```elixir
+# exfmt takes any Elixir code...
+
+defmodule MyApp, do: (
+    def run( data ), do: {
+      :ok,
+      data
+   }
+)
+
+# and rewrites it in a clean and idiomatic style:
+
+defmodule MyApp do
+  def run(data) do
+    {:ok, data}
+  end
+end
+```
+
+The benefits of `exfmt`:
 
  - It makes code **easier to write**, because you never have to worry about
    minor formatting concerns while powering out new code.
@@ -47,7 +66,7 @@ TODO!
 
 ## Development
 
-exfmt is an open project, contributions are very much welcomed. If you have
+`exfmt` is an open project, contributions are very much welcomed. If you have
 feedback or have found a bug, please open [an issue][issues]. If you wish to
 make a code contribution please open a [pull request][prs], though for larger
 code changes it may be good to open an issue first so we can work out the best

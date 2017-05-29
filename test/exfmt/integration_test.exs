@@ -598,4 +598,21 @@ defmodule Exfmt.IntegrationTest do
     # Hello
     """
   end
+
+  test "README example" do
+    """
+    defmodule MyApp, do: (
+        def run( data ), do: {
+            :ok,
+            data
+        }
+    )
+    """ ~> """
+    defmodule MyApp do
+      def run(data) do
+        {:ok, data}
+      end
+    end
+    """
+  end
 end
