@@ -9,15 +9,15 @@ defmodule Exfmt.CommentTest do
     end
 
     test "empty comment" do
-      assert extract_comments("#") == {:ok, [{:"#", [line: 1], ""}]}
-      assert extract_comments("#\n") == {:ok, [{:"#", [line: 1], ""}]}
+      assert extract_comments("#") == {:ok, [{:"#", [line: 1], [""]}]}
+      assert extract_comments("#\n") == {:ok, [{:"#", [line: 1], [""]}]}
     end
 
     test "comment 1" do
       code = """
       # Hi!
       """
-      assert extract_comments(code) == {:ok, [{:"#", [line: 1], " Hi!"}]}
+      assert extract_comments(code) == {:ok, [{:"#", [line: 1], [" Hi!"]}]}
     end
 
     test "code without comments" do
@@ -39,7 +39,7 @@ defmodule Exfmt.CommentTest do
       4
       5
       """
-      assert extract_comments(code) == {:ok, [{:"#", [line: 3], " a comment!"}]}
+      assert extract_comments(code) == {:ok, [{:"#", [line: 3], [" a comment!"]}]}
     end
 
     test "hash in string" do
@@ -63,7 +63,7 @@ defmodule Exfmt.CommentTest do
       3"
       # Hi!
       """
-      assert extract_comments(code) == {:ok, [{:"#", [line: 4], " Hi!"}]}
+      assert extract_comments(code) == {:ok, [{:"#", [line: 4], [" Hi!"]}]}
     end
 
     #
@@ -86,8 +86,8 @@ defmodule Exfmt.CommentTest do
     end
 
     test "nil ast and some comments" do
-      comments = [{:"#", [line: 2], ""}, {:"#", [line: 1], ""}]
-      expected = [{:"#", [line: 1], ""}, {:"#", [line: 2], ""}]
+      comments = [{:"#", [line: 2], [""]}, {:"#", [line: 1], [""]}]
+      expected = [{:"#", [line: 1], [""]}, {:"#", [line: 2], [""]}]
       assert merge(comments, nil) == {:__block__, [], expected}
     end
 
@@ -119,9 +119,9 @@ defmodule Exfmt.CommentTest do
       [k: 1]
       ''
       """
-      comments = [{:"#", [line: 1], ""}]
+      comments = [{:"#", [line: 1], [""]}]
       assert {:__block__, [], children} = merge(comments, ast)
-      assert children == [1, 2.0, "", :ok, [k: 1], [], {:"#", [line: 1], ""}]
+      assert children == [1, 2.0, "", :ok, [k: 1], [], {:"#", [line: 1], [""]}]
     end
 
     test "comments in function call" do
@@ -131,12 +131,15 @@ defmodule Exfmt.CommentTest do
               # Two here
               two())
       """
-      comments = [{:"#", [line: 1], " One here"}, {:"#", [line: 3], " Two here"}]
+      comments =
+        [{:"#", [line: 1], [" One here"]}, {:"#", [line: 3], [" Two here"]}]
       assert {:explode, [line: 1], [arg1, arg2]} = merge(comments, ast)
       assert {:__block__, [], arg1_children} = arg1
-      assert arg1_children == [{:"#", [line: 1], " One here"}, {:one, [line: 2], []}]
+      assert arg1_children ==
+        [{:"#", [line: 1], [" One here"]}, {:one, [line: 2], []}]
       assert {:__block__, [], arg2_children} = arg2
-      assert arg2_children == [{:"#", [line: 3], " Two here"}, {:two, [line: 4], []}]
+      assert arg2_children ==
+        [{:"#", [line: 3], [" Two here"]}, {:two, [line: 4], []}]
     end
   end
 end

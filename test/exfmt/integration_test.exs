@@ -599,6 +599,84 @@ defmodule Exfmt.IntegrationTest do
     """
   end
 
+  test "multiple functions" do
+    """
+    defmodule App do
+      def run do
+        :ok
+      end
+
+      def stop do
+        :ok
+      end
+    end
+    """ ~> """
+    defmodule App do
+      def run do
+        :ok
+      end
+
+
+      def stop do
+        :ok
+      end
+    end
+    """
+  end
+
+  test "multiple clauses of a function" do
+    """
+    defmodule App do
+      def run(1) do
+        :ok
+      end
+
+      def run(2) do
+        :ok
+      end
+    end
+    """ ~> """
+    defmodule App do
+      def run(1) do
+        :ok
+      end
+
+      def run(2) do
+        :ok
+      end
+    end
+    """
+  end
+
+  test "functions with attributes before" do
+    """
+    defmodule App do
+      @doc false
+      def run do
+        :ok
+      end
+
+      @doc false
+      def stop do
+        :ok
+      end
+    end
+    """ ~> """
+    defmodule App do
+      @doc false
+      def run do
+        :ok
+      end
+
+
+      @doc false
+      def stop do
+        :ok
+      end
+    end
+    """
+  end
+
   test "README example" do
     """
     defmodule MyApp, do: (

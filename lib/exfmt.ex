@@ -79,9 +79,29 @@ defmodule Exfmt do
   defp do_format(tree, comments, max_width) do
     comments
     |> Comment.merge(tree)
+    |> Ast.preprocess()
     |> Ast.to_algebra(Context.new)
     |> Algebra.format(max_width)
     |> IO.chardata_to_string()
-    |> (& &1 <> "\n").()
+    |> trim_whitespace()
+    |> append_newline()
+  end
+
+
+  #
+  # FIXME: We shouldn't need to trim whitespace like this.
+  # Prevent the printer from inserting indentation with no
+  # content afterwards.
+  #
+  @trim_pattern ~r/\n +\n/
+  defp trim_whitespace(source) do
+    source
+    |> String.replace(@trim_pattern, "\n\n")
+    |> String.replace(@trim_pattern, "\n\n")
+  end
+
+
+  defp append_newline(source) do
+    source <> "\n"
   end
 end

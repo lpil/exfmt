@@ -8,7 +8,7 @@ defmodule Exfmt.Comment do
 
   """
 
-  @type t :: {:"#", non_neg_integer, String.t}
+  @type t :: {:"#", non_neg_integer, [String.t]}
 
   @doc """
   Extract comments from a string of Elixir source code.
@@ -30,7 +30,7 @@ defmodule Exfmt.Comment do
 
   defp extract([?# | src], line, comments) do
     {comment_text, rest} = split_comment(src, [])
-    comment = {:"#", [line: line], comment_text}
+    comment = {:"#", [line: line], [comment_text]}
     new_comments = [comment | comments]
     extract(rest, line + 1, new_comments)
   end

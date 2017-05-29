@@ -17,9 +17,8 @@ defmodule Exfmt.Algebra do
 
   ## Extensions
 
-  `wide/1` has been added to support printing of forms that span to the
-  end of the line, such as comments.
-
+  - `wide/1` has been added to support printing of forms that span to
+    the end of the line, such as comments.
   """
 
   alias Inspect, as: I
@@ -50,7 +49,7 @@ defmodule Exfmt.Algebra do
   end
 
   #
-  # Lifted from `Inspect.Algebra.is_doc/1`
+  # Lifted from `Inspect.Algebra.doc_cons/1`
   #
   @typep doc_cons :: {:doc_cons, t, t}
   defmacrop doc_cons(left, right) do
@@ -60,7 +59,7 @@ defmodule Exfmt.Algebra do
   end
 
   #
-  # Lifted from `Inspect.Algebra.is_doc/1`
+  # Lifted from `Inspect.Algebra.doc_nest/1`
   #
   @typep doc_nest :: {:doc_nest, t, non_neg_integer}
   defmacrop doc_nest(doc, indent) do
@@ -70,7 +69,7 @@ defmodule Exfmt.Algebra do
   end
 
   #
-  # Lifted from `Inspect.Algebra.is_doc/1`
+  # Lifted from `Inspect.Algebra.doc_break/1`
   #
   @typep doc_break :: {:doc_break, binary}
   defmacrop doc_break(break) do
@@ -80,7 +79,7 @@ defmodule Exfmt.Algebra do
   end
 
   #
-  # Lifted from `Inspect.Algebra.is_doc/1`
+  # Lifted from `Inspect.Algebra.doc_group/1`
   #
   @typep doc_group :: {:doc_group, t}
   defmacrop doc_group(group) do
