@@ -59,5 +59,10 @@ defmodule Exfmt.AlgebraTest do
       c
       """
     end
+
+    test "line / doc_line" do
+      doc = nest(line("a", "b"), 2)
+      assert fmt(doc, 40) == "a\n  b\n"
+    end
   end
 end
