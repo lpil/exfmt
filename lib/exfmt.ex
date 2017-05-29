@@ -46,6 +46,24 @@ defmodule Exfmt do
   end
 
 
+  @doc """
+  Check that a string of source code conforms to the exfmt style.
+  If formatting the source code would not result in the source code
+  changing this function will return `:ok`.
+
+  """
+  @spec check(String.t, integer) :: :ok | {:format_error, String.t} | SyntaxError.t
+  def check(source, max_width \\ @max_width) do
+    with {:ok, formatted} <- format(source, max_width) do
+      if source == formatted do
+        :ok
+      else
+        {:format_error, formatted}
+      end
+    end
+  end
+
+
   defp do_format(tree, comments, max_width) do
     comments
     |> Comment.merge(tree)
