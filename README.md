@@ -32,6 +32,8 @@ The benefits of exfmt:
 [elixir]: https://elixir-lang.org/
 [elm-format]: https://github.com/avh4/elm-format
 
+## Contents
+
 - [Usage](#usage)
 - [Development](#development)
 
