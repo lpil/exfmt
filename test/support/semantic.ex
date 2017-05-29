@@ -23,7 +23,7 @@ defmodule Support.Semantic do
   defmacro assert_semantics_retained(source) do
     import ExUnit.Assertions, only: [assert: 1]
     quote bind_quoted: [source: source] do
-      formatted = Exfmt.format(source)
+      formatted = Exfmt.format!(source)
       assert macro_format(source) == macro_format(formatted)
     end
   end
