@@ -5,7 +5,7 @@
 - [ ] Semantic correctness. Exfmt can rewrite any Elixir code
   without changing the semantic meaning of the code. Running
   Exfmt will not cause breakages.
-- [x] Presevation of comments. Exfmt will not strip comments
+- [x] Preservation of comments. Exfmt will not strip comments
   from Elixir code.
   - [x] Comment parsing.
   - [x] Merging of Elixir AST and comments.

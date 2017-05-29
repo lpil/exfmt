@@ -44,7 +44,9 @@ defmodule Exfmt.Algebra do
 
   @typep doc_wide :: {:doc_wide, t}
   defmacrop doc_wide(doc) do
-    quote do: {:doc_wide, unquote(doc)}
+    quote do
+      {:doc_wide, unquote(doc)}
+    end
   end
 
   #
@@ -52,7 +54,9 @@ defmodule Exfmt.Algebra do
   #
   @typep doc_cons :: {:doc_cons, t, t}
   defmacrop doc_cons(left, right) do
-    quote do: {:doc_cons, unquote(left), unquote(right)}
+    quote do
+      {:doc_cons, unquote(left), unquote(right)}
+    end
   end
 
   #
@@ -60,7 +64,9 @@ defmodule Exfmt.Algebra do
   #
   @typep doc_nest :: {:doc_nest, t, non_neg_integer}
   defmacrop doc_nest(doc, indent) do
-    quote do: {:doc_nest, unquote(doc), unquote(indent)}
+    quote do
+      {:doc_nest, unquote(doc), unquote(indent)}
+    end
   end
 
   #
@@ -68,7 +74,9 @@ defmodule Exfmt.Algebra do
   #
   @typep doc_break :: {:doc_break, binary}
   defmacrop doc_break(break) do
-    quote do: {:doc_break, unquote(break)}
+    quote do
+      {:doc_break, unquote(break)}
+    end
   end
 
   #
@@ -76,7 +84,9 @@ defmodule Exfmt.Algebra do
   #
   @typep doc_group :: {:doc_group, t}
   defmacrop doc_group(group) do
-    quote do: {:doc_group, unquote(group)}
+    quote do
+      {:doc_group, unquote(group)}
+    end
   end
 
   #
@@ -86,7 +96,9 @@ defmodule Exfmt.Algebra do
     if Macro.Env.in_guard?(__CALLER__) do
       do_is_doc(doc)
     else
-      var = quote do: doc
+      var = quote do
+        doc
+      end
       quote do
         unquote(var) = unquote(doc)
         unquote(do_is_doc(var))
@@ -191,7 +203,9 @@ defmodule Exfmt.Algebra do
 
   """
   @spec glue(t, t) :: t
-  def glue(doc1, doc2), do: concat(doc1, concat(break(), doc2))
+  def glue(doc1, doc2) do
+    concat(doc1, concat(break(), doc2))
+  end
 
   @doc ~S"""
   Glues two documents (`doc1` and `doc2`) together inserting the given
@@ -207,8 +221,9 @@ defmodule Exfmt.Algebra do
 
   """
   @spec glue(t, binary, t) :: t
-  def glue(doc1, break_string, doc2) when is_binary(break_string),
-    do: concat(doc1, concat(break(break_string), doc2))
+  def glue(doc1, break_string, doc2) when is_binary(break_string) do
+    concat(doc1, concat(break(break_string), doc2))
+  end
 
   #
   # Manipulation functions
