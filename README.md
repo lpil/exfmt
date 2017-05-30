@@ -13,6 +13,7 @@ rules. It is inspired by Aaron VonderHaar's [elm-format][elm-format].
 # exfmt takes any Elixir code...
 
 defmodule MyApp, do: (
+    use( SomeLib )
     def run( data ), do: {
       :ok,
       data
@@ -22,6 +23,8 @@ defmodule MyApp, do: (
 # and rewrites it in a clean and idiomatic style:
 
 defmodule MyApp do
+  use SomeLib
+
   def run(data) do
     {:ok, data}
   end

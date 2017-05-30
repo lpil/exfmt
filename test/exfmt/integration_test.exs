@@ -482,6 +482,7 @@ defmodule Exfmt.IntegrationTest do
       require Foo
       alias Foo
       doctest Foo
+
       save use(Foo)
       save import(Foo)
       save require(Foo)
@@ -677,9 +678,37 @@ defmodule Exfmt.IntegrationTest do
     """
   end
 
+  test "modules with aliases and defs" do
+    """
+    defmodule App do
+      alias Foo.Bar
+      use Bar
+      import Bar
+      require Bar
+      @doc false
+      def run do
+        :ok
+      end
+    end
+    """ ~> """
+    defmodule App do
+      alias Foo.Bar
+      use Bar
+      import Bar
+      require Bar
+
+      @doc false
+      def run do
+        :ok
+      end
+    end
+    """
+  end
+
   test "README example" do
     """
     defmodule MyApp, do: (
+        use( SomeLib )
         def run( data ), do: {
             :ok,
             data
@@ -687,6 +716,8 @@ defmodule Exfmt.IntegrationTest do
     )
     """ ~> """
     defmodule MyApp do
+      use SomeLib
+
       def run(data) do
         {:ok, data}
       end

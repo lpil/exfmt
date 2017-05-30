@@ -5,6 +5,9 @@ defmodule Exfmt.Ast do
   """
 
   @newline {:"#newline", [], []}
+  @defs ~w(def defp defmacro defmacrop defmodule)a
+  @imports ~w(use import require alias doctest)a
+
 
   defdelegate to_algebra(ast, context), to: __MODULE__.ToAlgebra
 
@@ -30,8 +33,6 @@ defmodule Exfmt.Ast do
     tree
   end
 
-
-  @defs ~w(def defp defmacro defmacrop defmodule)a
 
   defp pp_block(exprs) do
     exprs
@@ -103,6 +104,9 @@ defmodule Exfmt.Ast do
   # Insert empty lines within a group. For example, between
   # function clauses.
   #
+  # Groups are reversed, so the last expression in a block is the
+  # first in the group.
+  #
   defp space_group([], acc, _prev) do
     acc
   end
@@ -110,8 +114,15 @@ defmodule Exfmt.Ast do
   defp space_group([expr | rest], acc, prev) do
     id = expr_id(expr)
     new_acc = case {id, prev} do
+      # First expr in group
       {_, nil} ->
         [expr | acc]
+
+      {:import, :import} ->
+        [expr | acc]
+
+      {:import, _} ->
+        [expr, @newline | acc]
 
       {:def, _} ->
         [expr, @newline | acc]
@@ -127,8 +138,12 @@ defmodule Exfmt.Ast do
     :def
   end
 
+  defp expr_id({type, _, _}) when type in @imports do
+    :import
+  end
+
   defp expr_id(_) do
-    nil
+    :other
   end
 
 
