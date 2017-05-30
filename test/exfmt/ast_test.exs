@@ -45,4 +45,40 @@ defmodule Exfmt.AstTest do
       assert {:def, _, [{:two, _, nil}, [do: 2]]} = two
     end
   end
+
+  describe "group_by_def/4" do
+    test "empty group" do
+      assert group_by_def([]) == [[]]
+    end
+
+    test "misc values" do
+      exprs = [{:@, [], [{:one, [], [1]}]},
+               {:@, [], [{:two, [], [2]}]},
+               {:@, [], [{:three, [], [3]}]}]
+      expected = [[{:@, [], [{:three, [], [3]}]},
+                   {:@, [], [{:two, [], [2]}]},
+                   {:@, [], [{:one, [], [1]}]}]]
+      assert group_by_def(exprs) == expected
+    end
+
+    test "two defs" do
+      exprs = [{:def, [], [{:one, [], Elixir}, [do: 1]]},
+               {:def, [], [{:two, [], Elixir}, [do: 2]]}]
+      expected = [[{:def, [], [{:two, [], Elixir}, [do: 2]]}],
+                  [{:def, [], [{:one, [], Elixir}, [do: 1]]}]]
+      assert group_by_def(exprs) == expected
+    end
+
+    test "two defs with attributes" do
+      exprs = [{:@, [], [{:doc, [], [false]}]},
+               {:def, [], [{:one, [], Elixir}, [do: 1]]},
+               {:@, [], [{:doc, [], [false]}]},
+               {:def, [], [{:two, [], Elixir}, [do: 2]]}]
+      expected = [[{:def, [], [{:two, [], Elixir}, [do: 2]]},
+                   {:@, [], [{:doc, [], [false]}]}],
+                  [{:def, [], [{:one, [], Elixir}, [do: 1]]},
+                   {:@, [], [{:doc, [], [false]}]}]]
+      assert group_by_def(exprs) == expected
+    end
+  end
 end

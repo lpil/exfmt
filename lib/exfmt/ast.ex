@@ -20,12 +20,9 @@ defmodule Exfmt.Ast do
     Macro.postwalk(ast, &preprocess_node/1)
   end
 
-  #
-  # Private
-  #
 
   defp preprocess_node({:__block__, meta, args}) do
-    new_args = pp_block(args, [], nil)
+    new_args = pp_block(args)
     {:__block__, meta, new_args}
   end
 
@@ -36,64 +33,110 @@ defmodule Exfmt.Ast do
 
   @defs ~w(def defp defmacro defmacrop defmodule)a
 
-  defp pp_block([], acc, _) do
-    Enum.reverse acc
+  defp pp_block(exprs) do
+    exprs
+    |> group_by_def()
+    |> Enum.map(&space_group(&1, [], nil))
+    |> Enum.intersperse([@newline, @newline])
+    |> Enum.reverse()
+    |> Enum.concat()
   end
 
-  defp pp_block([{_, _, _} = call | rest], acc, prev) do
-    id = expr_id(call, prev)
-    new_acc = case {id, prev} do
-      # No padding for first expression in block
-      {_, nil} ->
-        [call | acc]
 
-      # 1 line padding between clauses of the same definition
-      {x, x} when elem(x, 0) == :def ->
-        [call, @newline | acc]
+  #
+  # Group expressions by definitions.
+  # When a new function/macro is defined a new group starts,
+  # pulling in any expressions which had not yet been assigned
+  # to a group.
+  #
+  @doc false
+  def group_by_def(exprs, groups \\ [], tbd \\ [], prev \\ nil)
 
-      # No padding between attributes and next function
-      {{:def, _, _}, :attr} ->
-        [call | acc]
+  def group_by_def([], groups, tbd, _prev) do
+    put_in_latest_group(groups, tbd)
+  end
 
-      # 2 line padding before new definitions
-      {{:def, _, _}, _} ->
-        [call, @newline, @newline | acc]
+  # New expr which may be the first definition (as prev is nil)
+  #
+  def group_by_def([expr | rest], groups, tbd, nil) do
+    case group_id(expr) do
+      nil ->
+        new_tbd = [expr | tbd]
+        group_by_def(rest, groups, new_tbd, nil)
 
-      # 2 line padding between attribute and previous definition
-      {:attr, {:def, _, _}} ->
-        [call, @newline, @newline | acc]
-
-      # No padding for anything else
-      _ ->
-        [call | acc]
+      id ->
+        new_groups = put_in_latest_group(groups, [expr | tbd])
+        group_by_def(rest, new_groups, [], id)
     end
-    pp_block(rest, new_acc, id)
   end
 
-  defp pp_block([expr | rest], acc, prev) do
-    pp_block(rest, [expr | acc], prev)
+  # New call which may be a new definition
+  #
+  def group_by_def([expr | rest], groups, tbd, prev) do
+    case group_id(expr) do
+      nil ->
+        new_tbd = [expr | tbd]
+        group_by_def(rest, groups, new_tbd, prev)
+
+      ^prev ->
+        new_groups = put_in_latest_group(groups, [expr | tbd])
+        group_by_def(rest, new_groups, [], prev)
+
+      id ->
+        group = [expr | tbd]
+        new_groups = [group | groups]
+        group_by_def(rest, new_groups, [], id)
+    end
+  end
+
+
+  defp put_in_latest_group([], exprs) do
+    [exprs]
+  end
+
+  defp put_in_latest_group([latest | groups], exprs) do
+    [exprs ++ latest | groups]
   end
 
 
   #
-  # We use expression IDs to determine whether an expressions
-  # should be considered part of the same "group". We may insert
-  # additional whitespace depending on whether adjacent expressions
-  # are of the same group or not.
+  # Insert empty lines within a group. For example, between
+  # function clauses.
   #
-  # For example, `defp foo(1)` and `defp foo(2)` both have the
-  # expr_id `{:def, :def, :foo}`, and are considered part of the
-  # same group.
-  #
-  defp expr_id({type, _, [{name, _, _} | _]}, _prev) when type in @defs do
-    {:def, type, name}
+  defp space_group([], acc, _prev) do
+    acc
   end
 
-  defp expr_id({:@, _, _}, _prev) do
-    :attr
+  defp space_group([expr | rest], acc, prev) do
+    id = expr_id(expr)
+    new_acc = case {id, prev} do
+      {_, nil} ->
+        [expr | acc]
+
+      {:def, _} ->
+        [expr, @newline | acc]
+
+      _ ->
+        [expr | acc]
+    end
+    space_group(rest, new_acc, id)
   end
 
-  defp expr_id(_, prev) do
-    prev
+
+  defp expr_id({type, _, _}) when type in @defs do
+    :def
+  end
+
+  defp expr_id(_) do
+    nil
+  end
+
+
+  defp group_id({type, _, [{name, _, _} | _]}) when type in @defs do
+    {type, name}
+  end
+
+  defp group_id(_) do
+    nil
   end
 end
