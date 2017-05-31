@@ -3,6 +3,9 @@ Changelog
 
 ## Unreleased
 
+- The `mix exfmt` mix task has been added to enable people to try
+  the formatter. This task reads source code from a file and prints
+  the formatted output to STDOUT.
 - Empty lines are inserted between certain expressions in a block
   in order to group them semantically.
 - The semantics of formatted output is checked against the input

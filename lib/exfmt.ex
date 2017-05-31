@@ -38,6 +38,9 @@ defmodule Exfmt do
         SemanticsError.exception()
       end
     end
+  rescue
+    _ in Elixir.SyntaxError ->
+      SemanticsError.exception()
   end
 
 
@@ -139,7 +142,6 @@ defmodule Exfmt do
   end
 
 
-  # DUPE: 120
   defp macro_format(source) do
     source
     |> Code.string_to_quoted!()

@@ -811,4 +811,27 @@ defmodule Exfmt.IntegrationTest do
     end
     """
   end
+
+  @tag :skip
+  test "with"
+
+  @tag :skip
+  test "string interpolation"
+
+  @tag :skip
+  test "binary syntax"
+
+  @tag :skip
+  test "capital S sigil does not escape" do
+    ~S"""
+    ~S(#{this isn't interp})
+    """
+  end
+
+  @tag :skip
+  test "struct with values" do
+    _ = """
+    assert %Exfmt.SyntaxError{line: 1, message: message} == error
+    """
+  end
 end

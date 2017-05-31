@@ -8,7 +8,7 @@ defmodule ExfmtTest do
     end
 
     test "returns error on invalid syntax" do
-      message = "syntax error before: ','"
+      message = "Error: syntax error before: ','"
       error = Exfmt.format(",")
       assert %Exfmt.SyntaxError{line: 1, message: message} == error
     end
@@ -21,7 +21,7 @@ defmodule ExfmtTest do
     end
 
     test "throws on invalid syntax" do
-      message = "syntax error before: ','"
+      message = "Error: syntax error before: ','"
       error = catch_error(Exfmt.format!(","))
       assert %Exfmt.SyntaxError{line: 1, message: message} == error
     end
@@ -38,7 +38,7 @@ defmodule ExfmtTest do
     end
 
     test "returns error on invalid syntax" do
-      message = "syntax error before: ','"
+      message = "Error: syntax error before: ','"
       error = Exfmt.check(",")
       assert %Exfmt.SyntaxError{line: 1, message: message} == error
     end

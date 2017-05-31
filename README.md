@@ -68,7 +68,8 @@ The benefits of `exfmt`:
 ## Usage
 
 ```sh
-TODO!
+# Format an Elixir source file
+mix exfmt path/to/file.ex
 ```
 
 
