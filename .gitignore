@@ -18,3 +18,9 @@ erl_crash.dump
 
 # Also ignore archive artifacts (built via "mix archive.build").
 *.ez
+
+# The directory used for local temporary files.
+/tmp
+
+# The built escript for exfmt.
+/exfmt

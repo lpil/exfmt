@@ -14,6 +14,7 @@ defmodule Exfmt.Mixfile do
      start_permanent: Mix.env == :prod,
      deps: deps(),
      docs: [extras: ["README.md"]],
+     escript: [main_module: Exfmt.Escript],
      package: [maintainers: ["Louis Pilfold"],
                licenses: ["apache-2.0"],
                links: %{"GitHub" => "https://github.com/lpil/exfmt"},

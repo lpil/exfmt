@@ -109,6 +109,11 @@ defmodule Exfmt do
   # Private
   #
 
+  @doc false
+  def default_max_width do
+    @max_width
+  end
+
   defp do_format(tree, comments, max_width) do
     comments
     |> Comment.merge(tree)

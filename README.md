@@ -67,9 +67,21 @@ The benefits of `exfmt`:
 
 ## Usage
 
+To install `exfmt` as a command-line utility, run:
+
 ```sh
-TODO!
+mix escript.install github lpil/exfmt
 ```
+
+You can then run exfmt like so: (the default max line width is 80 characters)
+```sh
+exfmt --max-width 100 file.ex file2.exs
+```
+
+which will rewrite the files, formatted. If there is any kind of error in the process, exfmt will
+abort and leave your existing files as-is.
+
+You can also include `exfmt` as a mix dependency and use the Elixir API directly.
 
 
 ## Development
