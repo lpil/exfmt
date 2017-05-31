@@ -705,6 +705,93 @@ defmodule Exfmt.IntegrationTest do
     """
   end
 
+  test "modules with attrs and defs" do
+    """
+    defmodule App do
+      @foo 1
+      @bar 2
+      @doc false
+      def run do
+        :ok
+      end
+    end
+    """ ~> """
+    defmodule App do
+      @foo 1
+      @bar 2
+
+      @doc false
+      def run do
+        :ok
+      end
+    end
+    """
+  end
+
+  test "modules with moduledoc, attrs and defs" do
+    """
+    defmodule App do
+      @moduledoc false
+      @foo 1
+      @bar 2
+      @doc false
+      def run do
+        :ok
+      end
+    end
+    """ ~> """
+    defmodule App do
+      @moduledoc false
+
+      @foo 1
+      @bar 2
+
+      @doc false
+      def run do
+        :ok
+      end
+    end
+    """
+  end
+
+  test "module with defdelegates" do
+    """
+    defmodule App do
+      @foo 1
+    defdelegate run(name), to: Lib
+    defdelegate stop(name), to: Lib
+      @bar 2
+    end
+    """ ~> """
+    defmodule App do
+      @foo 1
+
+      defdelegate run(name), to: Lib
+      defdelegate stop(name), to: Lib
+
+      @bar 2
+    end
+    """
+  end
+
+  test "def with spec and doc" do
+    """
+    defmodule App do
+      @doc false
+      @spec run(integer) :: :ok
+      def run(_), do: :ok
+    end
+    """ ~> """
+    defmodule App do
+      @doc false
+      @spec run(integer) :: :ok
+      def run(_) do
+        :ok
+      end
+    end
+    """
+  end
+
   test "README example" do
     """
     defmodule MyApp, do: (

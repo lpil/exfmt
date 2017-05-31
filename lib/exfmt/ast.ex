@@ -114,17 +114,31 @@ defmodule Exfmt.Ast do
   defp space_group([expr | rest], acc, prev) do
     id = expr_id(expr)
     new_acc = case {id, prev} do
-      # First expr in group
       {_, nil} ->
         [expr | acc]
 
       {:import, :import} ->
         [expr | acc]
 
+      {:defdelegate, :defdelegate} ->
+        [expr | acc]
+
+      {:defdelegate, _} ->
+        [expr, @newline | acc]
+
       {:import, _} ->
         [expr, @newline | acc]
 
+      {:moduledoc, _} ->
+        [expr, @newline | acc]
+
+      {_, :doc} ->
+        [expr, @newline | acc]
+
       {:def, _} ->
+        [expr, @newline | acc]
+
+      {_, :defdelegate} ->
         [expr, @newline | acc]
 
       _ ->
@@ -140,6 +154,18 @@ defmodule Exfmt.Ast do
 
   defp expr_id({type, _, _}) when type in @imports do
     :import
+  end
+
+  defp expr_id({:defdelegate, _, _}) do
+    :defdelegate
+  end
+
+  defp expr_id({:@, _, [{:doc, _, _}]}) do
+    :doc
+  end
+
+  defp expr_id({:@, _, [{:moduledoc, _, _}]}) do
+    :moduledoc
   end
 
   defp expr_id(_) do
