@@ -21,4 +21,4 @@ jobs:
       - run: mix compile --warnings-as-errors
 
       # Test
-      - run: mix test # TODO: use coveralls
+      - run: mix test --trace # TODO: use coveralls

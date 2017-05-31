@@ -59,20 +59,20 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
+  # Map upsert
+  #
+  def to_algebra({:%{}, _, [{:|, _, [{name, _, _} , pairs]}]}, ctx) do
+    pairs_doc = map_pairs_to_algebra(pairs, ctx)
+    start = space(concat("%{", to_string(name)), "|")
+    group(nest(glue(start, concat(pairs_doc, "}")), 2))
+  end
+
+  #
   # Maps
   #
   def to_algebra({:%{}, _, pairs}, ctx) do
-    if Inspect.List.keyword?(pairs) do
-      new_ctx = Context.push_stack(ctx, :keyword)
-      fun = &keyword_to_algebra(&1, &2, new_ctx)
-      surround_many("%{", pairs, "}", ctx.opts, fun)
-    else
-      new_ctx = Context.push_stack(ctx, :map)
-      fun = fn({k, v}, _) ->
-        concat(concat(to_algebra(k, ctx), " => "), to_algebra(v, new_ctx))
-      end
-      surround_many("%{", pairs, "}", ctx.opts, fun)
-    end
+    pairs_doc = map_pairs_to_algebra(pairs, ctx)
+    group(nest(glue("%{", "", concat(pairs_doc, "}")), 2))
   end
 
   #
@@ -280,8 +280,16 @@ defmodule Exfmt.Ast.ToAlgebra do
   # Private
   #
 
-  defp keyword_to_algebra({k, v}, _, ctx) do
+  defp arrow_pair_to_algebra({k, v}, ctx) do
+    concat(concat(to_algebra(k, ctx), " => "), to_algebra(v, ctx))
+  end
+
+  defp keyword_to_algebra({k, v}, ctx) do
     concat(concat(to_string(k), ": "), to_algebra(v, ctx))
+  end
+
+  defp keyword_to_algebra(pair, _, ctx) do
+    keyword_to_algebra(pair, ctx)
   end
 
   def sigil_to_algebra(char, [{:<<>>, _, [contents]}, mods], _ctx) do
@@ -402,5 +410,28 @@ defmodule Exfmt.Ast.ToAlgebra do
     rhs = to_algebra(body, ctx)
     stab = space(lhs, "->")
     nest(line(stab, rhs), 2)
+  end
+
+  defp map_pairs_to_algebra(pairs, ctx) do
+    if Inspect.List.keyword?(pairs) do
+      new_ctx = Context.push_stack(ctx, :keyword)
+      pairs_to_algebra(pairs, &keyword_to_algebra/2, new_ctx)
+    else
+      new_ctx = Context.push_stack(ctx, :map)
+      pairs_to_algebra(pairs, &arrow_pair_to_algebra/2, new_ctx)
+    end
+  end
+
+  defp pairs_to_algebra([], _fun, _ctx) do
+    empty()
+  end
+
+  defp pairs_to_algebra([first | pairs], pair_formatter, ctx) do
+    first_doc = pair_formatter.(first, ctx)
+    reducer = fn(pair, acc) ->
+      doc = pair_formatter.(pair, ctx)
+      glue(concat(doc, ","), acc)
+    end
+    Enum.reduce(pairs, first_doc, reducer)
   end
 end
