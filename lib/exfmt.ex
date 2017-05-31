@@ -13,7 +13,7 @@ defmodule Exfmt do
 
   """
 
-  alias Exfmt.{Ast, Algebra, Comment, Context, SyntaxError}
+  alias Exfmt.{Ast, Algebra, Comment, Context, SyntaxError, SemanticsError}
   @max_width 80
 
   @doc ~S"""
@@ -22,15 +22,21 @@ defmodule Exfmt do
       iex> format("[1,2,3]")
       {:ok, "[1, 2, 3]\n"}
 
+  This function performs a check to ensure the input and output
+  are semantically equivalent.
+
   """
-  @spec format(String.t, integer) :: {:ok, String.t} | SyntaxError.t
+  @spec format(String.t, integer)
+    :: {:ok, String.t}
+    | SyntaxError.t
+    | SemanticsError.t
   def format(source, max_width \\ @max_width) do
-    with {:ok, tree} <- Code.string_to_quoted(source),
-         {:ok, comments} <- Comment.extract_comments(source) do
-      {:ok, do_format(tree, comments, max_width)}
-    else
-      {:error, error} ->
-        SyntaxError.exception(error)
+    with {:ok, formatted} <- unsafe_format(source, max_width) do
+      if macro_format(source) == macro_format(formatted) do
+        {:ok, formatted}
+      else
+        SemanticsError.exception()
+      end
     end
   end
 
@@ -42,15 +48,42 @@ defmodule Exfmt do
       iex> format!("[1,2,3]")
       "[1, 2, 3]\n"
 
+  This function performs a check to ensure the input and output
+  are semantically equivalent.
+
   """
   @spec format!(String.t, integer) :: String.t
   def format!(source, max_width \\ @max_width) do
     case format(source, max_width) do
-      %SyntaxError{} = error ->
-        raise error
-
       {:ok, formatted} ->
         formatted
+
+      error ->
+        raise error
+    end
+  end
+
+
+  @doc ~S"""
+  Format a string of Elixir source code.
+
+      iex> unsafe_format("[1,2,3]")
+      {:ok, "[1, 2, 3]\n"}
+
+  Unlike `format/2` and `format!/2` this code does not compare
+  the semantics of the input and the output, so if there is a
+  bug in `exfmt` it may semantically alter your code when
+  reformatting it.
+
+  """
+  @spec unsafe_format(String.t, integer) :: String.t
+  def unsafe_format(source, max_width \\ @max_width) do
+    with {:ok, tree} <- Code.string_to_quoted(source),
+         {:ok, comments} <- Comment.extract_comments(source) do
+      {:ok, do_format(tree, comments, max_width)}
+    else
+      {:error, error} ->
+        SyntaxError.exception(error)
     end
   end
 
@@ -103,5 +136,13 @@ defmodule Exfmt do
 
   defp append_newline(source) do
     source <> "\n"
+  end
+
+
+  # DUPE: 120
+  defp macro_format(source) do
+    source
+    |> Code.string_to_quoted!()
+    |> Macro.to_string()
   end
 end
