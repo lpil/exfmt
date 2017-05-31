@@ -171,10 +171,6 @@ defmodule Exfmt.Ast.ToAlgebra do
   #
   # Negatives
   #
-  def to_algebra({:-, _, [value]}, ctx) when value in [0, 0.0] do
-    to_doc(value, ctx.opts)
-  end
-
   def to_algebra({:-, _, [number]}, ctx) do
     new_ctx = Context.push_stack(ctx, :negative)
     concat("-", to_algebra(number, new_ctx))
@@ -292,13 +288,13 @@ defmodule Exfmt.Ast.ToAlgebra do
     {primary_open, primary_close, alt_open, alt_close} =
       case char do
         c when c in [?r, ?R] ->
-          {"/", "/", "(", ")"}
+          {?/, ?/, ?(, ?)}
 
         _ ->
-          {"(", ")", "[", "]"}
+          {?(, ?), ?[, ?]}
       end
     {open, close} =
-      if String.contains?(contents, primary_close) do
+      if String.contains?(contents, IO.chardata_to_string([primary_close])) do
         {alt_open, alt_close}
       else
         {primary_open, primary_close}

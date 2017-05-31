@@ -11,7 +11,7 @@ defmodule Exfmt.IntegrationTest do
     "0" ~> "0\n"
     "1" ~> "1\n"
     "2" ~> "2\n"
-    "-0" ~> "0\n"
+    "-0" ~> "-0\n"
     "-1" ~> "-1\n"
     "-2" ~> "-2\n"
   end
@@ -20,7 +20,7 @@ defmodule Exfmt.IntegrationTest do
     "0.000" ~> "0.0\n"
     "1.111" ~> "1.111\n"
     "2.08" ~> "2.08\n"
-    "-0.000" ~> "0.0\n"
+    "-0.000" ~> "-0.0\n"
     "-0.123" ~> "-0.123\n"
     "-1.123" ~> "-1.123\n"
     "-2.123" ~> "-2.123\n"
@@ -75,7 +75,7 @@ defmodule Exfmt.IntegrationTest do
     "~r[hello]" ~> "~r/hello/\n"
     "~r{hello}" ~> "~r/hello/\n"
     ~S"~r/\//" ~> "~r(/)\n"
-    ~S"~r/\/)/" ~> "~r(/\))\n"
+    ~S"~r/\/)/" ~> "~r(/\\))\n"
   end
 
   test "s sigils" do
