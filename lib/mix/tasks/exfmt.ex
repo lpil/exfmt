@@ -17,36 +17,39 @@ defmodule Mix.Tasks.Exfmt do
 
   @doc false
   def run([]) do
-    IO.write [IO.ANSI.red, @usage, IO.ANSI.reset]
+    @usage
+    |> red()
+    |> IO.write()
   end
 
-  def run([path]) do
-    with {:ok, source} <- File.read(path),
-         {:ok, formatted} <- Exfmt.format(source) do
+  def run(args) do
+    with {opts, [path], []} <- OptionParser.parse(args, unsafe: :boolean),
+         {:file, _, {:ok, source}} <- {:file, path, File.read(path)},
+         {:ok, formatted} <- format(source, opts) do
       IO.write formatted
     else
-      {:error, :enoent} ->
+      {:file, path, {:error, :enoent}} ->
         "Error: No such file or directory:\n    #{path}"
         |> red()
         |> IO.puts
 
-      {:error, :eisdir} ->
+      {:file, path, {:error, :eisdir}} ->
         "Error: Input is a directory, not an Elixir source file:\n   #{path}"
         |> red()
         |> IO.puts
 
 
-      {:error, :eacces} ->
+      {:file, path, {:error, :eacces}} ->
         "Error: Incorrect permissions, unable to read file:\n   #{path}"
         |> red()
         |> IO.puts
 
-      {:error, :enomem} ->
+      {:file, path, {:error, :enomem}} ->
         "Error: Not enough memory to read file:\n   #{path}"
         |> red()
         |> IO.puts
 
-      {:error, :enotdir} ->
+      {:file, path, {:error, :enotdir}} ->
         "Error: Unable to open a parent directory:\n   #{path}"
         |> red()
         |> IO.puts
@@ -62,6 +65,16 @@ defmodule Mix.Tasks.Exfmt do
         |> IO.puts
     end
   end
+
+
+  defp format(source, opts) do
+    if opts[:unsafe] do
+      Exfmt.unsafe_format(source)
+    else
+      Exfmt.format(source)
+    end
+  end
+
 
   defp red(msg) do
     [IO.ANSI.red, msg, IO.ANSI.reset]
