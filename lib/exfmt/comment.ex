@@ -146,7 +146,7 @@ defmodule Exfmt.Comment do
   end
 
   def merge(comments, ast) do
-    case Macro.postwalk(ast, comments, &merge_node/2) do
+    case Macro.prewalk(ast, comments, &merge_node/2) do
       {merged, []} ->
         merged
 

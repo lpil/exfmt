@@ -430,8 +430,5 @@ defmodule Exfmt.Integration.BasicsTest do
   test "with"
 
   @tag :skip
-  test "string interpolation"
-
-  @tag :skip
   test "binary syntax"
 end

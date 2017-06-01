@@ -102,6 +102,14 @@ defmodule Exfmt.CommentTest do
       """
       assert extract_comments(code) == {:ok, []}
     end
+
+    test "comment preceeding string interpolation" do
+      code = ~S"""
+      # 1
+      "#{}"
+      """
+      assert extract_comments(code) == {:ok, [{:"#", [line: 1], [" 1"]}]}
+    end
   end
 
   describe "merge/2" do
@@ -116,21 +124,21 @@ defmodule Exfmt.CommentTest do
     end
 
     test "comments before call" do
-      comments = [{:"#", [line: 1], ""}]
+      comments = [{:"#", [line: 1], [""]}]
       ast = {:ok, [line: 2], []}
       assert merge(comments, ast) ==
-        {:__block__, [], [{:"#", [line: 1], ""}, {:ok, [line: 2], []}]}
+        {:__block__, [], [{:"#", [line: 1], [""]}, {:ok, [line: 2], []}]}
     end
 
     test "multi-line comments before call" do
-      comments = [{:"#", [line: 3], "c"},
-                  {:"#", [line: 2], "b"},
-                  {:"#", [line: 1], "a"}]
+      comments = [{:"#", [line: 3], ["c"]},
+                  {:"#", [line: 2], ["b"]},
+                  {:"#", [line: 1], ["a"]}]
       ast = {:ok, [line: 4], []}
       assert {:__block__, [], children} = merge(comments, ast)
-      assert children == [{:"#", [line: 1], "a"},
-                          {:"#", [line: 2], "b"},
-                          {:"#", [line: 3], "c"},
+      assert children == [{:"#", [line: 1], ["a"]},
+                          {:"#", [line: 2], ["b"]},
+                          {:"#", [line: 3], ["c"]},
                           {:ok, [line: 4], []}]
     end
 
@@ -156,7 +164,7 @@ defmodule Exfmt.CommentTest do
               two())
       """
       comments =
-        [{:"#", [line: 1], [" One here"]}, {:"#", [line: 3], [" Two here"]}]
+        [{:"#", [line: 3], [" Two here"]}, {:"#", [line: 1], [" One here"]}]
       assert {:explode, [line: 1], [arg1, arg2]} = merge(comments, ast)
       assert {:__block__, [], arg1_children} = arg1
       assert arg1_children ==
@@ -164,6 +172,17 @@ defmodule Exfmt.CommentTest do
       assert {:__block__, [], arg2_children} = arg2
       assert arg2_children ==
         [{:"#", [line: 3], [" Two here"]}, {:two, [line: 4], []}]
+    end
+
+    test "comment preceeding string interp" do
+      ast = Code.string_to_quoted!(~S(
+      # 1
+      "#{}"
+      ))
+      comments = [{:"#", [line: 1], [" 1"]}]
+      assert {:__block__, [], [comment, string]} = merge(comments, ast)
+      assert hd(comments) == comment
+      assert {:<<>>, _, _} = string
     end
   end
 end
