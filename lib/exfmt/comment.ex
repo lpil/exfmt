@@ -16,17 +16,69 @@ defmodule Exfmt.Comment do
   """
   @spec extract_comments(String.t) :: {:ok, [t]} | :error
   def extract_comments(src) do
-    extract(to_charlist(src), 1, [])
+    src
+    |> to_charlist()
+    |> extract(1, [])
   end
 
 
-  # Char literal
   #
-  defp extract([??, c | src], line, comments) when c in [?', ?"] do
+  # Guard macros
+  #
+  defmacrop is_quote(c) do
+    quote do
+      unquote(c) in [?', ?"]
+    end
+  end
+
+  defmacrop is_upcase(c) do
+    quote do
+      unquote(c) >= ?A and unquote(c) <= ?Z
+    end
+  end
+
+  defmacrop is_downcase(c) do
+    quote do
+      unquote(c) >= ?a and unquote(c) <= ?z
+    end
+  end
+
+  defmacrop is_letter(c) do
+    quote do
+      is_upcase(unquote(c)) or is_downcase(unquote(c))
+    end
+  end
+
+  defmacrop is_sigil_delim(c) do
+    quote do
+      unquote(c) in [?/, ?<, ?", ?', ?[, ?(, ?{, ?|]
+    end
+  end
+
+  @scope {:elixir_tokenizer, :filename, [], true, false}
+
+  alias :elixir_interpolation, as: Interp
+
+
+  # Sigil
+  defp extract([?~, char, delim | src], line, comments)
+  when is_letter(char) and is_sigil_delim(delim) do
+    end_char = sigil_terminator(delim)
+    case Interp.extract(line, 0, @scope, is_downcase(char), src, end_char) do
+      {:error, _reason} ->
+        :error
+
+      {new_line, _col, _parts, new_src} ->
+        extract(new_src, new_line, comments)
+    end
+  end
+
+  # Char literal
+  defp extract([??, c | src], line, comments) when is_quote(c) do
     extract(src, line, comments)
   end
 
-  defp extract([c | src], line, comments) when c in [?', ?"] do
+  defp extract([c | src], line, comments) when is_quote(c) do
     discard_string(src, line, comments, c)
   end
 
@@ -69,8 +121,7 @@ defmodule Exfmt.Comment do
   #
   defp discard_string(src, line, comments, delim) do
     col = 0
-    scope = {:elixir_tokenizer, :filename, [], true, false}
-    case :elixir_interpolation.extract(line, col, scope, true, src, delim) do
+    case Interp.extract(line, col, @scope, true, src, delim) do
       {:error, _reason} ->
         :error
 
@@ -132,5 +183,25 @@ defmodule Exfmt.Comment do
 
   defp line(_) do
     0
+  end
+
+
+  defp sigil_terminator(c) do
+    case c do
+      ?( ->
+        ?)
+
+      ?[ ->
+        ?]
+
+      ?{ ->
+        ?}
+
+      ?< ->
+        ?>
+
+      x ->
+        x
+    end
   end
 end

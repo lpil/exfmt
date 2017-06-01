@@ -80,7 +80,26 @@ defmodule Exfmt.CommentTest do
     end
 
     test "\" char literals" do
-      code = ~S(x = [?", ?'])
+      assert extract_comments(~S(x = [?", ?'])) == {:ok, []}
+    end
+
+    test "sigil" do
+      assert extract_comments("~s||") == {:ok, []}
+      assert extract_comments("~s[a]") == {:ok, []}
+      assert extract_comments("~s/q /") == {:ok, []}
+      assert extract_comments("~s{1 }") == {:ok, []}
+      assert extract_comments("~s(aa)") == {:ok, []}
+      assert extract_comments("~s<##>") == {:ok, []}
+    end
+
+    test "sigil with content that looks like comment" do
+      assert extract_comments("~s(# nope)") == {:ok, []}
+    end
+
+    test "capital sigil with content that looks like interp" do
+      code = ~S"""
+      ~S(#{ # nope })
+      """
       assert extract_comments(code) == {:ok, []}
     end
   end
