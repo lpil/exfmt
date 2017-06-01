@@ -194,7 +194,19 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
-  # Anon function calls
+  # Anon function immediately called
+  # (&inspect/1).()
+  #
+  def to_algebra({{:., _, [{:&, _, _} = fun]}, _meta, args}, ctx) do
+    new_ctx = Context.push_stack(ctx, :call)
+    fun_doc = to_algebra(fun, new_ctx)
+    callback = fn(elem, _opts) -> to_algebra(elem, ctx) end
+    args_doc = surround_many("(", args, ")", ctx.opts, callback)
+    concat(concat(concat("(", fun_doc), ")."), args_doc)
+  end
+
+  #
+  # Anon function call
   #
   def to_algebra({{:., _, [{name, _, nil}]}, meta, args}, ctx) do
     new_ctx = Context.push_stack(ctx, :call)
@@ -264,7 +276,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   #
   # Function calls and sigils
   #
-  def to_algebra({name, _, args}, ctx) do
+  def to_algebra({name, _, args}, ctx) when is_binary(name) or is_atom(name) do
     case to_string(name) do
       "sigil_" <> <<char::utf8>> ->
         new_ctx = Context.push_stack(ctx, :sigil)

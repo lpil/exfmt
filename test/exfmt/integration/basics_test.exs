@@ -131,12 +131,16 @@ defmodule Exfmt.Integration.BasicsTest do
   end
 
   test "captured functions" do
-    "inspect/1" ~> "inspect/1\n"
     "&inspect/1" ~> "&inspect/1\n"
     "&inspect(&1)" ~> "&inspect(&1)\n"
     "&merge(&2, &1)" ~> "&merge(&2, &1)\n"
     "&(&2 + &1)" ~> "& &2 + &1\n"
-    "Enum.map(& &1.name)" ~> "Enum.map & &1.name\n"
+    "(& &1.name)" ~> "& &1.name\n"
+  end
+
+  test "calling captured functions" do
+    "(&inspect/1).()" ~> "(&inspect/1).()\n"
+    "(&(&1 <> x)).()" ~> "(& &1 <> x).()\n"
   end
 
   test "fn functions" do
