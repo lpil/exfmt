@@ -136,6 +136,7 @@ defmodule Exfmt.Integration.BasicsTest do
     "&inspect(&1)" ~> "&inspect(&1)\n"
     "&merge(&2, &1)" ~> "&merge(&2, &1)\n"
     "&(&2 + &1)" ~> "& &2 + &1\n"
+    "Enum.map(& &1.name)" ~> "Enum.map & &1.name\n"
   end
 
   test "fn functions" do

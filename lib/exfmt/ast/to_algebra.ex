@@ -105,9 +105,15 @@ defmodule Exfmt.Ast.ToAlgebra do
     new_ctx = Context.push_stack(ctx, :&)
     arg_algebra = to_algebra(arg, new_ctx)
     case arg do
+      # &run/1
       {:/, _, [_name, arity]} when is_integer(arity) ->
         concat("&", arg_algebra)
 
+      # & &1.key
+      {{:., _, [{:&, _, _} | _]}, _, _} ->
+        space("&", arg_algebra)
+
+      # & &1 + &2
       {op, _, _} when op in Infix.infix_ops ->
         space("&", arg_algebra)
 
@@ -231,7 +237,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   def to_algebra({{:., _, [aliases, name]}, _, []}, ctx) do
     new_ctx = Context.push_stack(ctx, :call)
     module = to_algebra(aliases, new_ctx)
-    "#{module}.#{name}"
+    concat(module, ".#{name}")
   end
 
   #
