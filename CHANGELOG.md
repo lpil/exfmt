@@ -11,8 +11,8 @@ Changelog
 - The semantics of formatted output is checked against the input
   source in order to ensure safety when rewriting code. This
   behaviour can be avoided by using `Exfmt.unsafe_format/2`.
-- Rendering of structs, map upsert syntax, and more function capture
-  syntaxes.
+- Rendering of structs, map upsert syntax, more function capture
+  syntaxes, and string interpolation.
 - FIX: Correctly escape charactes that match delimeters when
   rendering sigils.
 

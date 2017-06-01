@@ -96,6 +96,17 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
+  # String interpolation
+  #
+  def to_algebra({:<<>>, _, [{:::, _, _} | _] = parts}, ctx) do
+    interp_to_algebra(parts, ctx)
+  end
+
+  def to_algebra({:<<>>, _, [_, {:::, _, _} | _] = parts}, ctx) do
+    interp_to_algebra(parts, ctx)
+  end
+
+  #
   # Arity labelled functions
   #
   def to_algebra({:__block__, _, [head|tail]}, ctx) do
@@ -470,5 +481,20 @@ defmodule Exfmt.Ast.ToAlgebra do
       glue(concat(acc, ","), doc)
     end
     Enum.reduce(pairs, first_doc, reducer)
+  end
+
+
+  defp interp_to_algebra(parts, ctx) do
+    merge = fn
+      ({:::, _, [{{:., _, _}, _, [content]}, {:binary, _, nil}]}, acc) ->
+        content_doc = to_algebra(content, ctx)
+        interp_doc = concat(concat("#\{", content_doc), "}")
+        concat(acc, interp_doc)
+
+      (string, acc) ->
+        concat(acc, string)
+    end
+    inner_doc = Enum.reduce(parts, empty(), merge)
+    concat(concat("\"", inner_doc), "\"")
   end
 end

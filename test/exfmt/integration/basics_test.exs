@@ -34,13 +34,6 @@ defmodule Exfmt.Integration.BasicsTest do
     "App.Web.Controller" ~> "App.Web.Controller\n"
   end
 
-  test "strings" do
-    ~s("") ~> ~s(""\n)
-    ~s(" ") ~> ~s(" "\n)
-    ~s("\n") ~> ~s("\\n"\n)
-    ~s("""\nhello\n""") ~> ~s("hello\\n"\n) # TODO: Use heredocs
-  end
-
   test "maps" do
     "%{}" ~> "%{}\n"
     "%{a: 1}" ~> "%{a: 1}\n"
