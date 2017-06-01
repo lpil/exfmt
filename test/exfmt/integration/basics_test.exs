@@ -74,29 +74,6 @@ defmodule Exfmt.Integration.BasicsTest do
     "'a'" ~> "[97]\n" # TODO: Hmm...
   end
 
-  test "r sigils" do
-    "~r/hello/" ~> "~r/hello/\n"
-    "~r/hello/ugi" ~> "~r/hello/ugi\n"
-    "~R/hello/" ~> "~R/hello/\n"
-    "~R/hello/ugi" ~> "~R/hello/ugi\n"
-    "~r(hello)" ~> "~r/hello/\n"
-    "~r[hello]" ~> "~r/hello/\n"
-    "~r{hello}" ~> "~r/hello/\n"
-    ~S"~r/\//" ~> "~r(/)\n"
-    ~S"~r/\/)/" ~> "~r(/\\))\n"
-  end
-
-  test "s sigils" do
-    ~S(~s"hello") ~> ~s[~s(hello)\n]
-    ~S(~s/hello/ugi) ~> ~s[~s(hello)ugi\n]
-    ~S(~S"hello") ~> ~s[~S(hello)\n]
-    ~S(~S/hello/ugi) ~> ~s[~S(hello)ugi\n]
-    ~S(~s[hello]) ~> ~s[~s(hello)\n]
-    ~S(~s{hello}) ~> ~s[~s(hello)\n]
-    ~S[~s(hello)] ~> ~s[~s(hello)\n]
-    ~S[~s"()"] ~> ~s{~s[()]\n}
-  end
-
   test "lists" do
     "[ ]" ~> "[]\n"
     """
@@ -457,11 +434,4 @@ defmodule Exfmt.Integration.BasicsTest do
 
   @tag :skip
   test "binary syntax"
-
-  @tag :skip
-  test "capital S sigil does not escape" do
-    ~S"""
-    ~S(#{this isn't interp})
-    """
-  end
 end

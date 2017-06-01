@@ -13,10 +13,11 @@ Changelog
   behaviour can be avoided by using `Exfmt.unsafe_format/2`.
 - Rendering of structs, map upsert syntax, more function capture
   syntaxes, and string interpolation.
-- FIX: Correctly escape charactes that match delimeters when
+- FIX: Correctly escape characters that match delimiters when
   rendering sigils.
 - FIX: Parse comments correctly when files contain sigils, or char
   literals.
+- FIX: Avoid erroneous escaping when rendering sigils.
 
 ## v0.1.0 - 2017-05-29
 

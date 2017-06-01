@@ -347,7 +347,7 @@ defmodule Exfmt.Ast.ToAlgebra do
       else
         {primary_open, primary_close}
       end
-    ["~", char, open, Inspect.BitString.escape(contents, close), close, mods]
+    ["~", char, open, sigil_escape(contents, close), close, mods]
     |> IO.iodata_to_binary()
   end
 
@@ -500,5 +500,14 @@ defmodule Exfmt.Ast.ToAlgebra do
     end
     inner_doc = Enum.reduce(parts, empty(), merge)
     concat(concat("\"", inner_doc), "\"")
+  end
+
+
+  defp sigil_escape(contents, close) do
+    close_char = IO.iodata_to_binary([close])
+    String.replace(contents,
+                   close_char,
+                   "\\" <> close_char,
+                   global: true)
   end
 end
