@@ -58,6 +58,7 @@ defmodule Exfmt.Integration.BasicsTest do
                       age: 1}
     """
     "%__MODULE__{debug: true}" ~> "%__MODULE__{debug: true}\n"
+    "%Inspect.Opts{}" ~> "%Inspect.Opts{}\n"
   end
 
   test "keyword lists" do
