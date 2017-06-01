@@ -1,6 +1,6 @@
 defmodule Exfmt.Integration.ModuleTest do
   use ExUnit.Case, async: true
-  use Support.Integration
+  import Support.Integration, only: [~>: 2]
 
   test "multiple functions" do
     """

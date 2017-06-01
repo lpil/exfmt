@@ -1,6 +1,6 @@
 defmodule CallTest do
   use ExUnit.Case, async: true
-  use Support.Integration
+  import Support.Integration, only: [~>: 2]
 
   test "function calls" do
     "hello()" ~> "hello()\n"

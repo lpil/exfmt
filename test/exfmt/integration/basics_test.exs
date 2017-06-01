@@ -1,6 +1,6 @@
 defmodule Exfmt.Integration.BasicsTest do
   use ExUnit.Case
-  use Support.Integration
+  import Support.Integration, only: [~>: 2]
 
   test "ints" do
     "0" ~> "0\n"
