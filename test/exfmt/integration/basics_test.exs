@@ -46,10 +46,24 @@ defmodule Exfmt.Integration.BasicsTest do
     "%{a: 1}" ~> "%{a: 1}\n"
     "%{:a => 1}" ~> "%{a: 1}\n"
     "%{1 => 1}" ~> "%{1 => 1}\n"
+    "%{1 => 1, 2 => 2}" ~> "%{1 => 1, 2 => 2}\n"
   end
 
   test "map upsert %{map | key: value}" do
     "%{map | key: value}" ~> "%{map | key: value}\n"
+  end
+
+  test "structs" do
+    "%Person{}" ~> "%Person{}\n"
+    "%Person{age: 1}" ~> "%Person{age: 1}\n"
+    "%Person{timmy | age: 1}" ~> "%Person{timmy | age: 1}\n"
+    """
+    %LongerNamePerson{timmy | name: "Timmy", age: 1}
+    """ ~> """
+    %LongerNamePerson{timmy |
+                      name: "Timmy",
+                      age: 1}
+    """
   end
 
   test "keyword lists" do
@@ -448,13 +462,6 @@ defmodule Exfmt.Integration.BasicsTest do
   test "capital S sigil does not escape" do
     ~S"""
     ~S(#{this isn't interp})
-    """
-  end
-
-  @tag :skip
-  test "struct with values" do
-    _ = """
-    assert %Exfmt.SyntaxError{line: 1, message: message} == error
     """
   end
 end

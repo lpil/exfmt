@@ -59,20 +59,22 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
-  # Map upsert
+  # Structs
   #
-  def to_algebra({:%{}, _, [{:|, _, [{name, _, _} , pairs]}]}, ctx) do
-    pairs_doc = map_pairs_to_algebra(pairs, ctx)
-    start = space(concat("%{", to_string(name)), "|")
-    group(nest(glue(start, concat(pairs_doc, "}")), 2))
+  def to_algebra({:%, _, [{:__aliases__, _, [mod]}, {:%{}, _, args}]}, ctx) do
+    name = to_string(mod)
+    indent = String.length(name) + 2
+    start = concat(concat("%", name), "{")
+    body_doc = map_body_to_algebra(args, ctx)
+    group(nest(concat(start, concat(body_doc, "}")), indent))
   end
 
   #
   # Maps
   #
-  def to_algebra({:%{}, _, pairs}, ctx) do
-    pairs_doc = map_pairs_to_algebra(pairs, ctx)
-    group(nest(glue("%{", "", concat(pairs_doc, "}")), 2))
+  def to_algebra({:%{}, _, contents}, ctx) do
+    body_doc = map_body_to_algebra(contents, ctx)
+    group(nest(glue("%{", "", concat(body_doc, "}")), 2))
   end
 
   #
@@ -412,6 +414,17 @@ defmodule Exfmt.Ast.ToAlgebra do
     nest(line(stab, rhs), 2)
   end
 
+
+  def map_body_to_algebra([{:|, _, [{name, _, _}, pairs]}], ctx) do
+    pairs_doc = map_pairs_to_algebra(pairs, ctx)
+    glue(space(to_string(name), "|"), pairs_doc)
+  end
+
+  def map_body_to_algebra(pairs, ctx) do
+    map_pairs_to_algebra(pairs, ctx)
+  end
+
+
   defp map_pairs_to_algebra(pairs, ctx) do
     if Inspect.List.keyword?(pairs) do
       new_ctx = Context.push_stack(ctx, :keyword)
@@ -422,6 +435,7 @@ defmodule Exfmt.Ast.ToAlgebra do
     end
   end
 
+
   defp pairs_to_algebra([], _fun, _ctx) do
     empty()
   end
@@ -430,7 +444,7 @@ defmodule Exfmt.Ast.ToAlgebra do
     first_doc = pair_formatter.(first, ctx)
     reducer = fn(pair, acc) ->
       doc = pair_formatter.(pair, ctx)
-      glue(concat(doc, ","), acc)
+      glue(concat(acc, ","), doc)
     end
     Enum.reduce(pairs, first_doc, reducer)
   end

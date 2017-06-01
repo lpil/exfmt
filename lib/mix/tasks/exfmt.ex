@@ -71,7 +71,7 @@ defmodule Mix.Tasks.Exfmt do
     if opts[:unsafe] do
       Exfmt.unsafe_format(source)
     else
-      Exfmt.format(source)
+      Exfmt.format(source, 100)
     end
   end
 

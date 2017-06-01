@@ -11,7 +11,7 @@ Changelog
 - The semantics of formatted output is checked against the input
   source in order to ensure safety when rewriting code. This
   behaviour can be avoided by using `Exfmt.unsafe_format/2`.
-- Rendering of map upsert syntax.
+- Rendering of structs and map upsert syntax.
 - FIX: Correctly escape charactes that match delimeters when
   rendering sigils.
 
