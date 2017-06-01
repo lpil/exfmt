@@ -64,6 +64,7 @@ defmodule Exfmt.Integration.BasicsTest do
                       name: "Timmy",
                       age: 1}
     """
+    "%__MODULE__{debug: true}" ~> "%__MODULE__{debug: true}\n"
   end
 
   test "keyword lists" do
