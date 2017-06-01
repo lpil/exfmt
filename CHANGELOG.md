@@ -15,6 +15,8 @@ Changelog
   syntaxes, and string interpolation.
 - FIX: Correctly escape charactes that match delimeters when
   rendering sigils.
+- FIX: Parse comments correctly when files contain the char literals
+  `?"` or `?'`.
 
 ## v0.1.0 - 2017-05-29
 

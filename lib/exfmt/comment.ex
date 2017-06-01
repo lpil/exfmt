@@ -20,6 +20,12 @@ defmodule Exfmt.Comment do
   end
 
 
+  # Char literal
+  #
+  defp extract([??, c | src], line, comments) when c in [?', ?"] do
+    extract(src, line, comments)
+  end
+
   defp extract([c | src], line, comments) when c in [?', ?"] do
     discard_string(src, line, comments, c)
   end

@@ -78,6 +78,11 @@ defmodule Exfmt.CommentTest do
       )
       assert extract_comments(code) == {:ok, []}
     end
+
+    test "\" char literals" do
+      code = ~S(x = [?", ?'])
+      assert extract_comments(code) == {:ok, []}
+    end
   end
 
   describe "merge/2" do
