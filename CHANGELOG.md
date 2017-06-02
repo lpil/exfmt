@@ -11,11 +11,17 @@ Changelog
 - The semantics of formatted output is checked against the input
   source in order to ensure safety when rewriting code. This
   behaviour can be avoided by using `Exfmt.unsafe_format/2`.
-- Rendering of structs, map upsert syntax, more function capture
-  syntaxes, aliases containing `__MODULE__`, zero arity calls with
-  do blocks, comments in case expressions, bitstring binary syntax,
-  and string interpolation.
 - Improvements to how newlines are inserted with infix operators.
+- Rendering of more expression:
+  - Structs.
+  - Map upserts.
+  - Function capturing of infix operators.
+  - __MODULE__ aliases.
+  - Zero arity calls with do-end blocks.
+  - Comments in case expressions.
+  - Bitstrings.
+  - String interpolation.
+  - Multi-clause anonymous functions.
 - FIX: Correctly escape characters that match delimiters when
   rendering sigils.
 - FIX: Parse comments correctly when files contain sigils, or char

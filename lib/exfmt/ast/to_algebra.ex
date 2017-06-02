@@ -115,53 +115,6 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
 
-  defp bitparts_to_algebra([], ctx) do
-    binary_delim empty(), ctx
-  end
-
-  defp bitparts_to_algebra([first | rest], ctx) do
-    first_doc = bitpart_to_algebra(first, ctx)
-    reduce = fn(part, acc) ->
-      doc = bitpart_to_algebra(part, ctx)
-      glue(concat(acc, ","), doc)
-    end
-    rest
-    |> Enum.reduce(first_doc, reduce)
-    |> binary_delim(ctx)
-  end
-
-
-  defp binary_delim(doc, ctx) do
-    case ctx.stack do
-      [_, :<<>> | _] ->
-        group(nest(concat(concat("(<<", doc), ">>)"), 3))
-
-      _ ->
-        group(nest(concat(concat("<<", doc), ">>"), 2))
-    end
-  end
-
-
-
-  defp bitpart_to_algebra({:::, _, [left, right]}, ctx) do
-    new_ctx = Context.push_stack(ctx, :::)
-    lhs_doc = to_algebra(left, new_ctx)
-    rhs_doc = to_algebra(right, new_ctx)
-    concat(concat(lhs_doc, "::"), group(rhs_doc))
-  end
-
-  defp bitpart_to_algebra({:<-, _, _} = part, ctx) do
-    new_ctx = Context.push_stack(ctx, :::)
-    doc = to_algebra(part, ctx)
-    nest(concat(concat("(", doc), ")"), 1)
-  end
-
-  defp bitpart_to_algebra(part, ctx) do
-    new_ctx = Context.push_stack(ctx, :::)
-    to_algebra(part, ctx)
-  end
-
-
   #
   # Blocks
   #
@@ -195,7 +148,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
-  # fn -> ... end
+  # fn-> ... end
   #
   def to_algebra({:fn, _, [{:->, _, [args, body]}]}, ctx) do
     new_ctx = Context.push_stack(ctx, :fn)
@@ -208,6 +161,15 @@ defmodule Exfmt.Ast.ToAlgebra do
       _single_expr ->
         glue(glue(head, body_algebra), "end")
     end
+  end
+
+  #
+  # Multi-clause fn
+  #
+  def to_algebra({:fn, _, clauses}, ctx) do
+    new_ctx = Context.push_stack(ctx, :fn)
+    clauses_doc = clauses_to_algebra(clauses, new_ctx)
+    line(nest(line("fn", clauses_doc), 2), "end")
   end
 
   #
@@ -487,7 +449,7 @@ defmodule Exfmt.Ast.ToAlgebra do
 
   defp block_arg_body_to_algebra(body, ctx) do
     if is_list(body) and Enum.all?(body, &stab?/1) do
-      stabs_to_algebra(body, ctx)
+      clauses_to_algebra(body, ctx)
     else
       to_algebra(body, ctx)
     end
@@ -516,36 +478,40 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
 
-  defp stabs_to_algebra(stabs, ctx) do
+  defp clauses_to_algebra(stabs, ctx) do
     stabs
-    |> Enum.map(&stab_to_algebra(&1, ctx))
+    |> Enum.map(&clause_to_algebra(&1, ctx))
     |> Enum.reduce(&line(concat(&2, "\n"), &1))
   end
+
 
   #
   # foo ->
   #   :foo
   #
-  defp stab_to_algebra({:->, _, [[match], body]}, ctx) do
-    lhs = to_algebra(match, ctx)
+  defp clause_to_algebra({:->, _, [args, body]}, ctx) do
+    lhs =
+      args
+      |> Enum.map(&to_algebra(&1, ctx))
+      |> Enum.reduce(&glue(concat(&2, ","), &1))
     rhs = to_algebra(body, ctx)
     stab = space(lhs, "->")
     nest(line(stab, rhs), 2)
   end
 
-  defp stab_to_algebra({:"#comment_block", _, [first | rest]}, ctx) do
+  defp clause_to_algebra({:"#comment_block", _, [first | rest]}, ctx) do
     to_doc = fn
       {:"#", _, _} = comment ->
         to_algebra(comment, ctx)
 
       stab ->
-        stab_to_algebra(stab, ctx)
+        clause_to_algebra(stab, ctx)
     end
     first_doc = to_doc.(first)
-    Enum.reduce(rest, first_doc, fn(expr, acc) ->
+    Enum.reduce rest, first_doc, fn(expr, acc) ->
       expr_doc = to_doc.(expr)
       line(acc, expr_doc)
-    end)
+    end
   end
 
 
@@ -632,5 +598,51 @@ defmodule Exfmt.Ast.ToAlgebra do
 
   defp interpolated?(_) do
     false
+  end
+
+
+  defp bitpart_to_algebra({:::, _, [left, right]}, ctx) do
+    new_ctx = Context.push_stack(ctx, :::)
+    lhs_doc = to_algebra(left, new_ctx)
+    rhs_doc = to_algebra(right, new_ctx)
+    concat(concat(lhs_doc, "::"), group(rhs_doc))
+  end
+
+  defp bitpart_to_algebra({:<-, _, _} = part, ctx) do
+    new_ctx = Context.push_stack(ctx, :<-)
+    doc = to_algebra(part, new_ctx)
+    nest(concat(concat("(", doc), ")"), 1)
+  end
+
+  defp bitpart_to_algebra(part, ctx) do
+    new_ctx = Context.push_stack(ctx, :::)
+    to_algebra(part, new_ctx)
+  end
+
+
+  defp bitparts_to_algebra([], ctx) do
+    binary_delim empty(), ctx
+  end
+
+  defp bitparts_to_algebra([first | rest], ctx) do
+    first_doc = bitpart_to_algebra(first, ctx)
+    reduce = fn(part, acc) ->
+      doc = bitpart_to_algebra(part, ctx)
+      glue(concat(acc, ","), doc)
+    end
+    rest
+    |> Enum.reduce(first_doc, reduce)
+    |> binary_delim(ctx)
+  end
+
+
+  defp binary_delim(doc, ctx) do
+    case ctx.stack do
+      [:<<>>, :::, :<<>> | _] ->
+        group(nest(concat(concat("(<<", doc), ">>)"), 3))
+
+      _ ->
+        group(nest(concat(concat("<<", doc), ">>"), 2))
+    end
   end
 end

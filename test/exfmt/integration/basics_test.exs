@@ -104,32 +104,6 @@ defmodule Exfmt.Integration.BasicsTest do
     "{1,2,3}" ~> "{1, 2, 3}\n"
   end
 
-  test "captured functions" do
-    "&inspect/1" ~> "&inspect/1\n"
-    "&inspect(&1)" ~> "&inspect(&1)\n"
-    "&merge(&2, &1)" ~> "&merge(&2, &1)\n"
-    "&(&2 + &1)" ~> "& &2 + &1\n"
-    "(& &1.name)" ~> "& &1.name\n"
-  end
-
-  test "calling captured functions" do
-    "(&inspect/1).()" ~> "(&inspect/1).()\n"
-    "(&(&1 <> x)).()" ~> "(& &1 <> x).()\n"
-  end
-
-  test "fn functions" do
-    "fn -> :ok end" ~> "fn-> :ok end\n"
-    "fn(x) -> x end" ~> "fn(x) -> x end\n"
-    """
-    fn(x) -> y = x + x; y end
-    """ ~> """
-    fn(x) ->
-      y = x + x
-      y
-    end
-    """
-  end
-
   test "variables" do
     "some_var" ~> "some_var\n"
     "_another_var" ~> "_another_var\n"
@@ -407,7 +381,4 @@ defmodule Exfmt.Integration.BasicsTest do
     end
     """
   end
-
-  @tag :skip
-  test "binary syntax"
 end
