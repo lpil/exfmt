@@ -1,6 +1,6 @@
 defmodule Exfmt.Integration.BasicsTest do
   use ExUnit.Case
-  import Support.Integration, only: [~>: 2]
+  import Support.Integration
 
   test "ints" do
     "0" ~> "0\n"
@@ -399,8 +399,14 @@ defmodule Exfmt.Integration.BasicsTest do
     """
   end
 
-  @tag :skip
-  test "with"
+  test "with (<- op is has own group)" do
+    assert_format """
+    with {:ok, path} <- get_path(x, y, z),
+         {:ok, out} <- run(path) do
+      IO.write out
+    end
+    """
+  end
 
   @tag :skip
   test "binary syntax"

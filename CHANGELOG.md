@@ -15,6 +15,7 @@ Changelog
   syntaxes, aliases containing `__MODULE__`, zero arity calls with
   do blocks, comments in case expressions, bitstring binary syntax,
   and string interpolation.
+- Improvements to how newlines are inserted with infix operators.
 - FIX: Correctly escape characters that match delimiters when
   rendering sigils.
 - FIX: Parse comments correctly when files contain sigils, or char

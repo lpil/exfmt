@@ -244,7 +244,7 @@ defmodule Exfmt.Ast.ToAlgebra do
         glue(lhs, space("|", rhs))
 
       _ ->
-        nest(glue(space(lhs, to_string(op)), rhs), 2)
+        group(nest(glue(space(lhs, to_string(op)), rhs), 2))
     end
   end
 
