@@ -10,6 +10,13 @@ defmodule Exfmt.Ast.ToAlgebra do
   require Algebra
   require Infix
 
+  defmacro is_block(name) do
+    quote do
+      unquote(name) in [:__block__, :"#comment_block"]
+    end
+  end
+
+
   @doc """
   Converts Elixir AST into algebra that can be pretty printed.
 
@@ -107,9 +114,9 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
-  # Arity labelled functions
+  # Blocks
   #
-  def to_algebra({:__block__, _, [head|tail]}, ctx) do
+  def to_algebra({name, _, [head | tail]}, ctx) when is_block(name) do
     fun = &line(&2, to_algebra(&1, ctx))
     Enum.reduce(tail, to_algebra(head, ctx), fun)
   end
@@ -146,7 +153,7 @@ defmodule Exfmt.Ast.ToAlgebra do
     head = fn_head_algebra(args, new_ctx)
     body_algebra = to_algebra(body, new_ctx)
     case body do
-      {:__block__, _, _} ->
+      {name, _, _} when is_block(name) ->
         line(nest(line(head, body_algebra), 2), "end")
 
       _single_expr ->
@@ -370,7 +377,7 @@ defmodule Exfmt.Ast.ToAlgebra do
         concat(str_name, "()")
 
       # Block arg
-      %{args: [{:__block__, _, _} | _]} ->
+      %{args: [{name, _, _} | _]} when is_block(name) ->
         arg_list = surround_many("(", args, ")", ctx.opts, fun)
         concat(str_name, nest(arg_list, name_len))
 
@@ -425,21 +432,40 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
 
-  defp block_arg_body_to_algebra([], ctx) do
+  defp block_arg_body_to_algebra([], _ctx) do
     "[]"
   end
 
   defp block_arg_body_to_algebra(body, ctx) do
-    stab? = fn
-      {:->, _, _} -> true
-      _ -> false
-    end
-    if is_list(body) and Enum.all?(body, stab?) do
+    if is_list(body) and Enum.all?(body, &stab?/1) do
       stabs_to_algebra(body, ctx)
     else
       to_algebra(body, ctx)
     end
   end
+
+
+  defp stab?({:"#comment_block", _, exprs}) do
+    Enum.all?(exprs, fn
+      {:"#", _, _} ->
+        true
+
+      {:->, _, _} ->
+        true
+
+      _ ->
+        false
+    end)
+  end
+
+  defp stab?({:->, _, _}) do
+    true
+  end
+
+  defp stab?(_) do
+    false
+  end
+
 
   defp stabs_to_algebra(stabs, ctx) do
     stabs
@@ -451,11 +477,26 @@ defmodule Exfmt.Ast.ToAlgebra do
   # foo ->
   #   :foo
   #
-  defp stab_to_algebra({_, _, [[match], body]}, ctx) do
+  defp stab_to_algebra({:->, _, [[match], body]}, ctx) do
     lhs = to_algebra(match, ctx)
     rhs = to_algebra(body, ctx)
     stab = space(lhs, "->")
     nest(line(stab, rhs), 2)
+  end
+
+  defp stab_to_algebra({:"#comment_block", _, [first | rest]}, ctx) do
+    to_doc = fn
+      {:"#", _, _} = comment ->
+        to_algebra(comment, ctx)
+
+      stab ->
+        stab_to_algebra(stab, ctx)
+    end
+    first_doc = to_doc.(first)
+    Enum.reduce(rest, first_doc, fn(expr, acc) ->
+      expr_doc = to_doc.(expr)
+      line(acc, expr_doc)
+    end)
   end
 
 

@@ -138,20 +138,20 @@ defmodule Exfmt.CommentTest do
 
   describe "merge/2" do
     test "nil ast and no comments" do
-      assert merge([], nil) == {:__block__, [], []}
+      assert merge([], nil) == {:"#comment_block", [], []}
     end
 
     test "nil ast and some comments" do
       comments = [{:"#", [line: 2], [""]}, {:"#", [line: 1], [""]}]
       expected = [{:"#", [line: 1], [""]}, {:"#", [line: 2], [""]}]
-      assert merge(comments, nil) == {:__block__, [], expected}
+      assert merge(comments, nil) == {:"#comment_block", [], expected}
     end
 
     test "comments before call" do
       comments = [{:"#", [line: 1], [""]}]
       ast = {:ok, [line: 2], []}
       assert merge(comments, ast) ==
-        {:__block__, [], [{:"#", [line: 1], [""]}, {:ok, [line: 2], []}]}
+        {:"#comment_block", [], [{:"#", [line: 1], [""]}, {:ok, [line: 2], []}]}
     end
 
     test "multi-line comments before call" do
@@ -159,7 +159,7 @@ defmodule Exfmt.CommentTest do
                   {:"#", [line: 2], ["b"]},
                   {:"#", [line: 1], ["a"]}]
       ast = {:ok, [line: 4], []}
-      assert {:__block__, [], children} = merge(comments, ast)
+      assert {:"#comment_block", [], children} = merge(comments, ast)
       assert children == [{:"#", [line: 1], ["a"]},
                           {:"#", [line: 2], ["b"]},
                           {:"#", [line: 3], ["c"]},
@@ -176,8 +176,9 @@ defmodule Exfmt.CommentTest do
       ''
       """
       comments = [{:"#", [line: 1], [""]}]
-      assert {:__block__, [], children} = merge(comments, ast)
-      assert children == [1, 2.0, "", :ok, [k: 1], [], {:"#", [line: 1], [""]}]
+      assert {:"#comment_block", [], children} = merge(comments, ast)
+      assert children == [{:__block__, [], [1, 2.0, "", :ok, [k: 1], []]},
+                          {:"#", [line: 1], [""]}]
     end
 
     test "comments in function call" do
@@ -190,10 +191,10 @@ defmodule Exfmt.CommentTest do
       comments =
         [{:"#", [line: 3], [" Two here"]}, {:"#", [line: 1], [" One here"]}]
       assert {:explode, [line: 1], [arg1, arg2]} = merge(comments, ast)
-      assert {:__block__, [], arg1_children} = arg1
+      assert {:"#comment_block", [], arg1_children} = arg1
       assert arg1_children ==
         [{:"#", [line: 1], [" One here"]}, {:one, [line: 2], []}]
-      assert {:__block__, [], arg2_children} = arg2
+      assert {:"#comment_block", [], arg2_children} = arg2
       assert arg2_children ==
         [{:"#", [line: 3], [" Two here"]}, {:two, [line: 4], []}]
     end
@@ -204,7 +205,7 @@ defmodule Exfmt.CommentTest do
       "#{}"
       ))
       comments = [{:"#", [line: 1], [" 1"]}]
-      assert {:__block__, [], [comment, string]} = merge(comments, ast)
+      assert {:"#comment_block", [], [comment, string]} = merge(comments, ast)
       assert hd(comments) == comment
       assert {:<<>>, _, _} = string
     end

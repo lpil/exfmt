@@ -137,12 +137,12 @@ defmodule Exfmt.Comment do
       iex> comments = [{:"#", [line: 1], []}]
       ...> ast = {:ok, [line: 1], []}
       ...> merge(comments, ast)
-      {:__block__, [], [{:ok, [line: 1], []}, {:"#", [line: 1], []}]}
+      {:"#comment_block", [], [{:ok, [line: 1], []}, {:"#", [line: 1], []}]}
 
   """
   @spec merge([t], Macro.t) :: Macro.t
   def merge(comments, nil) do
-    {:__block__, [], Enum.reverse(comments)}
+    {:"#comment_block", [], Enum.reverse(comments)}
   end
 
   def merge(comments, ast) do
@@ -150,11 +150,8 @@ defmodule Exfmt.Comment do
       {merged, []} ->
         merged
 
-      {{:__block__, meta, merged}, rest} ->
-        {:__block__, meta, merged ++ rest}
-
-      {merged, rest} ->
-        {:__block__, [], [merged | rest]}
+      {merged, remaining_comments} ->
+        {:"#comment_block", [], [merged | remaining_comments]}
     end
   end
 
@@ -171,7 +168,7 @@ defmodule Exfmt.Comment do
         {ast, comments}
 
       {earlier, rest} ->
-        block = {:__block__, [], earlier ++ [ast]}
+        block = {:"#comment_block", [], earlier ++ [ast]}
         {block, rest}
     end
   end

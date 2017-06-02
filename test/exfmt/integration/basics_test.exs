@@ -371,6 +371,22 @@ defmodule Exfmt.Integration.BasicsTest do
     """
   end
 
+  test "case with comments in body" do
+    """
+    case data do
+      # bad
+      %{} ->
+        :ok
+    end
+    """ ~> """
+    case data do
+      # bad
+      %{} ->
+        :ok
+    end
+    """
+  end
+
   test "functions with guards" do
     """
     def one?(x) when x in [:one, "one"] do
