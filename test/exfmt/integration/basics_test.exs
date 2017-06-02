@@ -32,6 +32,7 @@ defmodule Exfmt.Integration.BasicsTest do
     "String" ~> "String\n"
     "My.String" ~> "My.String\n"
     "App.Web.Controller" ~> "App.Web.Controller\n"
+    "__MODULE__.Helper" ~> "__MODULE__.Helper\n"
   end
 
   test "maps" do
@@ -48,6 +49,7 @@ defmodule Exfmt.Integration.BasicsTest do
 
   test "structs" do
     "%Person{}" ~> "%Person{}\n"
+    "%__MODULE__.Person{}" ~> "%__MODULE__.Person{}\n"
     "%Person{age: 1}" ~> "%Person{age: 1}\n"
     "%Person{timmy | age: 1}" ~> "%Person{timmy | age: 1}\n"
     """

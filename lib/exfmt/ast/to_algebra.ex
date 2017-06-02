@@ -66,12 +66,8 @@ defmodule Exfmt.Ast.ToAlgebra do
     group(nest(concat("%__MODULE__{", concat(body_doc, "}")), 12))
   end
 
-  def to_algebra({:%, _, [{:__aliases__, _, mods}, {:%{}, _, args}]}, ctx) do
-    name =
-      mods
-      |> Enum.map(&to_string/1)
-      |> Enum.intersperse(".")
-      |> IO.iodata_to_binary()
+  def to_algebra({:%, _, [{:__aliases__, _, _} = as, {:%{}, _, args}]}, ctx) do
+    name = to_algebra(as, ctx)
     indent = String.length(name) + 2
     start = concat(concat("%", name), "{")
     body_doc = map_body_to_algebra(args, ctx)
@@ -209,7 +205,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   #
   def to_algebra({:__aliases__, _, names}, _ctx) do
     names
-    |> Enum.map(&to_string/1)
+    |> Enum.map(&alias_to_string/1)
     |> Enum.join(".")
   end
 
@@ -509,5 +505,14 @@ defmodule Exfmt.Ast.ToAlgebra do
                    close_char,
                    "\\" <> close_char,
                    global: true)
+  end
+
+
+  defp alias_to_string({:__MODULE__, _, _}) do
+    "__MODULE__"
+  end
+
+  defp alias_to_string(atom) do
+    to_string(atom)
   end
 end
