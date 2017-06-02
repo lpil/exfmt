@@ -103,15 +103,64 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
-  # String interpolation
+  # Binaries and string interpolation
   #
-  def to_algebra({:<<>>, _, [{:::, _, _} | _] = parts}, ctx) do
-    interp_to_algebra(parts, ctx)
+  def to_algebra({:<<>>, _, parts} = expr, ctx) do
+    if interpolated?(expr) do
+      interp_to_algebra(parts, ctx)
+    else
+      new_ctx = Context.push_stack(ctx, :<<>>)
+      bitparts_to_algebra(parts, new_ctx)
+    end
   end
 
-  def to_algebra({:<<>>, _, [_, {:::, _, _} | _] = parts}, ctx) do
-    interp_to_algebra(parts, ctx)
+
+  defp bitparts_to_algebra([], ctx) do
+    binary_delim empty(), ctx
   end
+
+  defp bitparts_to_algebra([first | rest], ctx) do
+    first_doc = bitpart_to_algebra(first, ctx)
+    reduce = fn(part, acc) ->
+      doc = bitpart_to_algebra(part, ctx)
+      glue(concat(acc, ","), doc)
+    end
+    rest
+    |> Enum.reduce(first_doc, reduce)
+    |> binary_delim(ctx)
+  end
+
+
+  defp binary_delim(doc, ctx) do
+    case ctx.stack do
+      [_, :<<>> | _] ->
+        group(nest(concat(concat("(<<", doc), ">>)"), 3))
+
+      _ ->
+        group(nest(concat(concat("<<", doc), ">>"), 2))
+    end
+  end
+
+
+
+  defp bitpart_to_algebra({:::, _, [left, right]}, ctx) do
+    new_ctx = Context.push_stack(ctx, :::)
+    lhs_doc = to_algebra(left, new_ctx)
+    rhs_doc = to_algebra(right, new_ctx)
+    concat(concat(lhs_doc, "::"), group(rhs_doc))
+  end
+
+  defp bitpart_to_algebra({:<-, _, _} = part, ctx) do
+    new_ctx = Context.push_stack(ctx, :::)
+    doc = to_algebra(part, ctx)
+    nest(concat(concat("(", doc), ")"), 1)
+  end
+
+  defp bitpart_to_algebra(part, ctx) do
+    new_ctx = Context.push_stack(ctx, :::)
+    to_algebra(part, ctx)
+  end
+
 
   #
   # Blocks
@@ -565,5 +614,23 @@ defmodule Exfmt.Ast.ToAlgebra do
 
   defp alias_to_string(atom) do
     to_string(atom)
+  end
+
+
+  defp interpolated?({:<<>>, _, [_ | _] = parts}) do
+    Enum.all?(parts, fn
+      {:::, _, [{{:., _, [Kernel, :to_string]}, _, [_]}, {:binary, _, _}]} ->
+        true
+
+      binary when is_binary(binary) ->
+        true
+
+      _ ->
+        false
+    end)
+  end
+
+  defp interpolated?(_) do
+    false
   end
 end

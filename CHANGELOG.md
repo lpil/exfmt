@@ -13,7 +13,8 @@ Changelog
   behaviour can be avoided by using `Exfmt.unsafe_format/2`.
 - Rendering of structs, map upsert syntax, more function capture
   syntaxes, aliases containing `__MODULE__`, zero arity calls with
-  do blocks, comments in case expressions, and string interpolation.
+  do blocks, comments in case expressions, bitstring binary syntax,
+  and string interpolation.
 - FIX: Correctly escape characters that match delimiters when
   rendering sigils.
 - FIX: Parse comments correctly when files contain sigils, or char
