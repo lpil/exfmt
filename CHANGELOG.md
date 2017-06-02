@@ -12,13 +12,15 @@ Changelog
   source in order to ensure safety when rewriting code. This
   behaviour can be avoided by using `Exfmt.unsafe_format/2`.
 - Rendering of structs, map upsert syntax, more function capture
-  syntaxes, aliases containing `__MODULE__`, and string
-  interpolation.
+  syntaxes, aliases containing `__MODULE__`, zero arity calls with
+  do blocks, and string interpolation.
 - FIX: Correctly escape characters that match delimiters when
   rendering sigils.
 - FIX: Parse comments correctly when files contain sigils, or char
   literals.
 - FIX: Avoid erroneous escaping when rendering sigils.
+- FIX: Avoid crashing when a do block only contains `[]`.
+
 
 ## v0.1.0 - 2017-05-29
 

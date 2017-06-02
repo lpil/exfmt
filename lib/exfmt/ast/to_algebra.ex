@@ -354,11 +354,16 @@ defmodule Exfmt.Ast.ToAlgebra do
     {args, blocks} = Util.split_do_block(all_args)
     data = %{args: args, blocks: blocks, stack: ctx.stack}
     case data do
+      # "Zero" arity call with block args
+      %{args: [], blocks: b} when b != [] ->
+        blocks_algebra = do_block_algebra(blocks, ctx)
+        space(str_name, blocks_algebra)
+
       # Call with block args
       %{blocks: b} when b != [] ->
-        arg_list = surround_many(" ", args, "", ctx.opts, fun)
+        arg_list = surround_many(" ", args, " ", ctx.opts, fun)
         blocks_algebra = do_block_algebra(blocks, ctx)
-        glue(concat(str_name, nest(arg_list, name_len)), blocks_algebra)
+        concat(concat(str_name, nest(arg_list, name_len)), blocks_algebra)
 
       # Zero arity call
       %{args: []} ->
@@ -417,6 +422,11 @@ defmodule Exfmt.Ast.ToAlgebra do
     |> Enum.map(section_to_algebra)
     |> Enum.reduce(&line(&2, &1))
     |> line("end")
+  end
+
+
+  defp block_arg_body_to_algebra([], ctx) do
+    "[]"
   end
 
   defp block_arg_body_to_algebra(body, ctx) do

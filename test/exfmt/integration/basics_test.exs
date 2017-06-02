@@ -318,6 +318,24 @@ defmodule Exfmt.Integration.BasicsTest do
       :ok
     end
     """
+    """
+    run do
+      []
+    end
+    """ ~> """
+    run do
+      []
+    end
+    """
+    """
+    App.run do
+      []
+    end
+    """ ~> """
+    App.run do
+      []
+    end
+    """
   end
 
   test "case" do
