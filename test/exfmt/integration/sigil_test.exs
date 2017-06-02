@@ -1,12 +1,12 @@
 defmodule Exfmt.Integration.SigilTest do
   use ExUnit.Case
-  import Support.Integration, only: [~>: 2]
+  import Support.Integration
 
   test "r sigils" do
-    "~r/hello/" ~> "~r/hello/\n"
-    "~r/hello/ugi" ~> "~r/hello/ugi\n"
-    "~R/hello/" ~> "~R/hello/\n"
-    "~R/hello/ugi" ~> "~R/hello/ugi\n"
+    assert_format "~r/hello/\n"
+    assert_format "~r/hello/ugi\n"
+    assert_format "~R/hello/\n"
+    assert_format "~R/hello/ugi\n"
     "~r(hello)" ~> "~r/hello/\n"
     "~r[hello]" ~> "~r/hello/\n"
     "~r{hello}" ~> "~r/hello/\n"
@@ -15,22 +15,18 @@ defmodule Exfmt.Integration.SigilTest do
   end
 
   test "s sigils" do
+    assert_format ~s[~s(hello)\n]
     ~S(~s"hello") ~> ~s[~s(hello)\n]
     ~S(~s/hello/ugi) ~> ~s[~s(hello)ugi\n]
     ~S(~S"hello") ~> ~s[~S(hello)\n]
     ~S(~S/hello/ugi) ~> ~s[~S(hello)ugi\n]
     ~S(~s[hello]) ~> ~s[~s(hello)\n]
     ~S(~s{hello}) ~> ~s[~s(hello)\n]
-    ~S[~s(hello)] ~> ~s[~s(hello)\n]
     ~S[~s"()"] ~> ~s{~s[()]\n}
   end
 
   test "multi-line sigils" do
-    """
-    ~w(one two three four,
-       let's go, to K mart!)a
-    """ ~>
-    """
+   assert_format """
     ~w(one two three four,
        let's go, to K mart!)a
     """
