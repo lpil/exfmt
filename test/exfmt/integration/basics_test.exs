@@ -383,69 +383,6 @@ defmodule Exfmt.Integration.BasicsTest do
     """
   end
 
-  test "comments" do
-    """
-    # Hello
-    """ ~> """
-    # Hello
-    """
-    """
-    # Hello
-    # World
-    """ ~> """
-    # Hello
-    # World
-    """
-    """
-    # Hello
-    # World
-    call()
-    """ ~> """
-    # Hello
-    # World
-    call()
-    """
-    """
-    call()
-    # Hello
-    # World
-    """ ~> """
-    call()
-    # Hello
-    # World
-    """
-    """
-    call() # Hello
-    """ ~> """
-    call()
-    # Hello
-    """
-    """
-    call() # Hello
-    # World
-    """ ~> """
-    call()
-    # Hello
-    # World
-    """
-    """
-    call(# Hello
-         arg())
-    """ ~> """
-    call(# Hello
-         arg())
-    """
-    """
-    call(arg()
-        # Hello
-    )
-
-    """ ~> """
-    call arg()
-    # Hello
-    """
-  end
-
   @tag :skip
   test "with"
 

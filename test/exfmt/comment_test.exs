@@ -110,6 +110,30 @@ defmodule Exfmt.CommentTest do
       """
       assert extract_comments(code) == {:ok, [{:"#", [line: 1], [" 1"]}]}
     end
+
+    test "docstring with content that looks like comment" do
+      code = ~S(
+      """
+
+      # Nope!
+
+      """
+      # Yes!
+      )
+      assert extract_comments(code) == {:ok, [{:"#", [line: 7], [" Yes!"]}]}
+    end
+
+    test "sigil docstring with content that looks like comment" do
+      code = ~S(
+      ~S"""
+
+      # Nope!
+
+      """
+      # Yes!
+      )
+      assert extract_comments(code) == {:ok, [{:"#", [line: 7], [" Yes!"]}]}
+    end
   end
 
   describe "merge/2" do

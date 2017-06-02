@@ -146,7 +146,7 @@ defmodule Exfmt.Comment do
   end
 
   def merge(comments, ast) do
-    case Macro.prewalk(ast, comments, &merge_node/2) do
+    case Macro.prewalk(ast, Enum.reverse(comments), &merge_node/2) do
       {merged, []} ->
         merged
 
@@ -168,10 +168,10 @@ defmodule Exfmt.Comment do
     before_node = fn(c) -> line(c) < ast_line end
     case Enum.split_while(comments, before_node) do
       {[], _} ->
-        {ast, Enum.reverse(comments)}
+        {ast, comments}
 
       {earlier, rest} ->
-        block = {:__block__, [], Enum.reverse(earlier) ++ [ast]}
+        block = {:__block__, [], earlier ++ [ast]}
         {block, rest}
     end
   end

@@ -20,6 +20,8 @@ Changelog
   literals.
 - FIX: Avoid erroneous escaping when rendering sigils.
 - FIX: Avoid crashing when a do block only contains `[]`.
+- FIX: Prevent incorrect comment placement resulting in semantically
+  incorrect output.
 
 
 ## v0.1.0 - 2017-05-29
