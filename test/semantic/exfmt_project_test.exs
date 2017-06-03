@@ -4,7 +4,6 @@ defmodule Semantic.ExfmtProjectTest do
   project_pattern = "./{test,lib}/**/*.ex{,s}"
 
   for path <- Path.wildcard(project_pattern) do
-    @tag :skip
     test "semantics of #{path} after formatting" do
       unquote(path)
       |> File.read!()

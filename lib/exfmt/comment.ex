@@ -55,21 +55,33 @@ defmodule Exfmt.Comment do
     end
   end
 
+  defmacrop is_horizontal_space(c) do
+    quote do
+      unquote(c) in [?\t, ?\s]
+    end
+  end
+
   @scope {:elixir_tokenizer, :filename, [], true, false}
 
   alias :elixir_interpolation, as: Interp
 
+  defp extract([?~, char, delim, delim, delim | src], line, comments)
+  when is_letter(char) and is_quote(delim) do
+    with {:ok, new_src, new_line} <- discard_heredoc(src, delim, line) do
+      extract(new_src, new_line, comments)
+    end
+  end
 
   # Sigil
   defp extract([?~, char, delim | src], line, comments)
   when is_letter(char) and is_sigil_delim(delim) do
     end_char = sigil_terminator(delim)
     case Interp.extract(line, 0, @scope, is_downcase(char), src, end_char) do
-      {:error, _reason} ->
-        :error
-
       {new_line, _col, _parts, new_src} ->
         extract(new_src, new_line, comments)
+
+      {:error, _reason} ->
+        :error
     end
   end
 
@@ -200,5 +212,67 @@ defmodule Exfmt.Comment do
       x ->
         x
     end
+  end
+
+
+  defp discard_heredoc(src, delim, line) do
+    case discard_heredoc_line(src, delim) do
+      {:ok, new_src} ->
+        discard_heredoc(new_src, delim, line + 1)
+
+      {:finished, new_src} ->
+        {:ok, new_src, line}
+
+      {:error, _reason} ->
+        :error
+    end
+  end
+
+
+  #
+  # Discard spaces, then content
+  #
+  defp discard_heredoc_line([c | src], delim) when is_horizontal_space(c) do
+    discard_heredoc_line(src, delim)
+  end
+
+  defp discard_heredoc_line([delim, delim, delim | src], delim) do
+    {:finished, src}
+  end
+
+  defp discard_heredoc_line(src, delim) do
+    discard_heredoc_line_content(src, delim)
+  end
+
+
+  #
+  # Discard content
+  #
+  defp discard_heredoc_line_content([?\\, ?\\ | src], delim) do
+    discard_heredoc_line_content(src, delim)
+  end
+
+  defp discard_heredoc_line_content([?\\, delim | src], delim) do
+    discard_heredoc_line_content(src, delim)
+  end
+
+  defp discard_heredoc_line_content([delim, delim, delim | _], delim) do
+    {:error, :misplaced_terminator}
+  end
+
+  defp discard_heredoc_line_content([?\r, ?\n | src], _) do
+    {:ok, src}
+  end
+
+  defp discard_heredoc_line_content([?\n | src], _) do
+    {:ok, src}
+  end
+
+  defp discard_heredoc_line_content([_ | src], delim) do
+    discard_heredoc_line_content(src, delim)
+  end
+
+  defp discard_heredoc_line_content(_, _) do
+    {:error, :eof}
   end
 end
