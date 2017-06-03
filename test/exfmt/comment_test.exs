@@ -134,6 +134,15 @@ defmodule Exfmt.CommentTest do
       )
       assert extract_comments(code) == {:ok, [{:"#", [line: 7], [" Yes!"]}]}
     end
+
+    test "docstring sigil containing a string with interp" do
+      code = ~S(
+      ~S"""
+      "#{1}"
+      """
+      )
+      assert extract_comments(code) == {:ok, []}
+    end
   end
 
   describe "merge/2" do
