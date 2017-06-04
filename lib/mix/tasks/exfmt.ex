@@ -4,6 +4,12 @@ defmodule Mix.Tasks.Exfmt do
 
       mix exfmt path/to/file.ex
 
+  ## Command line options
+
+    * `--unsafe` - Disable the semantics check that verifies
+      that `exmft` has not altered the semantic meaning of
+      the input file.
+
   """
 
   @shortdoc  "Format Elixir source code"
