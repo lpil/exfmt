@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## Unreleased
+## v0.2.0 - 2017-06-04
 
 - The `mix exfmt` mix task has been added to enable people to try
   the formatter. This task reads source code from a file and prints
@@ -28,6 +28,8 @@ Changelog
   literals.
 - FIX: Avoid erroneous escaping when rendering sigils.
 - FIX: Avoid crashing when a do block only contains `[]`.
+- FIX: Avoid crashing when parsing a docstring sigil with content
+  that looks like a string containing a hash.
 - FIX: Prevent incorrect comment placement which results in
   semantically incorrect output.
 
