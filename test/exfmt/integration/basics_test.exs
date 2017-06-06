@@ -133,7 +133,8 @@ defmodule Exfmt.Integration.BasicsTest do
   end
 
   test "Access protocol" do
-    "keys[:name]" ~> "keys[:name]\n"
+    assert_format "keys[:name]\n"
+    assert_format "conn.assigns[:safe_mode_active]\n"
     "some_list[\n   :name\n]" ~> "some_list[:name]\n"
   end
 

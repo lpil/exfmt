@@ -269,7 +269,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   def to_algebra({{:., _, [Access, :get]}, _, [structure, key]}, ctx) do
     new_ctx = Context.push_stack(ctx, :access)
     algebra = to_algebra(structure, new_ctx)
-    "#{algebra}[#{to_algebra(key, new_ctx)}]"
+    concat(concat(concat(algebra, "["), to_algebra(key, new_ctx)), "]")
   end
 
   #

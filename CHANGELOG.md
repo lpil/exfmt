@@ -4,6 +4,9 @@ Changelog
 ## Unreleased
 
 - Fix: Correctly render struct patterns with variable name.
+  (https://github.com/lpil/exfmt/issues/7)
+- Fix: Prevent crash with some uses of the Access protocol.
+  (https://github.com/lpil/exfmt/issues/8)
 
 
 ## v0.2.0 - 2017-06-04
