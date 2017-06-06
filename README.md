@@ -6,6 +6,17 @@
 
 # exfmt 🌸
 
+> `exfmt` is in alpha.  If you run into any problems, please
+> [report them][issues].
+>
+> Currently exfmt does not always produce semantically identical formatted
+> Elixir. There are checks to prevent data loss, but please ensure you have
+> backed up your code before running `exfmt` during this alpha stage.
+>
+> **The format produced by exfmt will change significantly before the 1.0.0
+> release.**  If this will cause problems for you, please refrain from using
+> exfmt during the alpha- and beta-test periods.
+
 `exfmt` formats [Elixir][elixir] source code according to a standard set of
 rules. It is inspired by Aaron VonderHaar's [elm-format][elm-format].
 
@@ -50,13 +61,6 @@ The benefits of `exfmt`:
 [prs]: https://github.com/lpil/exfmt/pulls
 [elixir]: https://elixir-lang.org/
 [elm-format]: https://github.com/avh4/elm-format
-
-> `exfmt` is still in alpha.  If you run into any problems, please
-> [report them][issues].
->
-> **The format produced by exfmt may change significantly before the 1.0.0
-> release.**  If this will cause problems for you, please refrain from using
-> exfmt during the alpha- and beta-test periods.
 
 
 ## Contents
