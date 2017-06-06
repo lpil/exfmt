@@ -68,13 +68,8 @@ defmodule Exfmt.Ast.ToAlgebra do
   #
   # Structs
   #
-  def to_algebra({:%, _, [{:__MODULE__, _, _}, {:%{}, _, args}]}, ctx) do
-    body_doc = map_body_to_algebra(args, ctx)
-    group(nest(concat("%__MODULE__{", concat(body_doc, "}")), 12))
-  end
-
-  def to_algebra({:%, _, [{:__aliases__, _, _} = as, {:%{}, _, args}]}, ctx) do
-    name = to_algebra(as, ctx)
+  def to_algebra({:%, _, [name, {:%{}, _, args}]}, ctx) do
+    name = to_algebra(name, ctx)
     indent = String.length(name) + 2
     start = concat(concat("%", name), "{")
     body_doc = map_body_to_algebra(args, ctx)

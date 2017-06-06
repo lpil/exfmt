@@ -1,6 +1,11 @@
 Changelog
 =========
 
+## Unreleased
+
+- Fix: Correctly render struct patterns with variable name.
+
+
 ## v0.2.0 - 2017-06-04
 
 - The `mix exfmt` mix task has been added to enable people to try

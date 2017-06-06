@@ -61,6 +61,7 @@ defmodule Exfmt.Integration.BasicsTest do
     """
     "%__MODULE__{debug: true}" ~> "%__MODULE__{debug: true}\n"
     "%Inspect.Opts{}" ~> "%Inspect.Opts{}\n"
+    "%struct_type{}" ~> "%struct_type{}\n"
   end
 
   test "keyword lists" do
