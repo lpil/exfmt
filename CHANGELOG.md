@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## Unreleased
+## v0.2.1 - 2017-06-06
 
 - Fix: Correctly render struct patterns with variable name.
   (https://github.com/lpil/exfmt/issues/7)
