@@ -113,9 +113,9 @@ defmodule Exfmt do
   #
 
   defp do_format(tree, comments, max_width) do
+    new_tree = Ast.preprocess(tree)
     comments
-    |> Comment.merge(tree)
-    |> Ast.preprocess()
+    |> Comment.merge(new_tree)
     |> Ast.to_algebra(Context.new)
     |> Algebra.format(max_width)
     |> IO.chardata_to_string()

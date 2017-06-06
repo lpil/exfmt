@@ -1,6 +1,12 @@
 Changelog
 =========
 
+## Unreleased
+
+- Fix: Correctly insert spaces between function clauses when
+  the function clause is preceeded by a comment.
+
+
 ## v0.2.1 - 2017-06-06
 
 - Fix: Correctly render struct patterns with variable name.

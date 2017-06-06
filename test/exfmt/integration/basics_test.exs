@@ -363,18 +363,6 @@ defmodule Exfmt.Integration.BasicsTest do
     """
   end
 
-  test "functions with guards" do
-    """
-    def one?(x) when x in [:one, "one"] do
-      true
-    end
-    """ ~> """
-    def one?(x) when x in [:one, "one"] do
-      true
-    end
-    """
-  end
-
   test "with (<- op is has own group)" do
     assert_format """
     with {:ok, path} <- get_path(x, y, z),
