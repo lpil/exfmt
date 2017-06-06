@@ -81,4 +81,60 @@ defmodule Exfmt.AstTest do
       assert group_by_def(exprs) == expected
     end
   end
+
+  describe "eq?/2" do
+    test "numbers" do
+      assert eq?(quote do 1 end, quote do 1 end)
+      assert eq?(quote do 1.0 end, quote do 1.0 end)
+      refute eq?(quote do 2.0 end, quote do 1.0 end)
+    end
+
+    test "atoms" do
+      assert eq?(quote do :ok end, quote do :ok end)
+      refute eq?(quote do :ok end, quote do nil end)
+      assert eq?(quote do true end, quote do true end)
+      assert eq?(quote do false end, quote do false end)
+      refute eq?(quote do true end, quote do false end)
+      assert eq?(quote do nil end, quote do nil end)
+    end
+
+    test "strings" do
+      assert eq?(quote do "hi\n" end,
+                 quote do
+                   """
+                   hi
+                   """
+                 end)
+      refute eq?(quote do "1" end, quote do "2" end)
+    end
+
+    test "lists" do
+      assert eq?(quote do [1, 2, 3] end, quote do [1, 2, 3] end)
+      refute eq?(quote do [3, 2, 1] end, quote do [1, 2, 3] end)
+      refute eq?(quote do [1] end, quote do [1, 2] end)
+    end
+
+    test "2 item tuples" do
+      assert eq?(quote do {:ok, 1} end, quote do {:ok, 1} end)
+      refute eq?(quote do {:ok, 1} end, quote do {:ok, 2} end)
+    end
+
+    test "calls" do
+      assert eq?(quote do run(1) end, quote do run(1) end)
+      refute eq?(quote do run(1) end, quote do stop(1) end)
+      refute eq?(quote do run(1) end, quote do run(1, 2) end)
+    end
+
+    test "calls with different meta" do
+      assert eq?({:run, [line: 1], []}, {:run, [line: 1000], []})
+    end
+
+    test "2 elem tuples with calls with different meta" do
+      assert eq?({:error, {:run, [line: 1], []}},
+                 {:error, {:run, [line: 1000], []}})
+      assert eq?({{:run, [line: 1], []}, :error},
+                 {{:run, [line: 1000], []}, :error})
+    end
+  end
 end
+

@@ -32,7 +32,9 @@ defmodule Exfmt do
     | SemanticsError.t
   def format(source, max_width \\ @max_width) do
     with {:ok, formatted} <- unsafe_format(source, max_width) do
-      if macro_format(source) == macro_format(formatted) do
+      original_ast = Code.string_to_quoted!(source)
+      formatted_ast = Code.string_to_quoted!(formatted)
+      if Ast.eq?(original_ast, formatted_ast) do
         {:ok, formatted}
       else
         SemanticsError.exception()

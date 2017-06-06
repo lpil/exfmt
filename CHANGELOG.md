@@ -3,6 +3,10 @@ Changelog
 
 ## Unreleased
 
+- Semantic check algorithm now walks and compares two ASTs rather
+  than relying on `Macro.to_string/1`. This change was advised by
+  the Elixir team as `Macro.to_string/1` may not be entirely
+  reliable.
 - Fix: Correctly insert spaces between function clauses when
   the function clause is preceeded by a comment.
 

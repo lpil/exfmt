@@ -11,6 +11,27 @@ defmodule Exfmt.Ast do
 
   defdelegate to_algebra(ast, context), to: __MODULE__.ToAlgebra
 
+  @doc """
+  Compare two ASTs to see if they are semantically equivalent.
+
+  """
+  @spec eq?(Macro.t, Macro.t) :: boolean
+  def eq?({name1, _, args1}, {name2, _, args2}) do
+    eq?(name1, name2) and eq?(args1, args2)
+  end
+
+  def eq?([x | xs], [y | ys]) do
+    eq?(x, y) and eq?(xs, ys)
+  end
+
+  def eq?({x1, x2}, {y1, y2}) do
+    eq?(x1, y1) and eq?(x2, y2)
+  end
+
+  def eq?(x, y) do
+    x == y
+  end
+
 
   @doc """
   Preprocess an AST before printing.
