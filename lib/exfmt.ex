@@ -142,11 +142,4 @@ defmodule Exfmt do
   defp append_newline(source) do
     source <> "\n"
   end
-
-
-  defp macro_format(source) do
-    source
-    |> Code.string_to_quoted!()
-    |> Macro.to_string()
-  end
 end
