@@ -311,8 +311,9 @@ defmodule Exfmt.Ast.ToAlgebra do
   def to_algebra({{:., _, [aliases, name]}, _, args}, ctx) do
     new_ctx = Context.push_stack(ctx, :call)
     module = to_algebra(aliases, new_ctx)
-    name = "#{module}.#{name}"
-    call_to_algebra(name, args, new_ctx)
+    call = call_to_algebra(name, args, new_ctx)
+    # TODO: We want to nest by the size of the module name here
+    concat(concat(module, "."), call)
   end
 
   #
@@ -346,6 +347,7 @@ defmodule Exfmt.Ast.ToAlgebra do
     concat(concat(to_algebra(k, ctx), " => "), to_algebra(v, ctx))
   end
 
+
   defp keyword_to_algebra({k, v}, ctx) do
     concat(concat(to_string(k), ": "), to_algebra(v, ctx))
   end
@@ -354,7 +356,8 @@ defmodule Exfmt.Ast.ToAlgebra do
     keyword_to_algebra(pair, ctx)
   end
 
-  def sigil_to_algebra(char, [{:<<>>, _, [contents]}, mods], _ctx) do
+
+  defp sigil_to_algebra(char, [{:<<>>, _, [contents]}, mods], _ctx) do
     {primary_open, primary_close, alt_open, alt_close} =
       case char do
         c when c in [?r, ?R] ->
@@ -372,6 +375,7 @@ defmodule Exfmt.Ast.ToAlgebra do
     ["~", char, open, sigil_escape(contents, close), close, mods]
     |> IO.iodata_to_binary()
   end
+
 
   defp call_to_algebra(name, all_args, ctx) do
     str_name = to_string(name)

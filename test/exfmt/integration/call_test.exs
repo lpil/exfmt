@@ -130,4 +130,8 @@ defmodule Exfmt.Integration.CallTest do
   test "send" do
     assert_format "send my_pid, :hello\n"
   end
+
+  test "call qualified by atom from another call" do
+    assert_format "Mix.shell.info :ok\n"
+  end
 end

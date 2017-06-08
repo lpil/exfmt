@@ -7,7 +7,8 @@ Changelog
   than relying on `Macro.to_string/1`. This change was advised by
   the Elixir team as `Macro.to_string/1` may not be entirely
   reliable.
-- Rendering of anonymous functions in typespecs.
+- Rendering of anonymous functions in typespecs, and
+  calls qualified by an atom from another call.
 - Fix: Correctly insert spaces between function clauses when
   the function clause is preceeded by a comment.
 

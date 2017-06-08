@@ -21,6 +21,18 @@ defmodule Exfmt.Algebra do
     the end of the line, such as comments.
   """
 
+  #
+  # TODO: Introduce a way of nesting to the current column position.
+  # This will be useful for indenting when we don't know the width of
+  # what comes before. For example, typespecs after functions, function
+  # args after module alias names.
+  #
+
+  #
+  # TODO: Try and remove `wide`. We could possibly do it just with `line`
+  # in the comment block to_algebra clause.
+  #
+
   alias Inspect, as: I
   require I.Algebra
 

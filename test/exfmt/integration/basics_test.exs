@@ -35,35 +35,6 @@ defmodule Exfmt.Integration.BasicsTest do
     "__MODULE__.Helper" ~> "__MODULE__.Helper\n"
   end
 
-  test "maps" do
-    "%{}" ~> "%{}\n"
-    "%{a: 1}" ~> "%{a: 1}\n"
-    "%{:a => 1}" ~> "%{a: 1}\n"
-    "%{1 => 1}" ~> "%{1 => 1}\n"
-    "%{1 => 1, 2 => 2}" ~> "%{1 => 1, 2 => 2}\n"
-  end
-
-  test "map upsert %{map | key: value}" do
-    "%{map | key: value}" ~> "%{map | key: value}\n"
-  end
-
-  test "structs" do
-    "%Person{}" ~> "%Person{}\n"
-    "%__MODULE__.Person{}" ~> "%__MODULE__.Person{}\n"
-    "%Person{age: 1}" ~> "%Person{age: 1}\n"
-    "%Person{timmy | age: 1}" ~> "%Person{timmy | age: 1}\n"
-    """
-    %LongerNamePerson{timmy | name: "Timmy", age: 1}
-    """ ~> """
-    %LongerNamePerson{timmy |
-                      name: "Timmy",
-                      age: 1}
-    """
-    "%__MODULE__{debug: true}" ~> "%__MODULE__{debug: true}\n"
-    "%Inspect.Opts{}" ~> "%Inspect.Opts{}\n"
-    "%struct_type{}" ~> "%struct_type{}\n"
-  end
-
   test "keyword lists" do
     "[]" ~> "[]\n"
     "[a: 1]" ~> "[a: 1]\n"
