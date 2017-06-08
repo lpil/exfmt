@@ -11,6 +11,8 @@ Changelog
   calls qualified by an atom from another call.
 - Fix: Correctly insert spaces between function clauses when
   the function clause is preceeded by a comment.
+- Fix: Correctly render capturing of qualified functions with arity
+  specified.
 
 
 ## v0.2.1 - 2017-06-06

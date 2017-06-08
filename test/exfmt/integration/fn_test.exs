@@ -6,8 +6,15 @@ defmodule Exfmt.Integration.FnTest do
     "&inspect/1" ~> "&inspect/1\n"
     "&inspect(&1)" ~> "&inspect(&1)\n"
     "&merge(&2, &1)" ~> "&merge(&2, &1)\n"
+  end
+
+  test "captured infix operators" do
     "&(&2 + &1)" ~> "& &2 + &1\n"
     "(& &1.name)" ~> "& &1.name\n"
+  end
+
+  test "captured qualified function" do
+    assert_format "&A.info/0\n"
   end
 
   test "calling captured functions" do

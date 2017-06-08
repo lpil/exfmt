@@ -206,11 +206,14 @@ defmodule Exfmt.Ast.ToAlgebra do
     new_ctx = Context.push_stack(ctx, op)
     lhs = infix_child_to_algebra(l, :left, new_ctx)
     rhs = infix_child_to_algebra(r, :right, new_ctx)
-    case op do
-      :|> ->
+    case {op, ctx.stack} do
+      {:/, [:& | _]} ->
+        concat(concat(lhs, "/"), rhs)
+
+      {:|>, _} ->
         glue(line(lhs, "|>"), rhs)
 
-      :| ->
+      {:|, _} ->
         glue(lhs, space("|", rhs))
 
       _ ->
