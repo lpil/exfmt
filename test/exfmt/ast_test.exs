@@ -135,6 +135,19 @@ defmodule Exfmt.AstTest do
       assert eq?({{:run, [line: 1], []}, :error},
                  {{:run, [line: 1000], []}, :error})
     end
+
+    test "blocks of one and single expressions are eq" do
+      single = quote do
+        def available?(dep), do: not diverged?(dep)
+      end
+      block = quote do
+        def available?(dep) do
+          not diverged?(dep)
+        end
+      end
+      assert eq?(block, single)
+      assert eq?(single, block)
+    end
   end
 end
 

@@ -16,8 +16,16 @@ defmodule Exfmt.Ast do
 
   """
   @spec eq?(Macro.t, Macro.t) :: boolean
-  def eq?({name1, _, args1}, {name2, _, args2}) do
-    eq?(name1, name2) and eq?(args1, args2)
+  def eq?({:__block__, _, [x]}, {name, _, _} = y) when name != :__block__ do
+    eq?(x, y)
+  end
+
+  def eq?({name, _, _} = x, {:__block__, _, [y]}) when name != :__block__ do
+    eq?(x, y)
+  end
+
+  def eq?({x_name, _, x_args}, {y_name, _, y_args}) do
+    eq?(x_name, y_name) and eq?(x_args, y_args)
   end
 
   def eq?([x | xs], [y | ys]) do
