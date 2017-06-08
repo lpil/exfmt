@@ -161,31 +161,6 @@ defmodule Exfmt.Integration.BasicsTest do
     """
   end
 
-  test "@spec" do
-    "@spec bar() :: 1" ~> "@spec bar() :: 1\n"
-    "@spec ok :: :ok" ~> "@spec ok :: :ok\n"
-    """
-    @spec run(String.t, [tern]) :: atom
-    """ ~> """
-    @spec run(String.t, [tern]) :: atom
-    """
-    """
-    @spec run(String.t) :: atom | String.t | :hello
-    """ ~> """
-    @spec run(String.t)
-          :: atom | String.t | :hello
-    """
-    """
-    @spec run(String.t) :: atom | String.t | :hello | :world
-    """ ~> """
-    @spec run(String.t)
-          :: atom
-          | String.t
-          | :hello
-          | :world
-    """
-  end
-
   test "list patterns" do
     "[head1, head2|tail]" ~> "[head1, head2 | tail]\n"
   end

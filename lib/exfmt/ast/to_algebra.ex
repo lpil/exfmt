@@ -42,6 +42,19 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
+  # Anon functions in typespecs
+  #    @type t :: (() -> term)
+  #
+  def to_algebra([{:->, _, [args, result]}], ctx) do
+    new_ctx = Context.push_stack(ctx, :->)
+    res_doc = to_algebra(result, ctx)
+    fun = fn(elem, _opts) -> to_algebra(elem, new_ctx) end
+    args_doc = surround_many("(", args, ")", ctx.opts, fun)
+    fun_doc = glue(space(args_doc, "->"), res_doc)
+    group(concat(concat("(", fun_doc), ")"))
+  end
+
+  #
   # Lists
   #
   def to_algebra(list, ctx) when is_list(list) do
