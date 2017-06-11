@@ -134,4 +134,8 @@ defmodule Exfmt.Integration.CallTest do
   test "call qualified by atom from another call" do
     assert_format "Mix.shell.info :ok\n"
   end
+
+  test "call with keyword list not as last arg" do
+    assert_format "print_tree [normal: app], opts\n"
+  end
 end

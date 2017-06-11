@@ -13,6 +13,8 @@ Changelog
   the function clause is preceeded by a comment.
 - Fix: Correctly render capturing of qualified functions with arity
   specified.
+- Fix: Render keyword lists with `[]` delimiters when a function
+  argument in a position other than the final position.
 
 
 ## v0.2.1 - 2017-06-06

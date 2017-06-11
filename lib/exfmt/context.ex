@@ -19,7 +19,8 @@ defmodule Exfmt.Context do
   end
 
   @valid_layers ~W(list call keyword access negative sigil spec_lhs spec_rhs
-                   tuple module_attribute map fn & do <<>>)a ++ Infix.infix_ops
+                   tuple module_attribute map fn & do last_arg <<>>)a ++
+                Infix.infix_ops
 
   @doc """
   Push a new value onto the stack, signifying another layer in the code.

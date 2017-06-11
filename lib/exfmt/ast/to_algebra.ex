@@ -61,7 +61,7 @@ defmodule Exfmt.Ast.ToAlgebra do
     new_ctx = Context.push_stack(ctx, :list)
     with {:"[]", [_|_]} <- {:"[]", list},
          {:kw, true} <- {:kw, Inspect.List.keyword?(list)},
-         {:cl, [:call | _]} <- {:cl, ctx.stack} do
+         {:la, [:last_arg | _]} <- {:la, ctx.stack} do
       fun = &keyword_to_algebra(&1, &2, new_ctx)
       surround_many("", list, "", ctx.opts, fun)
     else
@@ -69,7 +69,7 @@ defmodule Exfmt.Ast.ToAlgebra do
         fun = fn(elem, _opts) -> to_algebra(elem, new_ctx) end
         surround_many("[", list, "]", ctx.opts, fun)
 
-      {:cl, _} ->
+      {:la, _} ->
         fun = &keyword_to_algebra(&1, &2, new_ctx)
         surround_many("[", list, "]", ctx.opts, fun)
 
@@ -383,7 +383,6 @@ defmodule Exfmt.Ast.ToAlgebra do
   defp call_to_algebra(name, all_args, ctx) do
     str_name = to_string(name)
     name_len = String.length(str_name)
-    fun = fn(elem, _opts) -> to_algebra(elem, ctx) end
     {args, blocks} = Util.split_do_block(all_args)
     data = %{args: args, blocks: blocks, stack: ctx.stack}
     case data do
@@ -394,9 +393,9 @@ defmodule Exfmt.Ast.ToAlgebra do
 
       # Call with block args
       %{blocks: b} when b != [] ->
-        arg_list = surround_many(" ", args, " ", ctx.opts, fun)
+        arg_list = call_args_to_algebra(args, ctx, parens: false)
         blocks_algebra = do_block_algebra(blocks, ctx)
-        concat(concat(str_name, nest(arg_list, name_len)), blocks_algebra)
+        space(concat(str_name, nest(arg_list, name_len)), blocks_algebra)
 
       # Zero arity call
       %{args: []} ->
@@ -404,23 +403,46 @@ defmodule Exfmt.Ast.ToAlgebra do
 
       # Block arg
       %{args: [{name, _, _} | _]} when is_block(name) ->
-        arg_list = surround_many("(", args, ")", ctx.opts, fun)
+        arg_list = call_args_to_algebra(args, ctx)
         concat(str_name, nest(arg_list, name_len))
 
       # Top level call
       %{stack: [:call]} ->
-        arg_list = surround_many(" ", args, "", ctx.opts, fun)
+        arg_list = call_args_to_algebra(args, ctx, parens: false)
         concat(str_name, nest(arg_list, name_len))
 
       # Call inside a do end block
       %{stack: [:call, :do | _]} ->
-        arg_list = surround_many(" ", args, "", ctx.opts, fun)
+        arg_list = call_args_to_algebra(args, ctx, parens: false)
         concat(str_name, nest(arg_list, name_len))
 
       _ ->
-        arg_list = surround_many("(", args, ")", ctx.opts, fun)
+        arg_list = call_args_to_algebra(args, ctx)
         concat(str_name, nest(arg_list, name_len))
     end
+  end
+
+
+  defp call_args_to_algebra(args, ctx, opts \\ [parens: true]) do
+    count = length(args)
+    {open, close} = if opts[:parens] do
+      {"(", ")"}
+    else
+      {" ", ""}
+    end
+    indexed = Enum.with_index(args, 1)
+    fun = fn(arg, _) -> arg_to_algebra(count, arg, ctx) end
+    surround_many(open, indexed, close, ctx.opts, fun)
+  end
+
+
+  defp arg_to_algebra(num_args, {arg, num_args}, ctx) do
+    new_ctx = Context.push_stack(ctx, :last_arg)
+    to_algebra(arg, new_ctx)
+  end
+
+  defp arg_to_algebra(_num_args, {arg, _number}, ctx) do
+    to_algebra(arg, ctx)
   end
 
 
