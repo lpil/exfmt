@@ -38,6 +38,21 @@ defmodule Exfmt.AlgebraTest do
       """
     end
 
+    test "nest / doc_nest with :current" do
+      doc = space("one", nest(line("two", "three"), :current))
+      assert fmt(doc, 10) == """
+      one two
+          three
+      """
+      doc1 = group(glue("a", "b"))
+      doc2 = line("one", "two")
+      doc = space(doc1, nest(doc2, :current))
+      assert fmt(doc, 10) == """
+      a b one
+          two
+      """
+    end
+
     test "group / doc_group" do
       doc = group(glue(glue(glue("a", "b"), "c"), "d"))
       assert fmt(doc, 7) == """
