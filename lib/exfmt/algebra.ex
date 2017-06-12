@@ -17,8 +17,7 @@ defmodule Exfmt.Algebra do
 
   ## Extensions
 
-  - `wide/1` has been added to support printing of forms that span to
-    the end of the line, such as comments.
+  - None!
   """
 
   #
@@ -26,11 +25,6 @@ defmodule Exfmt.Algebra do
   # This will be useful for indenting when we don't know the width of
   # what comes before. For example, typespecs after functions, function
   # args after module alias names.
-  #
-
-  #
-  # TODO: Try and remove `wide`. We could possibly do it just with `line`
-  # in the comment block to_algebra clause.
   #
 
   alias Inspect, as: I
@@ -50,15 +44,7 @@ defmodule Exfmt.Algebra do
     | doc_nest
     | doc_break
     | doc_group
-    | doc_wide
     | binary
-
-  @typep doc_wide :: {:doc_wide, t}
-  defmacrop doc_wide(doc) do
-    quote do
-      {:doc_wide, unquote(doc)}
-    end
-  end
 
   #
   # Lifted from `Inspect.Algebra.doc_cons/1`
@@ -127,7 +113,7 @@ defmodule Exfmt.Algebra do
       unquote(doc) in [:doc_nil, :doc_line] or
       (is_tuple(unquote(doc)) and
        elem(unquote(doc), 0) in
-        [:doc_cons, :doc_nest, :doc_break, :doc_group, :doc_wide])
+        [:doc_cons, :doc_nest, :doc_break, :doc_group])
     end
   end
 
@@ -148,24 +134,6 @@ defmodule Exfmt.Algebra do
   defdelegate surround_many(l, docs, r, opts, fun), to: I.Algebra
   defdelegate surround_many(l, docs, r, opts, fun, sep), to: I.Algebra
   defdelegate to_doc(term, opts), to: I.Algebra
-
-
-  @doc ~S"""
-  The wide algebra will never fit, it always causes a break.
-  We use this to represent comments as they span to the end
-  of the line, no matter what the line limit is.
-
-  ## Examples
-
-      iex> doc = glue(wide("hello"), "world")
-      ...> format(doc, 80)
-      ["hello", "\n", "world"]
-
-  """
-  @spec wide(t) :: t
-  def wide(doc) do
-    doc_wide(doc)
-  end
 
 
   @doc ~S"""
@@ -305,10 +273,6 @@ defmodule Exfmt.Algebra do
     fits?((limit - byte_size(s)), t)
   end
 
-  defp fits?(_, [{_, _, doc_wide(_)} | _rest]) do
-    false
-  end
-
   defp fits?(limit, [{_, :flat, doc_break(s)} | t]) do
     fits?((limit - byte_size(s)), t)
   end
@@ -343,10 +307,6 @@ defmodule Exfmt.Algebra do
   defp format(limit, width, [{indent, mode, doc_nest(x, extra_indent)} | t]) do
     docs = [{indent + extra_indent, mode, x} | t]
     format(limit, width, docs)
-  end
-
-  defp format(limit, _, [{_, _, doc_wide(x)} | t]) do
-    [x | format(limit, limit + 1, t)]
   end
 
   defp format(limit, width, [{_, _, s} | t]) when is_binary(s) do

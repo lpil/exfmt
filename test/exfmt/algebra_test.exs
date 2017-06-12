@@ -51,15 +51,6 @@ defmodule Exfmt.AlgebraTest do
       """
     end
 
-    test "wide / doc_wide" do
-      doc = glue("a", glue(wide("b"), "c"))
-      assert fmt(doc, 1000) == """
-      a
-      b
-      c
-      """
-    end
-
     test "line / doc_line" do
       doc = nest(line("a", "b"), 2)
       assert fmt(doc, 40) == "a\n  b\n"
