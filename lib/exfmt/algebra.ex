@@ -17,15 +17,10 @@ defmodule Exfmt.Algebra do
 
   ## Extensions
 
-  - None!
+  - `nest/1` can take the atom `:current` instead of an integer. With
+    this value the formatter will set the indentation level to the
+    current column position.
   """
-
-  #
-  # TODO: Introduce a way of nesting to the current column position.
-  # This will be useful for indenting when we don't know the width of
-  # what comes before. For example, typespecs after functions, function
-  # args after module alias names.
-  #
 
   alias Inspect, as: I
   require I.Algebra
@@ -59,7 +54,9 @@ defmodule Exfmt.Algebra do
   #
   # Lifted from `Inspect.Algebra.doc_nest/1`
   #
-  @typep doc_nest :: {:doc_nest, t, non_neg_integer}
+  # Modified to have accept `:current` value
+  #
+  @typep doc_nest :: {:doc_nest, t, non_neg_integer | :current}
   defmacrop doc_nest(doc, indent) do
     quote do
       {:doc_nest, unquote(doc), unquote(indent)}
@@ -128,7 +125,6 @@ defmodule Exfmt.Algebra do
   defdelegate fold_doc(docs, fun), to: I.Algebra
   defdelegate group(doc), to: I.Algebra
   defdelegate line(doc1, doc2), to: I.Algebra
-  defdelegate nest(doc, level), to: I.Algebra
   defdelegate space(doc1, doc2), to: I.Algebra
   defdelegate surround(left, doc, right), to: I.Algebra
   defdelegate surround_many(l, docs, r, opts, fun), to: I.Algebra
@@ -204,6 +200,34 @@ defmodule Exfmt.Algebra do
     concat(doc1, concat(break(break_string), doc2))
   end
 
+
+  @doc ~S"""
+  Nests the given document at the given `level`.
+
+  Nesting will be appended to the line breaks.
+
+  ## Examples
+
+      iex> doc = Inspect.Algebra.nest(Inspect.Algebra.glue("hello", "world"), 5)
+      iex> Inspect.Algebra.format(doc, 5)
+      ["hello", "\n     ", "world"]
+
+  """
+  @spec nest(t, non_neg_integer | :current) :: doc_nest
+  def nest(doc, level)
+
+  def nest(doc, 0) when is_doc(doc) do
+    doc
+  end
+
+  def nest(doc, :current) do
+    doc_nest(doc, :current)
+  end
+
+  def nest(doc, level) when is_doc(doc) and is_integer(level) and level > 0 do
+    doc_nest(doc, level)
+  end
+
   #
   # Manipulation functions
   #
@@ -265,6 +289,12 @@ defmodule Exfmt.Algebra do
     fits?(limit, [{indent, m, x} | [{indent, m, y} | t]])
   end
 
+  # Indent is never used in `fits?/2`, why do we have clauses for it?
+  defp fits?(limit, [{indent, m, doc_nest(x, :current)} | t]) do
+    fits?(limit, [{indent, m, x} | t])
+  end
+
+  # Indent is never used in `fits?/2`, why do we have clauses for it?
   defp fits?(limit, [{indent, m, doc_nest(x, i)} | t]) do
     fits?(limit, [{indent + i, m, x} | t])
   end
@@ -301,6 +331,11 @@ defmodule Exfmt.Algebra do
 
   defp format(limit, width, [{indent, mode, doc_cons(x, y)} | t]) do
     docs = [{indent, mode, x} | [{indent, mode, y} | t]]
+    format(limit, width, docs)
+  end
+
+  defp format(limit, width, [{_indent, mode, doc_nest(x, :current)} | t]) do
+    docs = [{width, mode, x} | t]
     format(limit, width, docs)
   end
 
