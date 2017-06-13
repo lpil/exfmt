@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## Unreleased
+## v0.2.2 - 2017-06-13
 
 - Semantic check algorithm now walks and compares two ASTs rather
   than relying on `Macro.to_string/1`. This change was advised by
