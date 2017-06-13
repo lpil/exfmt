@@ -98,4 +98,7 @@ mix test
 
 # Run the tests when files change
 mix test.watch
+
+# Run the type checker
+mix dialyzer
 ```
