@@ -1,9 +1,9 @@
 defmodule Exfmt.SemanticsError do
   defexception [:message, :line]
 
-  @type t :: %__MODULE__{message: String.t}
+  @type t :: %__MODULE__{__exception__: true, message: String.t}
 
-  def exception(_ \\ nil) do
+  def exception(_ \\ []) do
     message = """
     Error: The semantic meaning of the source code differs
     between the input and the formatted output! We are unable

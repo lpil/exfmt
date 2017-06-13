@@ -22,6 +22,7 @@ defmodule Mix.Tasks.Exfmt do
   alias Exfmt.{SyntaxError, SemanticsError}
 
   @doc false
+  @spec run(OptionParser.argv) :: any
   def run([]) do
     @usage
     |> red()
@@ -29,7 +30,8 @@ defmodule Mix.Tasks.Exfmt do
   end
 
   def run(args) do
-    with {opts, [path], []} <- OptionParser.parse(args, unsafe: :boolean),
+    option_parser_options = [strict: [unsafe: :boolean]]
+    with {opts, [path], []} <- OptionParser.parse(args, option_parser_options),
          {:file, _, {:ok, source}} <- {:file, path, File.read(path)},
          {:ok, formatted} <- format(source, opts) do
       IO.write formatted
