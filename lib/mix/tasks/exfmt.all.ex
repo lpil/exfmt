@@ -1,29 +1,29 @@
-defmodule Mix.Tasks.ExFmt.All do
+defmodule Mix.Tasks.Exfmt.All do
   use Mix.Task
   alias Exfmt.{SyntaxError, SemanticsError}
-  def run([]) do
-    files = Path.join("./lib/", "**/*.ex")
+  def run(args) do
+    option_parser_options = [strict: [unsafe: :boolean]]
+    {_opts, [path], []} = OptionParser.parse(args, option_parser_options)
+    files = Path.join(path, "**/*.ex")
             |> Path.wildcard()
-    Enum.each(files, &format_file(&1))
+    Enum.each(files, &format_dir(&1))
   end
 
-  defp format_file(path) do
-    with {:file, _, {:ok, source}} <- {:file, path, File.read(path)},
-         {:ok, formatted} <- Exfmt.format(source, 100) do
-      IO.write(formatted)
-    else
+  defp format_dir(path) do
+    {:ok, source} = File.read(path)
+    case Exfmt.format(source, 100) do
+      {:ok, formatted} ->
+        IO.write(formatted)
       %SemanticsError{message: message} ->
         message
         |> red()
-        |> IO.puts
-
+        |> IO.puts()
       %SyntaxError{message: message} ->
         message
         |> red()
-        |> IO.puts
+        |> IO.puts()
     end
   end
-
   defp red(msg) do
     [IO.ANSI.red, msg, IO.ANSI.reset]
   end
