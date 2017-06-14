@@ -13,7 +13,14 @@ defmodule Mix.Tasks.Exfmt.All do
     {:ok, source} = File.read(path)
     case Exfmt.format(source, 100) do
       {:ok, formatted} ->
-        IO.write(formatted)
+        if source == formatted do
+          IO.write("#{path} is already formatted collectly")
+        else
+          "#{path} does not formatted collectly!"
+          |> red()
+          |> IO.puts()
+          File.write!(path, formatted, [])
+        end
       %SemanticsError{message: message} ->
         message
         |> red()
