@@ -1,6 +1,10 @@
 Changelog
 =========
 
+## Unreleased
+
+- Fix: Correctly render multi-arity fns with guard clauses.
+
 ## v0.2.2 - 2017-06-13
 
 - Semantic check algorithm now walks and compares two ASTs rather

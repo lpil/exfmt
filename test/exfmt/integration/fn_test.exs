@@ -66,4 +66,22 @@ defmodule Exfmt.Integration.FnTest do
     end
     """
   end
+
+  test "multi-arity fun with when guard" do
+    assert_format """
+    fn(:ok, x) when is_map(x) -> x end
+    """
+  end
+
+  @tag :skip
+  test "multi-clause multi-arity fun with when guard" do
+    assert_format """
+    fn
+      :ok, x when is_map(x) ->
+        x
+      _, _ ->
+        :error
+    end
+    """
+  end
 end

@@ -156,7 +156,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
-  # fn-> ... end
+  # fn -> ... end
   #
   def to_algebra({:fn, _, [{:->, _, [args, body]}]}, ctx) do
     new_ctx = Context.push_stack(ctx, :fn)
@@ -462,6 +462,13 @@ defmodule Exfmt.Ast.ToAlgebra do
     case args do
       [] ->
         "fn->"
+
+      [{:when, _, [_, _ | _] = when_args}] ->
+        {fn_args, [when_guard]} = Enum.split(when_args, -1)
+        head = call_to_algebra("fn", fn_args, ctx)
+        guard = space("when", to_algebra(when_guard, ctx))
+        glue(space(head, guard), "->")
+
 
       _ ->
         glue(call_to_algebra("fn", args, ctx), "->")
