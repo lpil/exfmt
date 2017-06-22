@@ -111,15 +111,18 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
+  # Charlist interpolation
+  #
+  def to_algebra({{:., _, to_charlist}, _, [{:<<>>, _, _} = expr]}, ctx)
+  when to_charlist == [String, :to_charlist] do
+    maybe_interp_to_algebra(expr, ctx, "'")
+  end
+
+  #
   # Binaries and string interpolation
   #
-  def to_algebra({:<<>>, _, parts} = expr, ctx) do
-    if interpolated?(expr) do
-      interp_to_algebra(parts, ctx)
-    else
-      new_ctx = Context.push_stack(ctx, :<<>>)
-      bitparts_to_algebra(parts, new_ctx)
-    end
+  def to_algebra({:<<>>, _, _} = expr, ctx) do
+    maybe_interp_to_algebra(expr, ctx, "\"")
   end
 
 
@@ -596,7 +599,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
 
-  defp interp_to_algebra(parts, ctx) do
+  defp interp_to_algebra(parts, ctx, delim) do
     merge = fn
       ({:::, _, [{{:., _, _}, _, [content]}, {:binary, _, nil}]}, acc) ->
         content_doc = to_algebra(content, ctx)
@@ -607,7 +610,7 @@ defmodule Exfmt.Ast.ToAlgebra do
         concat(acc, string)
     end
     inner_doc = Enum.reduce(parts, empty(), merge)
-    concat(concat("\"", inner_doc), "\"")
+    concat(concat(delim, inner_doc), delim)
   end
 
 
@@ -689,6 +692,16 @@ defmodule Exfmt.Ast.ToAlgebra do
 
       _ ->
         group(nest(concat(concat("<<", doc), ">>"), 2))
+    end
+  end
+
+
+  defp maybe_interp_to_algebra({:<<>>, _, parts} = expr, ctx, delim) do
+    if interpolated?(expr) do
+      interp_to_algebra(parts, ctx, delim)
+    else
+      new_ctx = Context.push_stack(ctx, :<<>>)
+      bitparts_to_algebra(parts, new_ctx)
     end
   end
 end

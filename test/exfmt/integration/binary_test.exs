@@ -26,6 +26,12 @@ defmodule Exfmt.Integration.BinaryTest do
     """
   end
 
+  test "charlist interpolation" do
+    assert_format ~S"""
+    '1 #{2} 3'
+    """
+  end
+
   test "empty binary" do
     assert_format "<<>>\n"
   end
