@@ -18,3 +18,8 @@ erl_crash.dump
 
 # Also ignore archive artifacts (built via "mix archive.build").
 *.ez
+
+# Temp files
+/tmp
+/*.exs
+!mix.exs

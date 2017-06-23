@@ -138,4 +138,8 @@ defmodule Exfmt.Integration.CallTest do
   test "call with keyword list not as last arg" do
     assert_format "print_tree [normal: app], opts\n"
   end
+
+  test "unquoted function name call" do
+    assert_format "unquote(callback).()\n"
+  end
 end

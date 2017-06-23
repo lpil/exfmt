@@ -260,10 +260,10 @@ defmodule Exfmt.Ast.ToAlgebra do
   #
   # Anon function call
   #
-  def to_algebra({{:., _, [{name, _, nil}]}, _, args}, ctx) do
+  def to_algebra({{:., _, [name]}, _, args}, ctx) do
     new_ctx = Context.push_stack(ctx, :call)
-    str_name = to_string(name)
-    head_doc = concat(str_name, ".")
+    name_doc = to_algebra(name, new_ctx)
+    head_doc = concat(name_doc, ".")
     args_doc = call_args_to_algebra(args, new_ctx, parens: true)
     concat(head_doc, nest(args_doc, :current))
   end

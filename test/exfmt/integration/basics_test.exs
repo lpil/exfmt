@@ -317,4 +317,13 @@ defmodule Exfmt.Integration.BasicsTest do
     end
     """
   end
+
+  @tag :skip
+  test "infix op with do end arg" do
+    assert_format """
+    assert (run do
+               :ok
+             end) == :ok
+    """
+  end
 end
