@@ -138,28 +138,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   # Captured functions
   #
   def to_algebra({:&, _, [arg]}, ctx) do
-    new_ctx = Context.push_stack(ctx, :&)
-    arg_algebra = to_algebra(arg, new_ctx)
-    case arg do
-      # &run/1
-      {:/, _, [_name, arity]} when is_integer(arity) ->
-        concat("&", arg_algebra)
-
-      # & &1.key
-      {{:., _, [{:&, _, _} | _]}, _, _} ->
-        space("&", arg_algebra)
-
-      # & &1 + &2
-      {op, _, _} when op in Infix.infix_ops ->
-        space("&", arg_algebra)
-
-      # & %{&1 | state: :ok}
-      {:%{}, _, _} ->
-        space("&", arg_algebra)
-
-      _ ->
-        concat("&", arg_algebra)
-    end
+    capture_to_algebra(arg, ctx)
   end
 
   #
@@ -710,6 +689,36 @@ defmodule Exfmt.Ast.ToAlgebra do
     else
       new_ctx = Context.push_stack(ctx, :<<>>)
       bitparts_to_algebra(parts, new_ctx)
+    end
+  end
+
+
+  defp capture_to_algebra(arg, ctx) do
+    new_ctx = Context.push_stack(ctx, :&)
+    arg_algebra = to_algebra(arg, new_ctx)
+    case arg do
+      # &run/1
+      {:/, _, [_name, arity]} when is_integer(arity) ->
+        concat("&", arg_algebra)
+
+      # & &1.key
+      {{:., _, [{:&, _, _} | _]}, _, _} ->
+        space("&", arg_algebra)
+
+      # & &1 + &2
+      {op, _, _} when op in Infix.infix_ops ->
+        space("&", arg_algebra)
+
+      # & %{&1 | state: :ok}
+      {:%{}, _, _} ->
+        space("&", arg_algebra)
+
+      # & &1
+      {:&, _, _} ->
+        space("&", arg_algebra)
+
+      _ ->
+        concat("&", arg_algebra)
     end
   end
 end

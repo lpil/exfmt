@@ -71,6 +71,10 @@ defmodule Exfmt.Integration.FnTest do
     assert_format "& %{&1 | state: :ok}\n"
   end
 
+  test "captured identity" do
+    assert_format "& &1\n"
+  end
+
   test "multi-arity fun with when guard" do
     assert_format """
     fn(:ok, x) when is_map(x) -> x end
