@@ -3,7 +3,8 @@ Changelog
 
 ## Unreleased
 
-- Rendering of charlists with interpolation.
+- Rendering of charlists with interpolation, and captured map
+  update functions.
 - Fix: Correctly render multi-arity fns with guard clauses.
 
 ## v0.2.2 - 2017-06-13

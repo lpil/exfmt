@@ -153,6 +153,10 @@ defmodule Exfmt.Ast.ToAlgebra do
       {op, _, _} when op in Infix.infix_ops ->
         space("&", arg_algebra)
 
+      # & %{&1 | state: :ok}
+      {:%{}, _, _} ->
+        space("&", arg_algebra)
+
       _ ->
         concat("&", arg_algebra)
     end
@@ -564,9 +568,10 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
 
-  def map_body_to_algebra([{:|, _, [{name, _, _}, pairs]}], ctx) do
+  def map_body_to_algebra([{:|, _, [name, pairs]}], ctx) do
+    name_doc = to_algebra(name, ctx)
     pairs_doc = map_pairs_to_algebra(pairs, ctx)
-    glue(space(to_string(name), "|"), pairs_doc)
+    glue(space(name_doc, "|"), pairs_doc)
   end
 
   def map_body_to_algebra(pairs, ctx) do
