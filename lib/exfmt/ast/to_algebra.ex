@@ -345,7 +345,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
 
-  defp sigil_to_algebra(char, [{:<<>>, _, [contents]}, mods], _ctx) do
+  defp sigil_to_algebra(char, [{:<<>>, _, parts}, mods], ctx) do
     {primary_open, primary_close, alt_open, alt_close} =
       case char do
         c when c in [?r, ?R] ->
@@ -355,13 +355,28 @@ defmodule Exfmt.Ast.ToAlgebra do
           {?(, ?), ?[, ?]}
       end
     {open, close} =
-      if String.contains?(contents, IO.chardata_to_string([primary_close])) do
+      # TODO: Check more than just the first
+      if String.contains?(hd(parts), IO.chardata_to_string([primary_close])) do
         {alt_open, alt_close}
       else
         {primary_open, primary_close}
       end
-    ["~", char, open, sigil_escape(contents, close), close, mods]
-    |> IO.iodata_to_binary()
+    content_doc = sigil_parts_to_algebra(parts, open, close, ctx)
+    open_doc = concat("~", List.to_string([char]))
+    close_doc = List.to_string(mods)
+    surround(open_doc, content_doc, close_doc)
+  end
+
+
+  defp sigil_parts_to_algebra(parts, open, close, ctx) do
+    parts
+    |> Enum.map(fn
+        part when is_binary(part) ->
+          sigil_escape(part, close)
+        part ->
+          part
+      end)
+    |> interp_to_algebra(ctx, List.to_string([open]), List.to_string([close]))
   end
 
 
@@ -583,7 +598,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
 
-  defp interp_to_algebra(parts, ctx, delim) do
+  defp interp_to_algebra(parts, ctx, open, close) do
     merge = fn
       ({:::, _, [{{:., _, _}, _, [content]}, {:binary, _, nil}]}, acc) ->
         content_doc = to_algebra(content, ctx)
@@ -594,7 +609,7 @@ defmodule Exfmt.Ast.ToAlgebra do
         concat(acc, string)
     end
     inner_doc = Enum.reduce(parts, empty(), merge)
-    surround(delim, inner_doc, delim)
+    surround(open, inner_doc, close)
   end
 
 
@@ -676,7 +691,7 @@ defmodule Exfmt.Ast.ToAlgebra do
 
   defp maybe_interp_to_algebra({:<<>>, _, parts} = expr, ctx, delim) do
     if interpolated?(expr) do
-      interp_to_algebra(parts, ctx, delim)
+      interp_to_algebra(parts, ctx, delim, delim)
     else
       new_ctx = Context.push_stack(ctx, :<<>>)
       bitparts_to_algebra(parts, new_ctx)

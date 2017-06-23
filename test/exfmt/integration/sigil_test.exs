@@ -31,4 +31,10 @@ defmodule Exfmt.Integration.SigilTest do
        let's go, to K mart!)a
     """
   end
+
+  test "sigil with interp" do
+    assert_format ~S"""
+    ~s(1 #{2} 3)
+    """
+  end
 end
