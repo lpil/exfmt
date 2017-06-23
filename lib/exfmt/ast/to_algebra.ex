@@ -51,7 +51,7 @@ defmodule Exfmt.Ast.ToAlgebra do
     fun = fn(elem) -> to_algebra(elem, new_ctx) end
     args_doc = surround_many("(", args, ")", fun)
     fun_doc = glue(space(args_doc, "->"), res_doc)
-    group(concat(concat("(", fun_doc), ")"))
+    surround("(", fun_doc, ")")
   end
 
   #
@@ -83,10 +83,10 @@ defmodule Exfmt.Ast.ToAlgebra do
   #
   def to_algebra({:%, _, [name, {:%{}, _, args}]}, ctx) do
     name = to_algebra(name, ctx)
-    indent = String.length(name) + 2
+    indent = String.length(name) + 1
     start = concat(concat("%", name), "{")
     body_doc = map_body_to_algebra(args, ctx)
-    group(nest(concat(start, concat(body_doc, "}")), indent))
+    group(nest(surround(start, body_doc, "}"), indent))
   end
 
   #
@@ -194,7 +194,7 @@ defmodule Exfmt.Ast.ToAlgebra do
     rhs = infix_child_to_algebra(r, :right, new_ctx)
     case {op, ctx.stack} do
       {:/, [:& | _]} ->
-        concat(concat(lhs, "/"), rhs)
+        surround(lhs, "/", rhs)
 
       {:|>, _} ->
         glue(line(lhs, "|>"), rhs)
@@ -233,7 +233,7 @@ defmodule Exfmt.Ast.ToAlgebra do
     fun_doc = to_algebra(fun, new_ctx)
     callback = fn(elem) -> to_algebra(elem, ctx) end
     args_doc = surround_many("(", args, ")", callback)
-    concat(concat(concat("(", fun_doc), ")."), args_doc)
+    concat(surround("(", fun_doc, ")."), args_doc)
   end
 
   #
@@ -273,7 +273,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   def to_algebra({{:., _, [Access, :get]}, _, [structure, key]}, ctx) do
     new_ctx = Context.push_stack(ctx, :access)
     algebra = to_algebra(structure, new_ctx)
-    concat(concat(concat(algebra, "["), to_algebra(key, new_ctx)), "]")
+    surround(concat(algebra, "["), to_algebra(key, new_ctx), "]")
   end
 
   #
@@ -335,7 +335,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   #
 
   defp arrow_pair_to_algebra({k, v}, ctx) do
-    concat(concat(to_algebra(k, ctx), " => "), to_algebra(v, ctx))
+    space(space(to_algebra(k, ctx), "=>"), to_algebra(v, ctx))
   end
 
 
@@ -587,14 +587,14 @@ defmodule Exfmt.Ast.ToAlgebra do
     merge = fn
       ({:::, _, [{{:., _, _}, _, [content]}, {:binary, _, nil}]}, acc) ->
         content_doc = to_algebra(content, ctx)
-        interp_doc = concat(concat("#\{", content_doc), "}")
+        interp_doc = surround("#\{", content_doc, "}")
         concat(acc, interp_doc)
 
       (string, acc) ->
         concat(acc, string)
     end
     inner_doc = Enum.reduce(parts, empty(), merge)
-    concat(concat(delim, inner_doc), delim)
+    surround(delim, inner_doc, delim)
   end
 
 
@@ -632,13 +632,13 @@ defmodule Exfmt.Ast.ToAlgebra do
     new_ctx = Context.push_stack(ctx, :::)
     lhs_doc = to_algebra(left, new_ctx)
     rhs_doc = to_algebra(right, new_ctx)
-    concat(concat(lhs_doc, "::"), group(rhs_doc))
+    surround(lhs_doc, "::", group(rhs_doc))
   end
 
   defp bitpart_to_algebra({:<-, _, _} = part, ctx) do
     new_ctx = Context.push_stack(ctx, :<-)
     doc = to_algebra(part, new_ctx)
-    nest(concat(concat("(", doc), ")"), 1)
+    nest(surround("(", doc, ")"), 1)
   end
 
   defp bitpart_to_algebra(part, ctx) do
@@ -666,10 +666,10 @@ defmodule Exfmt.Ast.ToAlgebra do
   defp binary_delim(doc, ctx) do
     case ctx.stack do
       [:<<>>, :::, :<<>> | _] ->
-        group(nest(concat(concat("(<<", doc), ">>)"), 3))
+        group(nest(surround("(<<", doc, ">>)"), 2))
 
       _ ->
-        group(nest(concat(concat("<<", doc), ">>"), 2))
+        group(nest(surround("<<", doc, ">>"), 1))
     end
   end
 
