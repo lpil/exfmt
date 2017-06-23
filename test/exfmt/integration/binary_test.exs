@@ -76,4 +76,10 @@ defmodule Exfmt.Integration.BinaryTest do
     end
     """
   end
+
+  test "binary with only string content" do
+    assert_format """
+    <<"f", "oo">>
+    """
+  end
 end

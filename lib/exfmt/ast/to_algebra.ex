@@ -621,11 +621,8 @@ defmodule Exfmt.Ast.ToAlgebra do
 
 
   defp interpolated?({:<<>>, _, [_ | _] = parts}) do
-    Enum.all?(parts, fn
+    Enum.any?(parts, fn
       {:::, _, [{{:., _, [Kernel, :to_string]}, _, [_]}, {:binary, _, _}]} ->
-        true
-
-      binary when is_binary(binary) ->
         true
 
       _ ->
