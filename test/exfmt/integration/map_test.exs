@@ -44,4 +44,16 @@ defmodule Exfmt.Integration.MapTest do
   test "variable type struct" do
     assert_format "%struct_type{}\n"
   end
+
+  test "keys with spaces" do
+    assert_format """
+    %{"Implemented protocols": :ok}
+    """
+  end
+
+  test "keys with dashes" do
+    assert_format """
+    %{"name-space": :ok}
+    """
+  end
 end
