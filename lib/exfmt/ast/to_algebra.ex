@@ -402,7 +402,8 @@ defmodule Exfmt.Ast.ToAlgebra do
 
       # Call with block args
       %{blocks: b} when b != [] ->
-        arg_list = call_args_to_algebra(args, ctx, parens: false)
+        args_with_block? = Enum.any?(args, &Util.call_with_block?/1)
+        arg_list = call_args_to_algebra(args, ctx, parens: args_with_block?)
         blocks_algebra = do_block_algebra(blocks, ctx)
         space(concat(str_name, nest(arg_list, name_len)), blocks_algebra)
 
@@ -417,12 +418,14 @@ defmodule Exfmt.Ast.ToAlgebra do
 
       # Top level call
       %{stack: [:call]} ->
-        arg_list = call_args_to_algebra(args, ctx, parens: false)
+        args_with_block? = Enum.any?(args, &Util.call_with_block?/1)
+        arg_list = call_args_to_algebra(args, ctx, parens: args_with_block?)
         concat(str_name, nest(arg_list, name_len))
 
       # Call inside a do end block
       %{stack: [:call, :do | _]} ->
-        arg_list = call_args_to_algebra(args, ctx, parens: false)
+        args_with_block? = Enum.any?(args, &Util.call_with_block?/1)
+        arg_list = call_args_to_algebra(args, ctx, parens: args_with_block?)
         concat(str_name, nest(arg_list, name_len))
 
       _ ->

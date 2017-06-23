@@ -142,4 +142,12 @@ defmodule Exfmt.Integration.CallTest do
   test "unquoted function name call" do
     assert_format "unquote(callback).()\n"
   end
+
+  test "call with arg with do block" do
+    assert_format """
+    write_beam(defmodule SampleDocs do
+                 :ok
+               end)
+    """
+  end
 end

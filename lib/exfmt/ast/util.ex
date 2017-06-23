@@ -50,4 +50,36 @@ defmodule Exfmt.Ast.Util do
   defp do_split_do_block([head | tail], prev, acc) do
     do_split_do_block(tail, head, [prev | acc])
   end
+
+
+  @doc """
+  Given an AST node, determine if the node is a call with block arguments.
+
+      iex> call_with_block?(1)
+      false
+
+      iex> call_with_block?("Hello")
+      false
+
+      iex> call_with_block?(quote do run(:ok) end)
+      false
+
+      iex> call_with_block?(quote do run :ok do nil end end)
+      true
+
+  """
+  @spec call_with_block?(Macro.t) :: boolean
+  def call_with_block?({_, _, args}) when is_list(args) do
+    case List.last(args) do
+      [{:do, _} | _] ->
+        true
+
+      _ ->
+        false
+    end
+  end
+
+  def call_with_block?(_) do
+    false
+  end
 end
