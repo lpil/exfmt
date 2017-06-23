@@ -48,8 +48,8 @@ defmodule Exfmt.Ast.ToAlgebra do
   def to_algebra([{:->, _, [args, result]}], ctx) do
     new_ctx = Context.push_stack(ctx, :->)
     res_doc = to_algebra(result, ctx)
-    fun = fn(elem, _opts) -> to_algebra(elem, new_ctx) end
-    args_doc = surround_many("(", args, ")", ctx.opts, fun)
+    fun = fn(elem) -> to_algebra(elem, new_ctx) end
+    args_doc = surround_many("(", args, ")", fun)
     fun_doc = glue(space(args_doc, "->"), res_doc)
     group(concat(concat("(", fun_doc), ")"))
   end
@@ -62,16 +62,16 @@ defmodule Exfmt.Ast.ToAlgebra do
     with {:"[]", [_|_]} <- {:"[]", list},
          {:kw, true} <- {:kw, Inspect.List.keyword?(list)},
          {:la, [:last_arg | _]} <- {:la, ctx.stack} do
-      fun = &keyword_to_algebra(&1, &2, new_ctx)
-      surround_many("", list, "", ctx.opts, fun)
+      fun = &keyword_to_algebra(&1, new_ctx)
+      surround_many("", list, "", fun)
     else
       {:kw, false} ->
-        fun = fn(elem, _opts) -> to_algebra(elem, new_ctx) end
-        surround_many("[", list, "]", ctx.opts, fun)
+        fun = fn(elem) -> to_algebra(elem, new_ctx) end
+        surround_many("[", list, "]", fun)
 
       {:la, _} ->
-        fun = &keyword_to_algebra(&1, &2, new_ctx)
-        surround_many("[", list, "]", ctx.opts, fun)
+        fun = &keyword_to_algebra(&1, new_ctx)
+        surround_many("[", list, "]", fun)
 
       {:"[]", _} ->
         "[]"
@@ -102,8 +102,8 @@ defmodule Exfmt.Ast.ToAlgebra do
   #
   def to_algebra({:{}, _, elems}, ctx) do
     new_ctx = Context.push_stack(ctx, :tuple)
-    fun = fn(elem, _opts) -> to_algebra(elem, new_ctx) end
-    surround_many("{", elems, "}", ctx.opts, fun)
+    fun = fn(elem) -> to_algebra(elem, new_ctx) end
+    surround_many("{", elems, "}", fun)
   end
 
   def to_algebra({a, b}, ctx) do
@@ -231,8 +231,8 @@ defmodule Exfmt.Ast.ToAlgebra do
   def to_algebra({{:., _, [{:&, _, _} = fun]}, _meta, args}, ctx) do
     new_ctx = Context.push_stack(ctx, :call)
     fun_doc = to_algebra(fun, new_ctx)
-    callback = fn(elem, _opts) -> to_algebra(elem, ctx) end
-    args_doc = surround_many("(", args, ")", ctx.opts, callback)
+    callback = fn(elem) -> to_algebra(elem, ctx) end
+    args_doc = surround_many("(", args, ")", callback)
     concat(concat(concat("(", fun_doc), ")."), args_doc)
   end
 
@@ -344,10 +344,6 @@ defmodule Exfmt.Ast.ToAlgebra do
     space(concat(name, ":"), to_algebra(v, ctx))
   end
 
-  defp keyword_to_algebra(pair, _, ctx) do
-    keyword_to_algebra(pair, ctx)
-  end
-
 
   defp sigil_to_algebra(char, [{:<<>>, _, [contents]}, mods], _ctx) do
     {primary_open, primary_close, alt_open, alt_close} =
@@ -423,8 +419,8 @@ defmodule Exfmt.Ast.ToAlgebra do
       {" ", ""}
     end
     indexed = Enum.with_index(args, 1)
-    fun = fn(arg, _) -> arg_to_algebra(count, arg, ctx) end
-    surround_many(open, indexed, close, ctx.opts, fun)
+    fun = fn(arg) -> arg_to_algebra(count, arg, ctx) end
+    surround_many(open, indexed, close, fun)
   end
 
 

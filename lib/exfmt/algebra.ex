@@ -127,10 +127,37 @@ defmodule Exfmt.Algebra do
   defdelegate line(doc1, doc2), to: I.Algebra
   defdelegate space(doc1, doc2), to: I.Algebra
   defdelegate surround(left, doc, right), to: I.Algebra
-  defdelegate surround_many(l, docs, r, opts, fun), to: I.Algebra
   defdelegate surround_many(l, docs, r, opts, fun, sep), to: I.Algebra
   defdelegate to_doc(term, opts), to: I.Algebra
 
+  @doc ~S"""
+  Maps and glues a collection of items.
+
+  It uses the given `left` and `right` documents as surrounding and the
+  separator document `separator` to separate items in `docs`.
+
+  ## Examples
+
+      iex> doc = surround_many("[", Enum.to_list(1..5), "]", &to_string/1)
+      iex> format(doc, 5) |> IO.iodata_to_binary
+      "[1,\n 2,\n 3,\n 4,\n 5]"
+
+  """
+  def surround_many(open, args, close, fun)
+
+  def surround_many(open, [], close, _) do
+    concat(open, close)
+  end
+
+  def surround_many(open, args, close, fun) do
+    args_doc =
+      args
+      |> Enum.map(fun)
+      |> Enum.reduce(fn(e, acc) ->
+        glue(concat(acc, ","), e)
+      end)
+    surround(open, args_doc, close)
+  end
 
   @doc ~S"""
   Concatenates two document entities returning a new document.

@@ -11,6 +11,7 @@ Changelog
 - Fix: Surround call args with parems when any argument is a call
   with block arguments. This prevents the block being mistakenly
   assigned to the top level call instead of the child call.
+- Fix: Avoid truncating large collections.
 
 ## v0.2.2 - 2017-06-13
 
