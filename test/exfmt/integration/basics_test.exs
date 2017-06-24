@@ -375,12 +375,19 @@ defmodule Exfmt.Integration.BasicsTest do
     """
   end
 
-  @tag :skip
-  test "infix op with do end arg" do
+  test "infix op with lhs with block" do
     assert_format """
     assert (run do
                :ok
              end) == :ok
+    """
+  end
+
+  test "infix op with rhs with block" do
+    assert_format """
+    assert :ok == (run do
+               :ok
+             end)
     """
   end
 end

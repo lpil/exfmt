@@ -21,6 +21,9 @@ defmodule Exfmt.Ast.Infix do
 
   """
 
+  alias Exfmt.Context
+  alias Exfmt.Ast.Util
+
   @infix_ops [:===, :!==, :==, :!=, :<=, :>=, :&&, :||, :<>, :++, :--, :\\,
               :::, :<-, :.., :|>, :=~, :<, :>, :->, :+, :-, :*, :/, :=, :|,
               :., :and, :or, :when, :in, :~>>, :<<~, :~>, :<~, :<~>, :<|>,
@@ -35,33 +38,37 @@ defmodule Exfmt.Ast.Infix do
     @infix_ops
   end
 
+
   @doc """
-  Determine whether an infix operator is to be wrapped in parens
-  in order to render correctly.
+  Determine whether an infix operator's argument is to be wrapped
+  in parens in order to render correctly.
 
   """
+  @spec wrap?(Macro.t, :left | :right, Context.t) :: boolean
   def wrap?({op, _, _}, side, ctx) when op in @infix_ops do
-    with [parent|_] <- ctx.stack,
+    with [parent | _] <- ctx.stack,
          {parent_assoc, parent_prec} <- binary_op_props(parent),
          {_, prec} <- binary_op_props(op) do
-      do_wrap?(side, prec, parent_prec, parent_assoc)
+      presedence_wrap?(side, prec, parent_prec, parent_assoc)
     else
       _ ->
         false
     end
   end
 
-  def wrap?(_, _, _) do
-    false
+  def wrap?(ast, _, _) do
+    Util.call_with_block? ast
   end
 
-  defp do_wrap?(side, prec, parent_prec, parent_assoc) do
+
+  defp presedence_wrap?(side, prec, parent_prec, parent_assoc) do
     if parent_prec == prec do
       parent_assoc != side
     else
       parent_prec > prec
     end
   end
+
 
   #
   # This function has been adapted from

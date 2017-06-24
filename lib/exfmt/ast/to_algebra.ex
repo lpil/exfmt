@@ -5,7 +5,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   """
 
   alias Exfmt.{Ast, Algebra, Context}
-  alias Ast.{Infix, Util}
+  alias Ast.{Infix, Sigil, Util}
   import Algebra
   require Algebra
   require Infix
@@ -360,21 +360,7 @@ defmodule Exfmt.Ast.ToAlgebra do
 
 
   defp sigil_to_algebra(char, [{:<<>>, _, parts}, mods], ctx) do
-    {primary_open, primary_close, alt_open, alt_close} =
-      case char do
-        c when c in [?r, ?R] ->
-          {?/, ?/, ?(, ?)}
-
-        _ ->
-          {?(, ?), ?[, ?]}
-      end
-    {open, close} =
-      # TODO: Check more than just the first
-      if String.contains?(hd(parts), IO.chardata_to_string([primary_close])) do
-        {alt_open, alt_close}
-      else
-        {primary_open, primary_close}
-      end
+    {open, close} = Sigil.delimiters(char, parts)
     content_doc = sigil_parts_to_algebra(parts, open, close, ctx)
     open_doc = concat("~", List.to_string([char]))
     close_doc = List.to_string(mods)

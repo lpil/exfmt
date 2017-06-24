@@ -37,4 +37,10 @@ defmodule Exfmt.Integration.SigilTest do
     ~s(1 #{2} 3)
     """
   end
+
+  test "sigil with interp first" do
+    assert_format ~S"""
+    ~r/#{1} 2/
+    """
+  end
 end
