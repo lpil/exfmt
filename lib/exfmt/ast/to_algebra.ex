@@ -338,6 +338,10 @@ defmodule Exfmt.Ast.ToAlgebra do
     space(space(to_algebra(k, ctx), "=>"), to_algebra(v, ctx))
   end
 
+  defp arrow_pair_to_algebra(value, ctx) do
+    to_algebra(value, ctx)
+  end
+
 
   defp keyword_to_algebra({k, v}, ctx) do
     ":" <> name = inspect(k)

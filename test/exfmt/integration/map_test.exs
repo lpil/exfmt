@@ -56,4 +56,10 @@ defmodule Exfmt.Integration.MapTest do
     %{"name-space": :ok}
     """
   end
+
+  test "macro contents" do
+    assert_format """
+    %{unquote_splicing(spec)}
+    """
+  end
 end

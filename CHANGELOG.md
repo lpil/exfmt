@@ -6,7 +6,8 @@ Changelog
 - Rendering of anon function calls with unquoted variable names,
   charlists with interpolation, `& &1` captured identity functions,
   atom keys that require quotes, binaries of only string parts,
-  sigils with interpolation and captured map update functions.
+  maps with contents other than pairs, sigils with interpolation
+  and captured map update functions.
 - Fix: Correctly render multi-arity fns with guard clauses.
 - Fix: Surround call args with parems when any argument is a call
   with block arguments. This prevents the block being mistakenly
