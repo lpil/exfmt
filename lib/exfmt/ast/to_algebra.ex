@@ -42,6 +42,15 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
+  # Blocks
+  #
+  def to_algebra({name, _, exprs}, ctx) when is_block(name) do
+    exprs
+    |> Enum.map(&to_algebra(&1, ctx))
+    |> Enum.reduce(&line(&2, &1))
+  end
+
+  #
   # Anon functions in typespecs
   #    @type t :: (() -> term)
   #
@@ -123,15 +132,6 @@ defmodule Exfmt.Ast.ToAlgebra do
   #
   def to_algebra({:<<>>, _, _} = expr, ctx) do
     maybe_interp_to_algebra(expr, ctx, "\"")
-  end
-
-
-  #
-  # Blocks
-  #
-  def to_algebra({name, _, [head | tail]}, ctx) when is_block(name) do
-    fun = &line(&2, to_algebra(&1, ctx))
-    Enum.reduce(tail, to_algebra(head, ctx), fun)
   end
 
   #
@@ -302,9 +302,19 @@ defmodule Exfmt.Ast.ToAlgebra do
   def to_algebra({{:., _, [aliases, name]}, _, args}, ctx) do
     new_ctx = Context.push_stack(ctx, :call)
     module = to_algebra(aliases, new_ctx)
-    call = call_to_algebra(name, args, new_ctx)
+    call = call_to_algebra(to_string(name), args, new_ctx)
     # TODO: We want to nest by the size of the module name here
     concat(concat(module, "."), call)
+  end
+
+  #
+  # Function calls with quoted name
+  #
+  def to_algebra({{:unquote, _, name_args}, _, args}, ctx)  do
+    new_ctx = Context.push_stack(ctx, :call)
+    name_args_doc = call_args_to_algebra(name_args, new_ctx)
+    name_doc = concat("unquote", name_args_doc)
+    call_to_algebra(name_doc, args, new_ctx)
   end
 
   #
@@ -316,9 +326,9 @@ defmodule Exfmt.Ast.ToAlgebra do
         new_ctx = Context.push_stack(ctx, :sigil)
         sigil_to_algebra(char, args, new_ctx)
 
-      _ ->
+      str_name ->
         new_ctx = Context.push_stack(ctx, :call)
-        call_to_algebra(name, args, new_ctx)
+        call_to_algebra(str_name, args, new_ctx)
     end
   end
 
@@ -385,47 +395,45 @@ defmodule Exfmt.Ast.ToAlgebra do
 
 
   defp call_to_algebra(name, all_args, ctx) do
-    str_name = to_string(name)
-    name_len = String.length(str_name)
     {args, blocks} = Util.split_do_block(all_args)
     data = %{args: args, blocks: blocks, stack: ctx.stack}
     case data do
       # "Zero" arity call with block args
       %{args: [], blocks: b} when b != [] ->
         blocks_algebra = do_block_algebra(blocks, ctx)
-        space(str_name, blocks_algebra)
+        space(name, blocks_algebra)
 
       # Call with block args
       %{blocks: b} when b != [] ->
         args_with_block? = Enum.any?(args, &Util.call_with_block?/1)
         arg_list = call_args_to_algebra(args, ctx, parens: args_with_block?)
         blocks_algebra = do_block_algebra(blocks, ctx)
-        space(concat(str_name, nest(arg_list, name_len)), blocks_algebra)
+        space(concat(name, nest(arg_list, :current)), blocks_algebra)
 
       # Zero arity call
       %{args: []} ->
-        concat(str_name, "()")
+        concat(name, "()")
 
       # Block arg
-      %{args: [{name, _, _} | _]} when is_block(name) ->
+      %{args: [{arg_name, _, _} | _]} when is_block(arg_name) ->
         arg_list = call_args_to_algebra(args, ctx)
-        concat(str_name, nest(arg_list, name_len))
+        concat(name, nest(arg_list, :current))
 
       # Top level call
       %{stack: [:call]} ->
         args_with_block? = Enum.any?(args, &Util.call_with_block?/1)
         arg_list = call_args_to_algebra(args, ctx, parens: args_with_block?)
-        concat(str_name, nest(arg_list, name_len))
+        concat(name, nest(arg_list, :current))
 
       # Call inside a do end block
       %{stack: [:call, :do | _]} ->
         args_with_block? = Enum.any?(args, &Util.call_with_block?/1)
         arg_list = call_args_to_algebra(args, ctx, parens: args_with_block?)
-        concat(str_name, nest(arg_list, name_len))
+        concat(name, nest(arg_list, :current))
 
       _ ->
         arg_list = call_args_to_algebra(args, ctx)
-        concat(str_name, nest(arg_list, name_len))
+        concat(name, nest(arg_list, :current))
     end
   end
 

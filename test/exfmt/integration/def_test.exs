@@ -45,7 +45,6 @@ defmodule Exfmt.Integration.DefTest do
     """
   end
 
-  @tag :skip
   test "def with unquote name" do
     assert_format ~S"""
     defmacrop unquote(name)(arg) do

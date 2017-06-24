@@ -169,6 +169,7 @@ defmodule Exfmt.Algebra do
     surround(open, args_doc, close)
   end
 
+
   @doc ~S"""
   Concatenates two document entities returning a new document.
 

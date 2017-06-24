@@ -7,7 +7,7 @@ Changelog
   charlists with interpolation, `& &1` captured identity functions,
   atom keys that require quotes, binaries of only string parts,
   maps with contents other than pairs, sigils with interpolation
-  and captured map update functions.
+  defs with unquoted names, and captured map update functions.
 - Fix: Correctly render multi-arity fns with guard clauses.
 - Fix: Surround call args with parems when any argument is a call
   with block arguments. This prevents the block being mistakenly

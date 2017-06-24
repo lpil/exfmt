@@ -1,6 +1,6 @@
 defmodule Exfmt.Integration.CommentsTest do
   use ExUnit.Case
-  import Support.Integration, only: [~>: 2]
+  import Support.Integration, only: [~>: 2, assert_format: 1]
 
   test "comments" do
     """
@@ -18,29 +18,21 @@ defmodule Exfmt.Integration.CommentsTest do
   end
 
   test "call comments" do
-    """
-    # Hello
-    # World
-    call()
-    """ ~> """
-    # Hello
-    # World
+    assert_format """
+    # Hello1
+    # World1
     call()
     """
-    """
+    assert_format """
     call()
-    # Hello
-    # World
-    """ ~> """
-    call()
-    # Hello
-    # World
+    # Hello2
+    # World2
     """
     """
-    call() # Hello
+    call() # Hello3
     """ ~> """
     call()
-    # Hello
+    # Hello3
     """
     """
     call() # Hello
@@ -50,13 +42,16 @@ defmodule Exfmt.Integration.CommentsTest do
     # Hello
     # World
     """
-    """
+  end
+
+  test "comment arg containing comment" do
+    assert_format """
     call(# Hello
          arg())
-    """ ~> """
-    call(# Hello
-         arg())
     """
+  end
+
+  test "comment arg containing comment in last place" do
     """
     call(arg()
         # Hello
