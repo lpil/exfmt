@@ -731,6 +731,10 @@ defmodule Exfmt.Ast.ToAlgebra do
       {:%{}, _, _} ->
         space("&", arg_algebra)
 
+      # & &1[:key]
+      {{:., _, [Access, :get]}, _, _} ->
+        space("&", arg_algebra)
+
       # & &1
       {:&, _, _} ->
         space("&", arg_algebra)
