@@ -11,7 +11,7 @@ defmodule Exfmt.Integration.SigilTest do
     "~r[hello]" ~> "~r/hello/\n"
     "~r{hello}" ~> "~r/hello/\n"
     ~S"~r/\//" ~> "~r(/)\n"
-    ~S"~r/\/)/" ~> ~S"~r(/\))" <> "\n"
+    ~S"~r/\/()/" ~> ~S"~r(/(\))" <> "\n"
   end
 
   test "s sigils" do

@@ -82,4 +82,10 @@ defmodule Exfmt.Integration.BinaryTest do
     <<"f", "oo">>
     """
   end
+
+  test "strings with interpolation and a quote" do
+    assert_format ~S"""
+    " \" #{name}"
+    """
+  end
 end

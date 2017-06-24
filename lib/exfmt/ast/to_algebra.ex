@@ -124,14 +124,14 @@ defmodule Exfmt.Ast.ToAlgebra do
   #
   def to_algebra({{:., _, to_charlist}, _, [{:<<>>, _, _} = expr]}, ctx)
   when to_charlist == [String, :to_charlist] do
-    maybe_interp_to_algebra(expr, ctx, "'")
+    maybe_interp_to_algebra(expr, ctx, ?')
   end
 
   #
   # Binaries and string interpolation
   #
   def to_algebra({:<<>>, _, _} = expr, ctx) do
-    maybe_interp_to_algebra(expr, ctx, "\"")
+    maybe_interp_to_algebra(expr, ctx, ?")
   end
 
   #
@@ -383,14 +383,16 @@ defmodule Exfmt.Ast.ToAlgebra do
 
 
   defp sigil_parts_to_algebra(parts, open, close, ctx) do
+    close_char = IO.iodata_to_binary([close])
+    maybe_escape = fn
+      part when is_binary(part) ->
+        binary_escape(part, close_char)
+      part ->
+        part
+    end
     parts
-    |> Enum.map(fn
-        part when is_binary(part) ->
-          sigil_escape(part, close)
-        part ->
-          part
-      end)
-    |> interp_to_algebra(ctx, List.to_string([open]), List.to_string([close]))
+    |> Enum.map(maybe_escape)
+    |> interp_to_algebra(ctx, open, close)
   end
 
 
@@ -618,19 +620,37 @@ defmodule Exfmt.Ast.ToAlgebra do
         concat(acc, interp_doc)
 
       (string, acc) ->
-        concat(acc, string)
+        concat(acc, binary_escape(string, close))
     end
     inner_doc = Enum.reduce(parts, empty(), merge)
-    surround(open, inner_doc, close)
+    surround(List.to_string([open]), inner_doc, List.to_string([close]))
   end
 
 
-  defp sigil_escape(contents, close) do
-    close_char = IO.iodata_to_binary([close])
-    String.replace(contents,
-                   close_char,
-                   "\\" <> close_char,
-                   global: true)
+  defp binary_escape(contents, close) do
+    # String.replace(contents, close, "\\" <> close, global: true)
+    binary_escape(contents, close, [])
+  end
+
+
+  defp binary_escape(<<>>, _, acc) do
+    IO.iodata_to_binary(acc)
+  end
+
+  defp binary_escape(<<"\\\\"::utf8, rest::binary>>, close, acc) do
+    binary_escape(rest, close, [acc, "\\\\"])
+  end
+
+  defp binary_escape(<<"\\"::utf8, close::utf8, rest::binary>>, close, acc) do
+    binary_escape(rest, close, [acc, "\\", close])
+  end
+
+  defp binary_escape(<<close::utf8, rest::binary>>, close, acc) do
+    binary_escape(rest, close, [acc, "\\", close])
+  end
+
+  defp binary_escape(<<char::utf8, rest::binary>>, close, acc) do
+    binary_escape(rest, close, [acc, char])
   end
 
 
