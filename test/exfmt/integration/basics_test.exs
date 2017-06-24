@@ -43,6 +43,12 @@ defmodule Exfmt.Integration.BasicsTest do
     "[{:a, 1}]" ~> "[a: 1]\n"
   end
 
+  test "keyword lists with special atom keys" do
+    assert_format """
+    [nil: :magenta, true: 1, false: 2]
+    """
+  end
+
   test "charlists" do
     "''" ~> "[]\n"
     "'a'" ~> "[97]\n" # TODO: Hmm...

@@ -354,7 +354,13 @@ defmodule Exfmt.Ast.ToAlgebra do
 
 
   defp keyword_to_algebra({k, v}, ctx) do
-    ":" <> name = inspect(k)
+    name = case inspect(k) do
+      ":" <> n ->
+        n
+
+      n ->
+        n
+    end
     space(concat(name, ":"), to_algebra(v, ctx))
   end
 
