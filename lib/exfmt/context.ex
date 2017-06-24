@@ -3,11 +3,9 @@ defmodule Exfmt.Context do
   require Infix
 
   @type stack_layer :: atom
-  @type t :: %__MODULE__{opts: Inspect.Opts.t,
-                         stack: [stack_layer]}
+  @type t :: %__MODULE__{stack: [stack_layer]}
 
-  defstruct opts: %Inspect.Opts{},
-            stack: []
+  defstruct stack: []
 
   @doc """
   Create a new Context.

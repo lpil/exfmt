@@ -325,9 +325,9 @@ defmodule Exfmt.Ast.ToAlgebra do
   #
   # Atoms, strings, numbers
   #
-  def to_algebra(value, ctx)
+  def to_algebra(value, _ctx)
   when is_atom(value) or is_binary(value) or is_number(value) do
-    to_doc(value, ctx.opts)
+    to_doc(value)
   end
 
   #

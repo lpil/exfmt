@@ -127,8 +127,18 @@ defmodule Exfmt.Algebra do
   defdelegate line(doc1, doc2), to: I.Algebra
   defdelegate space(doc1, doc2), to: I.Algebra
   defdelegate surround(left, doc, right), to: I.Algebra
-  defdelegate surround_many(l, docs, r, opts, fun, sep), to: I.Algebra
-  defdelegate to_doc(term, opts), to: I.Algebra
+
+
+  @doc """
+  Converts an Elixir term to an algebra document
+  according to the `Inspect` protocol.
+
+  """
+  @spec to_doc(term) :: t
+  def to_doc(term) do
+    Inspect.Algebra.to_doc(term, %Inspect.Opts{})
+  end
+
 
   @doc ~S"""
   Maps and glues a collection of items.
