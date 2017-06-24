@@ -620,7 +620,6 @@ defmodule Exfmt.Ast.ToAlgebra do
 
 
   defp binary_escape(contents, close) do
-    # String.replace(contents, close, "\\" <> close, global: true)
     binary_escape(contents, close, [])
   end
 
@@ -634,7 +633,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   defp binary_escape(<<"\\"::utf8, close::utf8, rest::binary>>, close, acc) do
-    binary_escape(rest, close, [acc, "\\", close])
+    binary_escape(rest, close, [acc, "\\\\", close])
   end
 
   defp binary_escape(<<close::utf8, rest::binary>>, close, acc) do

@@ -43,4 +43,21 @@ defmodule Exfmt.Integration.SigilTest do
     ~r/#{1} 2/
     """
   end
+
+  #
+  # TODO: Work out what is suppsed to happen here.
+  # I can't work out a way to render this in a fashion
+  # that makes the compiler happy.
+  # I'm wondering if there is a bug in the parser. There
+  # seems to be a bug in the Inspect protocol.
+  # https://github.com/elixir-lang/elixir/issues/6255
+  #
+  @tag :skip
+  test "sigil containing new close char that will need to be escaped" do
+    ~S"""
+    ~R" \( \) / "
+    """ ~> ~S"""
+    ~R( \( \\\) / )
+    """
+  end
 end
