@@ -62,4 +62,10 @@ defmodule Exfmt.Integration.MapTest do
     %{unquote_splicing(spec)}
     """
   end
+
+  test "update of map from function" do
+    assert_format """
+    %{zero(0) | rank: 1}
+    """
+  end
 end

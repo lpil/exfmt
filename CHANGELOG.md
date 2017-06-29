@@ -3,13 +3,20 @@ Changelog
 
 ## Unreleased
 
-- Rendering of anon function calls with unquoted variable names,
-  charlists with interpolation, `& &1` captured identity functions,
-  captured Access protocol calls, atom keys that require quotes,
-  binaries of only string parts, maps with contents other than pairs,
-  sigils with interpolation, defs with unquoted names, strings
-  containing interpolation and quotes, infix operator arguments with
-  blocks, and captured map update functions.
+- Rendering of more expressions:
+  - Anon function calls with unquoted variable names.
+  - Charlists with interpolation
+  - `& &1` captured identity functions.
+  - Captured Access protocol calls
+  - Atom keys that require quotes.
+  - Binaries of only string parts.
+  - Maps with contents other than pairs.
+  - Sigils with interpolation.
+  - Defs with unquoted names.
+  - Strings containing interpolation and quotes.
+  - Infix operator arguments with blocks.
+  - Maps updates where the original map came from a function all.
+Map updates wand captured map update functions.
 - Fix: Correctly render multi-arity and multi-clause fns that have
   guard clauses.
 - Fix: Surround call args with parems when any argument is a call
