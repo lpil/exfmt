@@ -243,7 +243,7 @@ defmodule Exfmt.Ast.ToAlgebra do
     new_ctx = Context.push_stack(ctx, :call)
     name_doc = to_algebra(name, new_ctx)
     head_doc = concat(name_doc, ".")
-    args_doc = call_args_to_algebra(args, new_ctx, parens: true)
+    args_doc = args_to_algebra(args, new_ctx, parens: true)
     concat(head_doc, nest(args_doc, :current))
   end
 
@@ -312,7 +312,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   #
   def to_algebra({{:unquote, _, name_args}, _, args}, ctx)  do
     new_ctx = Context.push_stack(ctx, :call)
-    name_args_doc = call_args_to_algebra(name_args, new_ctx)
+    name_args_doc = args_to_algebra(name_args, new_ctx)
     name_doc = concat("unquote", name_args_doc)
     call_to_algebra(name_doc, args, new_ctx)
   end
@@ -400,7 +400,7 @@ defmodule Exfmt.Ast.ToAlgebra do
       # Call with block args
       %{blocks: b} when b != [] ->
         args_with_block? = Enum.any?(args, &Util.call_with_block?/1)
-        arg_list = call_args_to_algebra(args, ctx, parens: args_with_block?)
+        arg_list = args_to_algebra(args, ctx, parens: args_with_block?, space: !args_with_block?)
         blocks_algebra = do_block_algebra(blocks, ctx)
         space(concat(name, nest(arg_list, :current)), blocks_algebra)
 
@@ -410,38 +410,58 @@ defmodule Exfmt.Ast.ToAlgebra do
 
       # Block arg
       %{args: [{arg_name, _, _} | _]} when is_block(arg_name) ->
-        arg_list = call_args_to_algebra(args, ctx)
+        arg_list = args_to_algebra(args, ctx)
         concat(name, nest(arg_list, :current))
 
       # Top level call
       %{stack: [:call]} ->
         args_with_block? = Enum.any?(args, &Util.call_with_block?/1)
-        arg_list = call_args_to_algebra(args, ctx, parens: args_with_block?)
+        arg_list = args_to_algebra(args, ctx, parens: args_with_block?, space: !args_with_block?)
         concat(name, nest(arg_list, :current))
 
       # Call inside a do end block
       %{stack: [:call, :do | _]} ->
         args_with_block? = Enum.any?(args, &Util.call_with_block?/1)
-        arg_list = call_args_to_algebra(args, ctx, parens: args_with_block?)
+        arg_list = args_to_algebra(args, ctx, parens: args_with_block?, space: !args_with_block?)
         concat(name, nest(arg_list, :current))
 
       _ ->
-        arg_list = call_args_to_algebra(args, ctx)
+        arg_list = args_to_algebra(args, ctx)
         concat(name, nest(arg_list, :current))
     end
   end
 
 
-  defp call_args_to_algebra(args, ctx, opts \\ [parens: true]) do
+  #
+  # TODO: The `space` and `parens` options are pretty grim.
+  # Perhaps split this out into just forming of the arguments,
+  # and leave the wrapping of parems to another function.
+  #
+  defp args_to_algebra(args, ctx, opts \\ [parens: true])
+
+  defp args_to_algebra([{:when, _, args}], ctx, opts) do
+    new_ctx = Context.push_stack(ctx, :when)
+    {call_args, [guard]} = Enum.split(args, -1)
+    args_doc = args_to_algebra(call_args, ctx, opts)
+    guard_doc = space("when", to_algebra(guard, new_ctx))
+    space(args_doc, guard_doc)
+  end
+
+  defp args_to_algebra(args, ctx, opts) do
     count = length(args)
     {open, close} = if opts[:parens] do
       {"(", ")"}
     else
-      {" ", ""}
+      {"", ""}
     end
     indexed = Enum.with_index(args, 1)
     fun = fn(arg) -> arg_to_algebra(count, arg, ctx) end
-    surround_many(open, indexed, close, fun)
+    doc = surround_many(open, indexed, close, fun)
+    if opts[:space] do
+      concat(" ", doc)
+    else
+      doc
+    end
   end
 
 
@@ -469,13 +489,6 @@ defmodule Exfmt.Ast.ToAlgebra do
     case args do
       [] ->
         "fn->"
-
-      [{:when, _, [_, _ | _] = when_args}] ->
-        {fn_args, [when_guard]} = Enum.split(when_args, -1)
-        head = call_to_algebra("fn", fn_args, ctx)
-        guard = space("when", to_algebra(when_guard, ctx))
-        glue(space(head, guard), "->")
-
 
       _ ->
         glue(call_to_algebra("fn", args, ctx), "->")
@@ -543,10 +556,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   #   :foo
   #
   defp clause_to_algebra({:->, _, [args, body]}, ctx) do
-    lhs =
-      args
-      |> Enum.map(&to_algebra(&1, ctx))
-      |> Enum.reduce(&glue(concat(&2, ","), &1))
+    lhs = args_to_algebra(args, ctx, parems: false)
     rhs = to_algebra(body, ctx)
     stab = space(lhs, "->")
     nest(line(stab, rhs), 2)

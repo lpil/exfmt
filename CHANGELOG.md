@@ -10,7 +10,8 @@ Changelog
   sigils with interpolation, defs with unquoted names, strings
   containing interpolation and quotes, infix operator arguments with
   blocks, and captured map update functions.
-- Fix: Correctly render multi-arity fns with guard clauses.
+- Fix: Correctly render multi-arity and multi-clause fns that have
+  guard clauses.
 - Fix: Surround call args with parems when any argument is a call
   with block arguments. This prevents the block being mistakenly
   assigned to the top level call instead of the child call.
