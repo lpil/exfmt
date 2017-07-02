@@ -308,15 +308,6 @@ defmodule Exfmt.Ast.ToAlgebra do
     concat(concat(module, "."), call)
   end
 
-  #
-  # Function calls with quoted name
-  #
-  def to_algebra({{:unquote, _, name_args}, _, args}, ctx)  do
-    new_ctx = Context.push_stack(ctx, :call)
-    name_args_doc = args_to_algebra(name_args, new_ctx)
-    name_doc = concat("unquote", name_args_doc)
-    call_to_algebra(name_doc, args, new_ctx)
-  end
 
   #
   # Function calls and sigils
@@ -331,6 +322,15 @@ defmodule Exfmt.Ast.ToAlgebra do
         new_ctx = Context.push_stack(ctx, :call)
         call_to_algebra(str_name, args, new_ctx)
     end
+  end
+
+  #
+  # Any other function calls
+  #
+  def to_algebra({fun, _, args}, ctx) do
+    new_ctx = Context.push_stack(ctx, :call)
+    fun_doc = to_algebra(fun, new_ctx)
+    call_to_algebra(fun_doc, args, new_ctx)
   end
 
   #
@@ -355,13 +355,7 @@ defmodule Exfmt.Ast.ToAlgebra do
 
 
   defp keyword_to_algebra({k, v}, ctx) do
-    name = case inspect(k) do
-      ":" <> n ->
-        n
-
-      n ->
-        n
-    end
+    name = atom_to_name(inspect(k))
     space(concat(name, ":"), to_algebra(v, ctx))
   end
 
@@ -764,5 +758,14 @@ defmodule Exfmt.Ast.ToAlgebra do
       _ ->
         concat("&", arg_algebra)
     end
+  end
+
+
+  defp atom_to_name(":" <> name) do
+    name
+  end
+
+  defp atom_to_name(name) do
+    name
   end
 end

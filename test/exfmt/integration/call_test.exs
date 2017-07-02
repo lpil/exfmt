@@ -150,4 +150,11 @@ defmodule Exfmt.Integration.CallTest do
                end)
     """
   end
+
+  @tag :skip
+  test "calls with funs from macros" do
+    assert_format """
+    name(:name)(1)
+    """
+  end
 end
