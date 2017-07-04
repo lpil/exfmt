@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## Unreleased
+## v0.2.3 - 2017-07-04
 
 - Rendering of more expressions:
   - Anon function calls with unquoted variable names.
