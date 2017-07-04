@@ -35,6 +35,12 @@ defmodule Exfmt.Integration.BasicsTest do
     "__MODULE__.Helper" ~> "__MODULE__.Helper\n"
   end
 
+  test "aliases with variable part" do
+    assert_format """
+    One.x.Three
+    """
+  end
+
   test "keyword lists" do
     "[]" ~> "[]\n"
     "[a: 1]" ~> "[a: 1]\n"
