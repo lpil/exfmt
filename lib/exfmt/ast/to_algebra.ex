@@ -374,6 +374,7 @@ defmodule Exfmt.Ast.ToAlgebra do
     maybe_escape = fn
       part when is_binary(part) ->
         binary_escape(part, close_char)
+
       part ->
         part
     end
@@ -630,7 +631,7 @@ defmodule Exfmt.Ast.ToAlgebra do
 
 
   defp binary_escape(<<>>, _, acc) do
-    IO.iodata_to_binary(acc)
+    IO.chardata_to_string(acc)
   end
 
   defp binary_escape(<<"\\\\"::utf8, rest::binary>>, close, acc) do
@@ -648,6 +649,11 @@ defmodule Exfmt.Ast.ToAlgebra do
   defp binary_escape(<<char::utf8, rest::binary>>, close, acc) do
     binary_escape(rest, close, [acc, char])
   end
+
+  defp binary_escape(<<char::utf16, rest::binary>>, close, acc) do
+    binary_escape(rest, close, [acc, char])
+  end
+
 
 
   defp alias_to_string({:__MODULE__, _, _}) do

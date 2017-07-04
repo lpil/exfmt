@@ -23,6 +23,8 @@ Map updates wand captured map update functions.
   with block arguments. This prevents the block being mistakenly
   assigned to the top level call instead of the child call.
 - Fix: Avoid truncating large collections.
+- Fix: Avoid corrupting utf8 characters in string interpolation
+  and sigils.
 
 ## v0.2.2 - 2017-06-13
 

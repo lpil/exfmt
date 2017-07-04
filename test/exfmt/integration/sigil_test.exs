@@ -44,6 +44,11 @@ defmodule Exfmt.Integration.SigilTest do
     """
   end
 
+  test "sigil containing exciting unicode" do
+    assert_format """
+    ~S(ø)
+    """
+  end
   #
   # TODO: Work out what is suppsed to happen here.
   # I can't work out a way to render this in a fashion
