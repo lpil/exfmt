@@ -6,7 +6,7 @@ defmodule Exfmt.Mixfile do
   def project do
     [app: :exfmt,
      name: "exfmt",
-     description: "An experimental Elixir source code style formatter",
+     description: "An opinionated Elixir source code formatter",
      version: @version,
      elixir: "~> 1.4",
      elixirc_paths: elixirc_paths(Mix.env),

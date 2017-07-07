@@ -17,6 +17,7 @@ Changelog
   - Infix operator arguments with blocks.
   - Maps updates where the original map came from a function all.
   - Aliases with variable parts.
+  - Unsugared sigils.
 Map updates wand captured map update functions.
 - Fix: Correctly render multi-arity and multi-clause fns that have
   guard clauses.

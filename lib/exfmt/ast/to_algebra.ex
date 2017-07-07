@@ -368,6 +368,11 @@ defmodule Exfmt.Ast.ToAlgebra do
     surround(open_doc, content_doc, close_doc)
   end
 
+  defp sigil_to_algebra(char, args, ctx) do
+    new_ctx = Context.push_stack(ctx, :call)
+    call_to_algebra(IO.chardata_to_string(["sigil_", char]), args, new_ctx)
+  end
+
 
   defp sigil_parts_to_algebra(parts, open, close, ctx) do
     close_char = IO.iodata_to_binary([close])

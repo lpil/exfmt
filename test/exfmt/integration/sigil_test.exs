@@ -65,4 +65,22 @@ defmodule Exfmt.Integration.SigilTest do
     ~R( \( \\\) / )
     """
   end
+
+  test "sigil defintions" do
+    assert_format """
+    defmacro sigil_T(date, modifiers)
+    """
+    assert_format """
+    def sigil_u(content, modifiers)
+    """
+  end
+
+  test "unsugared sigil defintions" do
+    assert_format """
+    sigil_T("123", [])
+    """
+    assert_format """
+    sigil_u("456", [])
+    """
+  end
 end
