@@ -337,11 +337,29 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
-  # Atoms, strings, numbers
+  # Booleans
   #
-  def to_algebra(value, _ctx)
-  when is_atom(value) or is_binary(value) or is_number(value) do
+
+
+  #
+  # Strings, numbers, nil, booleans
+  #
+  def to_algebra(value, _ctx) when is_nil(value) or is_boolean(value) or
+                                   is_binary(value) or is_number(value) do
     to_doc(value)
+  end
+
+  #
+  # Atoms
+  #
+  def to_algebra(atom, _ctx) when is_atom(atom) do
+    case Atom.to_string(atom) do
+      ("Elixir" <> _) = string ->
+        ~S(:") <> string <> ~S(")
+
+      _ ->
+        to_doc(atom)
+    end
   end
 
   #

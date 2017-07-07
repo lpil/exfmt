@@ -22,10 +22,11 @@ defmodule Exfmt.Integration.BasicsTest do
   end
 
   test "atoms" do
-    ":ok" ~> ":ok\n"
-    ":\"hello-world\"" ~> ":\"hello-world\"\n"
-    ":\"[]\"" ~> ":\"[]\"\n"
-    ":_" ~> ":_\n"
+    assert_format ":ok\n"
+    assert_format ":\"hello-world\"\n"
+    assert_format ":\"[]\"\n"
+    assert_format ":_\n"
+    assert_format ~s(:"Elixir.Exfmt"\n)
   end
 
   test "aliases" do

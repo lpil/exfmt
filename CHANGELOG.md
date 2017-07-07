@@ -20,6 +20,7 @@ Changelog
   - Unsugared sigils.
   - Calls to `__block__/0`
   - Aliases with a quoted base module.
+  - Atoms starting with `Elixir.`.
 Map updates wand captured map update functions.
 - Fix: Correctly render multi-arity and multi-clause fns that have
   guard clauses.
