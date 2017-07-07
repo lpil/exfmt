@@ -1,6 +1,15 @@
 Changelog
 =========
 
+## Unreleased
+
+- Rendering of more expressions:
+  - Unsugared sigils.
+  - Calls to `__block__/0`
+  - Aliases with a quoted base module.
+  - Atoms starting with `Elixir.`.
+
+
 ## v0.2.3 - 2017-07-04
 
 - Rendering of more expressions:
@@ -17,10 +26,6 @@ Changelog
   - Infix operator arguments with blocks.
   - Maps updates where the original map came from a function all.
   - Aliases with variable parts.
-  - Unsugared sigils.
-  - Calls to `__block__/0`
-  - Aliases with a quoted base module.
-  - Atoms starting with `Elixir.`.
 Map updates wand captured map update functions.
 - Fix: Correctly render multi-arity and multi-clause fns that have
   guard clauses.
