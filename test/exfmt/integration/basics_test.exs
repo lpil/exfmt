@@ -35,6 +35,12 @@ defmodule Exfmt.Integration.BasicsTest do
     "__MODULE__.Helper" ~> "__MODULE__.Helper\n"
   end
 
+  test "alias with quoted base mod" do
+    assert_format """
+    alias unquote(Inspect).{Algebra}
+    """
+  end
+
   test "aliases with variable part" do
     assert_format """
     One.x.Three

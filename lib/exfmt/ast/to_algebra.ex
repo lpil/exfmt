@@ -296,9 +296,8 @@ defmodule Exfmt.Ast.ToAlgebra do
   #
   def to_algebra({{:., m, [aliases, :{}]}, _, args}, ctx) do
     new_ctx = Context.push_stack(ctx, :call)
-    module = to_algebra(aliases, new_ctx) <> "."
-    mod_len = String.length(module)
-    concat(module, nest(to_algebra({:{}, m, args}, new_ctx), mod_len))
+    module = concat(to_algebra(aliases, new_ctx), ".")
+    concat(module, nest(to_algebra({:{}, m, args}, new_ctx), :current))
   end
 
   #
