@@ -44,6 +44,10 @@ defmodule Exfmt.Ast.ToAlgebra do
   #
   # Blocks
   #
+  def to_algebra({name, _, []}, ctx) when is_block(name) do
+    call_to_algebra("__block__", [], ctx)
+  end
+
   def to_algebra({name, _, exprs}, ctx) when is_block(name) do
     exprs
     |> Enum.map(&to_algebra(&1, ctx))

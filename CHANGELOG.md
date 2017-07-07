@@ -18,6 +18,7 @@ Changelog
   - Maps updates where the original map came from a function all.
   - Aliases with variable parts.
   - Unsugared sigils.
+  - Calls to `__block__/0`
 Map updates wand captured map update functions.
 - Fix: Correctly render multi-arity and multi-clause fns that have
   guard clauses.
