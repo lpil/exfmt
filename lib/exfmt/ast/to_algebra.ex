@@ -328,6 +328,16 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
+  # Call with function name from call
+  #   unquote(name)(arg)
+  #
+  def to_algebra({{_, _, _} = fun, _, args}, ctx) do
+    new_ctx = Context.push_stack(ctx, :chain_call)
+    fun_doc = to_algebra(fun, new_ctx)
+    call_to_algebra(fun_doc, args, new_ctx)
+  end
+
+  #
   # Any other function calls
   #
   def to_algebra({fun, _, args}, ctx) do
@@ -335,11 +345,6 @@ defmodule Exfmt.Ast.ToAlgebra do
     fun_doc = to_algebra(fun, new_ctx)
     call_to_algebra(fun_doc, args, new_ctx)
   end
-
-  #
-  # Booleans
-  #
-
 
   #
   # Strings, numbers, nil, booleans
