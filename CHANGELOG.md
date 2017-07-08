@@ -8,6 +8,7 @@ Changelog
   - Calls to `__block__/0`
   - Aliases with a quoted base module.
   - Atoms starting with `Elixir.`.
+- Fix: Parse comments from files containing `?\"`, `?\'`, or heredocs.
 
 
 ## v0.2.3 - 2017-07-04
