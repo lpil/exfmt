@@ -143,6 +143,14 @@ defmodule Exfmt.CommentTest do
       )
       assert extract_comments(code) == {:ok, []}
     end
+
+    test "double quote character" do
+      assert extract_comments(~S(?\")) == {:ok, []}
+    end
+
+    test "single quote character" do
+      assert extract_comments(~S(?\')) == {:ok, []}
+    end
   end
 
   describe "merge/2" do

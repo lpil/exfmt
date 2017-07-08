@@ -85,6 +85,11 @@ defmodule Exfmt.Comment do
     end
   end
 
+  # Escaped char literal
+  defp extract([??, ?\\, c | src], line, comments) when is_quote(c) do
+    extract(src, line, comments)
+  end
+
   # Char literal
   defp extract([??, c | src], line, comments) when is_quote(c) do
     extract(src, line, comments)
