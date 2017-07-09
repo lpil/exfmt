@@ -179,6 +179,15 @@ defmodule Exfmt.Integration.BasicsTest do
     """
   end
 
+  test "module attribute with block call arg" do
+    assert_format """
+    @ok (case ok do
+           _ ->
+             :ok
+         end)
+    """
+  end
+
   test "Access protocol" do
     assert_format "keys[:name]\n"
     assert_format "conn.assigns[:safe_mode_active]\n"

@@ -9,6 +9,7 @@ Changelog
   - Aliases with a quoted base module.
   - Atoms starting with `Elixir.`.
   - Calls to function name atoms from another function.
+  - Module attributes with values that have a block.
 - Fix: Parse comments from files containing `?\"`, `?\'`, or heredocs.
 
 

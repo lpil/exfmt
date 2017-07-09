@@ -261,8 +261,15 @@ defmodule Exfmt.Ast.ToAlgebra do
 
   def to_algebra({:@, _, [{name, _, [value]}]}, ctx) do
     new_ctx = Context.push_stack(ctx, :module_attribute)
-    len = String.length(to_string(name)) + 2
-    concat("@#{name} ", nest(to_algebra(value, new_ctx), len))
+    head_doc = "@#{name}"
+    len = String.length(head_doc) + 1
+    value_doc = nest(to_algebra(value, new_ctx), len)
+    safe_value_doc = if Util.call_with_block?(value) do
+      surround("(", value_doc, ")")
+    else
+      value_doc
+    end
+    space(head_doc, safe_value_doc)
   end
 
   #
