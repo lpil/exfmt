@@ -42,6 +42,14 @@ defmodule Exfmt.Integration.BlockTest do
     """
   end
 
+  test "for loop with trailing into:" do
+    assert_format """
+    for app <- apps,
+        do: {app, path}, into: %{}
+    """
+  end
+
+
   test "__block__/0 call" do
     assert_format """
     __block__()

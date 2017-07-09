@@ -3,12 +3,12 @@ defmodule Exfmt.Integration.BasicsTest do
   import Support.Integration
 
   test "ints" do
-    "0" ~> "0\n"
-    "1" ~> "1\n"
-    "2" ~> "2\n"
-    "-0" ~> "-0\n"
-    "-1" ~> "-1\n"
-    "-2" ~> "-2\n"
+    assert_format "0\n"
+    assert_format "1\n"
+    assert_format "2\n"
+    assert_format "-0\n"
+    assert_format "-1\n"
+    assert_format "-2\n"
   end
 
   test "floats" do

@@ -26,8 +26,18 @@ defmodule Exfmt.Ast.Util do
       iex> split_do_block([1, [do: 2, else: 3]])
       {[1], [do: 2, else: 3]}
 
+      iex> split_do_block([1, [do: 2, rescue: 3]])
+      {[1], [do: 2, rescue: 3]}
+
       iex> split_do_block([[do: 1, else: 2]])
       {[], [do: 1, else: 2]}
+
+      iex> split_do_block([1, [else: 2, do: 3]])
+      {[1, [else: 2, do: 3]], []}
+
+      iex> split_do_block([1, [do: 2, rescue: 3, else: 4]])
+      {[1], [do: 2, rescue: 3, else: 4]}
+
   """
   def split_do_block([]) do
     {[], []}
@@ -38,8 +48,17 @@ defmodule Exfmt.Ast.Util do
   end
 
   defp do_split_do_block([], [{:do, _} | _] = prev, acc) do
-    result = Enum.reverse(acc)
-    {result, prev}
+    if Enum.all?(prev, &keyword_block?/1) do
+      result = Enum.reverse(acc)
+      {result, prev}
+    else
+      result = Enum.reverse([prev | acc])
+      {result, []}
+    end
+  end
+
+  defp do_split_do_block([head | tail], prev, acc) do
+    do_split_do_block(tail, head, [prev | acc])
   end
 
   defp do_split_do_block([], prev, acc) do
@@ -47,9 +66,15 @@ defmodule Exfmt.Ast.Util do
     {result, []}
   end
 
-  defp do_split_do_block([head | tail], prev, acc) do
-    do_split_do_block(tail, head, [prev | acc])
+
+  defp keyword_block?({word, _}) do
+    word in [:do, :after, :else, :rescue, :catch]
   end
+
+  defp keyword_block?(false) do
+    false
+  end
+
 
 
   @doc """

@@ -11,6 +11,7 @@ Changelog
   - Calls to function name atoms from another function.
   - Module attributes with values that have a block.
 - Fix: Parse comments from files containing `?\"`, `?\'`, or heredocs.
+- Fix: Avoid applying `do` syntactic sugar to unsupported block words.
 
 
 ## v0.2.3 - 2017-07-04
