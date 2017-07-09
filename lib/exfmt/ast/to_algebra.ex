@@ -395,7 +395,7 @@ defmodule Exfmt.Ast.ToAlgebra do
 
   defp sigil_to_algebra(char, [{:<<>>, _, parts}, mods], ctx) do
     {open, close} = Sigil.delimiters(char, parts)
-    content_doc = sigil_parts_to_algebra(parts, open, close, ctx)
+    content_doc = interp_to_algebra(parts, ctx, open, close)
     open_doc = concat("~", List.to_string([char]))
     close_doc = List.to_string(mods)
     surround(open_doc, content_doc, close_doc)
@@ -404,21 +404,6 @@ defmodule Exfmt.Ast.ToAlgebra do
   defp sigil_to_algebra(char, args, ctx) do
     new_ctx = Context.push_stack(ctx, :call)
     call_to_algebra(IO.chardata_to_string(["sigil_", char]), args, new_ctx)
-  end
-
-
-  defp sigil_parts_to_algebra(parts, open, close, ctx) do
-    close_char = IO.iodata_to_binary([close])
-    maybe_escape = fn
-      part when is_binary(part) ->
-        binary_escape(part, close_char)
-
-      part ->
-        part
-    end
-    parts
-    |> Enum.map(maybe_escape)
-    |> interp_to_algebra(ctx, open, close)
   end
 
 
@@ -667,21 +652,22 @@ defmodule Exfmt.Ast.ToAlgebra do
     binary_escape(contents, close, [])
   end
 
+  @slash ?\\
 
-  defp binary_escape(<<>>, _, acc) do
+  defp binary_escape(<<>>, _close, acc) do
     IO.chardata_to_string(acc)
   end
 
-  defp binary_escape(<<"\\\\"::utf8, rest::binary>>, close, acc) do
-    binary_escape(rest, close, [acc, "\\\\"])
+  defp binary_escape(<<@slash, @slash, rest::binary>>, close, acc) do
+    binary_escape(rest, close, [acc, @slash, @slash])
   end
 
-  defp binary_escape(<<"\\"::utf8, close::utf8, rest::binary>>, close, acc) do
-    binary_escape(rest, close, [acc, "\\\\", close])
+  defp binary_escape(<<@slash, close::utf8, rest::binary>>, close, acc) do
+    binary_escape(rest, close, [acc, @slash, @slash, @slash, close])
   end
 
   defp binary_escape(<<close::utf8, rest::binary>>, close, acc) do
-    binary_escape(rest, close, [acc, "\\", close])
+    binary_escape(rest, close, [acc, @slash, close])
   end
 
   defp binary_escape(<<char::utf8, rest::binary>>, close, acc) do

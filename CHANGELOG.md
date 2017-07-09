@@ -12,6 +12,7 @@ Changelog
   - Module attributes with values that have a block.
 - Fix: Parse comments from files containing `?\"`, `?\'`, or heredocs.
 - Fix: Avoid applying `do` syntactic sugar to unsupported block words.
+- Fix: Correctly escape sigils containing their close character.
 
 
 ## v0.2.3 - 2017-07-04
