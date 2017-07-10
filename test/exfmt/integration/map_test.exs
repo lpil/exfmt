@@ -3,29 +3,29 @@ defmodule Exfmt.Integration.MapTest do
   import Support.Integration
 
   test "maps" do
-    "%{}" ~> "%{}\n"
-    "%{a: 1}" ~> "%{a: 1}\n"
-    "%{:a => 1}" ~> "%{a: 1}\n"
-    "%{1 => 1}" ~> "%{1 => 1}\n"
-    "%{1 => 1, 2 => 2}" ~> "%{1 => 1, 2 => 2}\n"
+    assert_format "%{}"
+    assert_format "%{a: 1}"
+    "%{:a => 1}" ~> "%{a: 1}"
+    assert_format "%{1 => 1}"
+    assert_format "%{1 => 1, 2 => 2}"
   end
 
   test "map upsert %{map | key: value}" do
-    "%{map | key: value}" ~> "%{map | key: value}\n"
+    assert_format "%{map | key: value}"
   end
 
   test "chained map get" do
-    assert_format "map.key.another.a_third\n"
+    assert_format "map.key.another.a_third"
   end
 
   test "qualified call into map get" do
-    assert_format "Map.new.key\n"
+    assert_format "Map.new.key"
   end
 
   test "structs" do
-    assert_format "%Person{}\n"
-    assert_format "%Person{age: 1}\n"
-    "%Person{timmy | age: 1}" ~> "%Person{timmy | age: 1}\n"
+    assert_format "%Person{}"
+    assert_format "%Person{age: 1}"
+    assert_format "%Person{timmy | age: 1}"
     """
     %LongerNamePerson{timmy | name: "Timmy", age: 1}
     """ ~> """
@@ -33,16 +33,16 @@ defmodule Exfmt.Integration.MapTest do
                       name: "Timmy",
                       age: 1}
     """
-    assert_format "%Inspect.Opts{}\n"
+    assert_format "%Inspect.Opts{}"
   end
 
   test "__MODULE__ structs" do
-    assert_format "%__MODULE__.Person{}\n"
-    assert_format "%__MODULE__{debug: true}\n"
+    assert_format "%__MODULE__.Person{}"
+    assert_format "%__MODULE__{debug: true}"
   end
 
   test "variable type struct" do
-    assert_format "%struct_type{}\n"
+    assert_format "%struct_type{}"
   end
 
   test "keys with spaces" do

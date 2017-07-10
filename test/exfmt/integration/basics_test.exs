@@ -3,37 +3,37 @@ defmodule Exfmt.Integration.BasicsTest do
   import Support.Integration
 
   test "ints" do
-    assert_format "0\n"
-    assert_format "1\n"
-    assert_format "2\n"
-    assert_format "-0\n"
-    assert_format "-1\n"
-    assert_format "-2\n"
+    assert_format "0"
+    assert_format "1"
+    assert_format "2"
+    assert_format "-0"
+    assert_format "-1"
+    assert_format "-2"
   end
 
   test "floats" do
-    "0.000" ~> "0.0\n"
-    "1.111" ~> "1.111\n"
-    "2.08" ~> "2.08\n"
-    "-0.000" ~> "-0.0\n"
-    "-0.123" ~> "-0.123\n"
-    "-1.123" ~> "-1.123\n"
-    "-2.123" ~> "-2.123\n"
+    "0.000" ~> "0.0"
+    assert_format "1.111"
+    assert_format "2.08"
+    "-0.000" ~> "-0.0"
+    "-0.123" ~> "-0.123"
+    "-1.123" ~> "-1.123"
+    "-2.123" ~> "-2.123"
   end
 
   test "atoms" do
-    assert_format ":ok\n"
-    assert_format ":\"hello-world\"\n"
-    assert_format ":\"[]\"\n"
-    assert_format ":_\n"
-    assert_format ~s(:"Elixir.Exfmt"\n)
+    assert_format ":ok"
+    assert_format ":\"hello-world\""
+    assert_format ":\"[]\""
+    assert_format ":_"
+    assert_format ~s(:"Elixir.Exfmt")
   end
 
   test "aliases" do
-    "String" ~> "String\n"
-    "My.String" ~> "My.String\n"
-    "App.Web.Controller" ~> "App.Web.Controller\n"
-    "__MODULE__.Helper" ~> "__MODULE__.Helper\n"
+    assert_format "String"
+    assert_format "My.String"
+    assert_format "App.Web.Controller"
+    assert_format "__MODULE__.Helper"
   end
 
   test "alias with quoted base mod" do
@@ -49,11 +49,11 @@ defmodule Exfmt.Integration.BasicsTest do
   end
 
   test "keyword lists" do
-    "[]" ~> "[]\n"
-    "[a: 1]" ~> "[a: 1]\n"
-    "[ b:  {} ]" ~> "[b: {}]\n"
-    "[a: 1, b: 2]" ~> "[a: 1, b: 2]\n"
-    "[{:a, 1}]" ~> "[a: 1]\n"
+    assert_format "[]"
+    assert_format "[a: 1]"
+    "[ b:  {} ]" ~> "[b: {}]"
+    assert_format "[a: 1, b: 2]"
+    "[{:a, 1}]" ~> "[a: 1]"
   end
 
   test "keyword lists with special atom keys" do
@@ -63,12 +63,12 @@ defmodule Exfmt.Integration.BasicsTest do
   end
 
   test "charlists" do
-    "''" ~> "[]\n"
-    "'a'" ~> "[97]\n" # TODO: Hmm...
+    "''" ~> "[]"
+    "'a'" ~> "[97]" # TODO: Hmm...
   end
 
   test "lists" do
-    "[ ]" ~> "[]\n"
+    "[ ]" ~> "[]"
     """
     [0,1,2,3,4,5,6,7,8,9,10,11,12]
     """ ~> """
@@ -146,22 +146,22 @@ defmodule Exfmt.Integration.BasicsTest do
 
 
   test "tuples" do
-    "{}" ~> "{}\n"
-    "{1}" ~> "{1}\n"
-    "{1,2}" ~> "{1, 2}\n"
-    "{1,2,3}" ~> "{1, 2, 3}\n"
+    assert_format "{}"
+    assert_format "{1}"
+    "{1,2}" ~> "{1, 2}"
+    "{1,2,3}" ~> "{1, 2, 3}"
   end
 
   test "variables" do
-    "some_var" ~> "some_var\n"
-    "_another_var" ~> "_another_var\n"
-    "thing1" ~> "thing1\n"
+    assert_format "some_var"
+    assert_format "_another_var"
+    assert_format "thing1"
   end
 
   test "module attributes" do
-    "@size" ~> "@size\n"
-    "@foo 1" ~> "@foo 1\n"
-    "@tag :skip" ~> "@tag :skip\n"
+    assert_format "@size"
+    assert_format "@foo 1"
+    assert_format "@tag :skip"
     """
     @sizes [1,2,3,4,5,6,7,8,9,10,11]
     """ ~> """
@@ -189,26 +189,32 @@ defmodule Exfmt.Integration.BasicsTest do
   end
 
   test "Access protocol" do
-    assert_format "keys[:name]\n"
-    assert_format "conn.assigns[:safe_mode_active]\n"
-    "some_list[\n   :name\n]" ~> "some_list[:name]\n"
+    assert_format "keys[:name]"
+    assert_format "conn.assigns[:safe_mode_active]"
+    """
+    some_list[
+    :name
+    ]
+    """ ~> """
+    some_list[:name]
+    """
   end
 
   test "maths" do
-    "1 + 2" ~> "1 + 2\n"
-    "1 - 2" ~> "1 - 2\n"
-    "1 * 2" ~> "1 * 2\n"
-    "1 / 2" ~> "1 / 2\n"
-    "1 * 2 + 3" ~> "1 * 2 + 3\n"
-    "1 + 2 * 3" ~> "1 + 2 * 3\n"
-    "(1 + 2) * 3" ~> "(1 + 2) * 3\n"
-    "(1 - 2) * 3" ~> "(1 - 2) * 3\n"
-    "1 / 2 + 3" ~> "1 / 2 + 3\n"
-    "1 + 2 / 3" ~> "1 + 2 / 3\n"
-    "(1 + 2) / 3" ~> "(1 + 2) / 3\n"
-    "(1 - 2) / 3" ~> "(1 - 2) / 3\n"
-    "1 * 2 / 3" ~> "1 * 2 / 3\n"
-    "1 / 2 * 3" ~> "1 / 2 * 3\n"
+    assert_format "1 + 2"
+    assert_format "1 - 2"
+    assert_format "1 * 2"
+    assert_format "1 / 2"
+    assert_format "1 * 2 + 3"
+    assert_format "1 + 2 * 3"
+    assert_format "(1 + 2) * 3"
+    assert_format "(1 - 2) * 3"
+    assert_format "1 / 2 + 3"
+    assert_format "1 + 2 / 3"
+    assert_format "(1 + 2) / 3"
+    assert_format "(1 - 2) / 3"
+    assert_format "1 * 2 / 3"
+    assert_format "1 / 2 * 3"
     """
     something_really_really_really_really_long + 2
     """ ~> """
@@ -218,49 +224,49 @@ defmodule Exfmt.Integration.BasicsTest do
   end
 
   test "list patterns" do
-    "[head1, head2|tail]" ~> "[head1, head2 | tail]\n"
+    "[head1, head2|tail]" ~> "[head1, head2 | tail]"
   end
 
   test "magic variables" do
-    "__MODULE__" ~> "__MODULE__\n"
-    "__CALLER__" ~> "__CALLER__\n"
+    assert_format "__MODULE__"
+    assert_format "__CALLER__"
   end
 
   test "booleans" do
-    "true" ~> "true\n"
-    "false" ~> "false\n"
+    assert_format "true"
+    assert_format "false"
   end
 
   test "||" do
-    "true || true" ~> "true || true\n"
+    assert_format "true || true"
   end
 
   test "&&" do
-    "true && true" ~> "true && true\n"
+    assert_format "true && true"
   end
 
   test "or" do
-    "true or true" ~> "true or true\n"
+    assert_format "true or true"
   end
 
   test "and" do
-    "true and true" ~> "true and true\n"
+    assert_format "true and true"
   end
 
   test "in" do
-    "x in [1, 2]" ~> "x in [1, 2]\n"
+    assert_format "x in [1, 2]"
   end
 
   test "~>" do
-    "x ~> [1, 2]" ~> "x ~> [1, 2]\n"
+    assert_format "x ~> [1, 2]"
   end
 
   test ">>>" do
-    "x >>> [1, 2]" ~> "x >>> [1, 2]\n"
+    assert_format "x >>> [1, 2]"
   end
 
   test "<>" do
-    "x <> y" ~> "x <> y\n"
+    assert_format "x <> y"
   end
 
   test "pipes |>" do

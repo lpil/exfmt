@@ -4,7 +4,7 @@ defmodule ExfmtTest do
 
   describe "format/2" do
     test "formats valid source code" do
-      assert Exfmt.format("[1,2,3]") == {:ok, "[1, 2, 3]\n"}
+      assert Exfmt.format("[1,2,3]") == {:ok, "[1, 2, 3]"}
     end
 
     test "returns error on invalid syntax" do
@@ -17,7 +17,7 @@ defmodule ExfmtTest do
 
   describe "format!/2" do
     test "formats valid source code" do
-      assert Exfmt.format!("[1,2,3]") == "[1, 2, 3]\n"
+      assert Exfmt.format!("[1,2,3]") == "[1, 2, 3]"
     end
 
     test "throws on invalid syntax" do
@@ -30,11 +30,11 @@ defmodule ExfmtTest do
 
   describe "check/2" do
     test "ok for correctly formatted code" do
-      assert Exfmt.check("[1, 2, 3]\n") == :ok
+      assert Exfmt.check("[1, 2, 3]") == :ok
     end
 
     test "format_error for incorrectly formatted code" do
-      assert Exfmt.check("[1,\n2]\n") == {:format_error, "[1, 2]\n"}
+      assert Exfmt.check("[1,\n2]") == {:format_error, "[1, 2]"}
     end
 
     test "returns error on invalid syntax" do

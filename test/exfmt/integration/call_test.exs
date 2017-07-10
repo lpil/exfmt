@@ -3,10 +3,10 @@ defmodule Exfmt.Integration.CallTest do
   import Support.Integration
 
   test "function calls" do
-    assert_format "hello()\n"
-    assert_format "reverse \"hi\"\n"
-    assert_format "add 1, 2\n"
-    assert_format "add 1, 2, 3\n"
+    assert_format "hello()"
+    assert_format "reverse \"hi\""
+    assert_format "add 1, 2"
+    assert_format "add 1, 2, 3"
     """
     very_long_function_name_here :hello, :world
     """ ~> """
@@ -23,10 +23,10 @@ defmodule Exfmt.Integration.CallTest do
   end
 
   test "anon function calls" do
-    assert_format "hello.()\n"
-    assert_format "reverse.(\"hi\")\n"
-    assert_format "add.(1, 2)\n"
-    assert_format "add.(1, 2, 3)\n"
+    assert_format "hello.()"
+    assert_format "reverse.(\"hi\")"
+    assert_format "add.(1, 2)"
+    assert_format "add.(1, 2, 3)"
     """
     very_long_function_name_here.(:hello, :world)
     """ ~> """
@@ -44,26 +44,26 @@ defmodule Exfmt.Integration.CallTest do
   end
 
   test "qualified calls" do
-    "Process.get()" ~> "Process.get\n"
-    assert_format "Process.get\n"
-    assert_format "my_mod.get\n"
-    "my_mod.get(0)" ~> "my_mod.get 0\n"
-    assert_format "my_mod.get 0\n"
-    "String.length( my_string )" ~> "String.length my_string\n"
-    assert_format ":lists.reverse my_list\n"
+    "Process.get()" ~> "Process.get"
+    assert_format "Process.get"
+    assert_format "my_mod.get"
+    "my_mod.get(0)" ~> "my_mod.get 0"
+    assert_format "my_mod.get 0"
+    "String.length( my_string )" ~> "String.length my_string"
+    assert_format ":lists.reverse my_list"
   end
 
   test "calls with keyword args" do
-    "hello(foo: 1)" ~> "hello foo: 1\n"
-    "hello([foo: 1])" ~> "hello foo: 1\n"
-    "hello([  foo:   1])" ~> "hello foo: 1\n"
+    "hello(foo: 1)" ~> "hello foo: 1"
+    "hello([foo: 1])" ~> "hello foo: 1"
+    "hello([  foo:   1])" ~> "hello foo: 1"
   end
 
   test "require" do
-    assert_format "require Foo\n"
-    "require(Foo)" ~> "require Foo\n"
-    "require    Foo" ~> "require Foo\n"
-    assert_format "require Foo.Bar\n"
+    assert_format "require Foo"
+    "require(Foo)" ~> "require Foo"
+    "require    Foo" ~> "require Foo"
+    assert_format "require Foo.Bar"
     """
     require Really.Long.Module.Name, Another.Really.Long.Module.Name
     """ ~> """
@@ -73,10 +73,10 @@ defmodule Exfmt.Integration.CallTest do
   end
 
   test "import" do
-    assert_format "import Foo\n"
-    "import(Foo)" ~> "import Foo\n"
-    "import    Foo" ~> "import Foo\n"
-    "import Foo.Bar" ~> "import Foo.Bar\n"
+    assert_format "import Foo"
+    "import(Foo)" ~> "import Foo"
+    "import    Foo" ~> "import Foo"
+    "import Foo.Bar" ~> "import Foo.Bar"
     """
     import Really.Long.Module.Name, Another.Really.Long.Module.Name
     """ ~> """
@@ -93,12 +93,12 @@ defmodule Exfmt.Integration.CallTest do
   end
 
   test "alias" do
-    assert_format "alias Foo\n"
-    "alias(Foo)" ~> "alias Foo\n"
-    "alias    Foo" ~> "alias Foo\n"
-    assert_format "alias Foo.Bar\n"
-    assert_format "alias String, as: S\n"
-    "alias Element.{Storm,Earth,Fire}" ~> "alias Element.{Storm, Earth, Fire}\n"
+    assert_format "alias Foo"
+    "alias(Foo)" ~> "alias Foo"
+    "alias    Foo" ~> "alias Foo"
+    assert_format "alias Foo.Bar"
+    assert_format "alias String, as: S"
+    "alias Element.{Storm,Earth,Fire}" ~> "alias Element.{Storm, Earth, Fire}"
     """
     alias Element.{Storm,Earth,Fire,Nature,Courage,Heart}
     """ ~> """
@@ -109,38 +109,38 @@ defmodule Exfmt.Integration.CallTest do
                    Courage,
                    Heart}
     """
-    assert_format "alias Really.Long.Module.Name.That.Does.Not.Fit.In.Width\n"
+    assert_format "alias Really.Long.Module.Name.That.Does.Not.Fit.In.Width"
   end
 
   test "doctest" do
-    assert_format "doctest Foo\n"
+    assert_format "doctest Foo"
   end
 
   test "defstruct" do
-    assert_format "defstruct attrs\n"
-    assert_format "defstruct []\n"
-    assert_format "defstruct [:size, :age]\n"
-    "defstruct [size: 1, age: 2]" ~> "defstruct size: 1, age: 2\n"
+    assert_format "defstruct attrs"
+    assert_format "defstruct []"
+    assert_format "defstruct [:size, :age]"
+    "defstruct [size: 1, age: 2]" ~> "defstruct size: 1, age: 2"
   end
 
   test "use" do
-    assert_format "use ExUnit.Case, async: true\n"
+    assert_format "use ExUnit.Case, async: true"
   end
 
   test "send" do
-    assert_format "send my_pid, :hello\n"
+    assert_format "send my_pid, :hello"
   end
 
   test "call qualified by atom from another call" do
-    assert_format "Mix.shell.info :ok\n"
+    assert_format "Mix.shell.info :ok"
   end
 
   test "call with keyword list not as last arg" do
-    assert_format "print_tree [normal: app], opts\n"
+    assert_format "print_tree [normal: app], opts"
   end
 
   test "unquoted function name call" do
-    assert_format "unquote(callback).()\n"
+    assert_format "unquote(callback).()"
   end
 
   test "call with arg with do block" do
