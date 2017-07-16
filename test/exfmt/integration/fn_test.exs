@@ -96,4 +96,10 @@ defmodule Exfmt.Integration.FnTest do
     end
     """
   end
+
+  test "infix op with captured fn arg" do
+    assert_format """
+    (&List.flatten(&1)) == (&List.flatten/1)
+    """
+  end
 end

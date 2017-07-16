@@ -60,6 +60,10 @@ defmodule Exfmt.Ast.Infix do
     true
   end
 
+  def wrap?({:&, _, [arg]}, _, _) when not is_integer(arg) do
+    true
+  end
+
   def wrap?(ast, _, _) do
     Util.call_with_block? ast
   end
