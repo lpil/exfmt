@@ -95,7 +95,8 @@ defmodule Exfmt.Ast.ToAlgebra do
   # Structs
   #
   def to_algebra({:%, _, [name, {:%{}, _, args}]}, ctx) do
-    name = struct_name_to_algebra(name, ctx)
+    name_ctx = Context.push_stack(ctx, :struct_name)
+    name = struct_name_to_algebra(name, name_ctx)
     start = concat(concat("%", name), "{")
     body_doc = map_body_to_algebra(args, ctx)
     group(surround(start, nest(body_doc, :current), "}"))

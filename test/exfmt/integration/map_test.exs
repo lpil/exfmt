@@ -74,4 +74,10 @@ defmodule Exfmt.Integration.MapTest do
     %^struct{} = user
     """
   end
+
+  test "struct with unquoted type" do
+    assert_format """
+    %unquote(User){foo: 1}
+    """
+  end
 end
