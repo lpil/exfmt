@@ -56,6 +56,10 @@ defmodule Exfmt.Ast.Infix do
     end
   end
 
+  def wrap?({:@, _, [_]}, _, _) do
+    true
+  end
+
   def wrap?(ast, _, _) do
     Util.call_with_block? ast
   end

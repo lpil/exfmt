@@ -346,4 +346,13 @@ defmodule Exfmt.Integration.BasicsTest do
              end)
     """
   end
+
+  test "infix op with attribute assignment argument" do
+    assert_format """
+    (@value 1) == :ok
+    """
+    assert_format """
+    :ok == (@value 1)
+    """
+  end
 end
