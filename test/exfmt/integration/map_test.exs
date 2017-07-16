@@ -68,4 +68,10 @@ defmodule Exfmt.Integration.MapTest do
     %{zero(0) | rank: 1}
     """
   end
+
+  test "struct with pinned type" do
+    assert_format """
+    %^struct{} = user
+    """
+  end
 end

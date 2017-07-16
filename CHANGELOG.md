@@ -11,6 +11,7 @@ Changelog
   - Calls to function name atoms from another function.
   - Module attributes with values that have a block.
   - Infix operators with module attribute assignment arguments.
+  - Struct patterns with pinned names.
 - Fix: Parse comments from files containing `?\"`, `?\'`, or heredocs.
 - Fix: Avoid applying `do` syntactic sugar to unsupported block words.
 - Fix: Correctly escape sigils containing their close character.

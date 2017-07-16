@@ -95,7 +95,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   # Structs
   #
   def to_algebra({:%, _, [name, {:%{}, _, args}]}, ctx) do
-    name = to_algebra(name, ctx)
+    name = struct_name_to_algebra(name, ctx)
     start = concat(concat("%", name), "{")
     body_doc = map_body_to_algebra(args, ctx)
     group(surround(start, nest(body_doc, :current), "}"))
@@ -802,5 +802,14 @@ defmodule Exfmt.Ast.ToAlgebra do
 
   defp atom_to_name(name) do
     name
+  end
+
+
+  defp struct_name_to_algebra({:^, _, [name]}, ctx) do
+    concat("^", to_algebra(name, ctx))
+  end
+
+  defp struct_name_to_algebra(name, ctx) do
+    to_algebra(name, ctx)
   end
 end
