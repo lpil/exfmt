@@ -207,6 +207,9 @@ defmodule Exfmt.Ast.ToAlgebra do
       {:|, _} ->
         glue(lhs, space("|", rhs))
 
+      {:.., _} ->
+        concat(lhs, concat("..", rhs))
+
       _ ->
         group(nest(glue(space(lhs, to_string(op)), rhs), 2))
     end
@@ -287,6 +290,15 @@ defmodule Exfmt.Ast.ToAlgebra do
     new_ctx = Context.push_stack(ctx, :access)
     algebra = to_algebra(structure, new_ctx)
     surround(concat(algebra, "["), to_algebra(key, new_ctx), "]")
+  end
+
+  #
+  # Accessing property of range struct
+  #
+  def to_algebra({{:., _, [{:.., _, _} = range, name]}, _, []}, ctx) do
+    new_ctx = Context.push_stack(ctx, :call)
+    range_doc = to_algebra(range, new_ctx)
+    concat("(", concat(range_doc, ").#{name}"))
   end
 
   #

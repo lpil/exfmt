@@ -80,4 +80,19 @@ defmodule Exfmt.Integration.MapTest do
     %unquote(User){foo: 1}
     """
   end
+
+  test "range" do
+    assert_format """
+    1..2
+    """
+  end
+
+  test "range.attribute" do
+    assert_format """
+    (1..2).first
+    """
+    assert_format """
+    (1..2).last
+    """
+  end
 end

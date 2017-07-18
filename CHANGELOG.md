@@ -14,6 +14,7 @@ Changelog
   - Struct patterns with pinned types.
   - Infix operators with captured fn arguments.
   - Structs with unquoted types.
+  - Range structs.
 - Fix: Parse comments from files containing `?\"`, `?\'`, or heredocs.
 - Fix: Avoid applying `do` syntactic sugar to unsupported block words.
 - Fix: Correctly escape sigils containing their close character.
