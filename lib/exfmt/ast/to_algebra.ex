@@ -415,7 +415,7 @@ defmodule Exfmt.Ast.ToAlgebra do
 
   defp sigil_to_algebra(char, [{:<<>>, _, parts}, mods], ctx) do
     {open, close} = Sigil.delimiters(char, parts)
-    content_doc = interp_to_algebra(parts, ctx, open, close)
+    content_doc = interp_to_algebra(parts, ctx, open, close, escape: :basic)
     open_doc = concat("~", List.to_string([char]))
     close_doc = List.to_string(mods)
     surround(open_doc, content_doc, close_doc)
@@ -653,7 +653,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
 
-  defp interp_to_algebra(parts, ctx, open, close) do
+  defp interp_to_algebra(parts, ctx, open, close, opts \\ []) do
     merge = fn
       ({:::, _, [{{:., _, _}, _, [content]}, {:binary, _, nil}]}, acc) ->
         content_doc = to_algebra(content, ctx)
@@ -661,41 +661,55 @@ defmodule Exfmt.Ast.ToAlgebra do
         concat(acc, interp_doc)
 
       (string, acc) ->
-        concat(acc, binary_escape(string, close))
+        doc =
+          case opts[:escape] || :all do
+            :all ->
+              binary_full_escape(string, close, [])
+
+            _ ->
+              binary_escape(string, close, [])
+          end
+        concat(acc, doc)
     end
     inner_doc = Enum.reduce(parts, empty(), merge)
     surround(List.to_string([open]), inner_doc, List.to_string([close]))
   end
 
 
-  defp binary_escape(contents, close) do
-    binary_escape(contents, close, [])
-  end
-
   @slash ?\\
+  @escape_chars [{?\n, ?n}, {?\r, ?r}, {?\t, ?t}, {?\v, ?v}, {?\b, ?b},
+                 {?\f, ?f}, {?\e, ?e}, {?\d, ?d}, {?\a, ?a}]
 
-  defp binary_escape(<<>>, _close, acc) do
-    IO.chardata_to_string(acc)
+  for {char, escaped} <- @escape_chars do
+    defp binary_full_escape(<<unquote(char), rest::binary>>, close, acc) do
+      binary_escape(rest, close, [acc, @slash, unquote(escaped)])
+    end
   end
 
-  defp binary_escape(<<@slash, @slash, rest::binary>>, close, acc) do
-    binary_escape(rest, close, [acc, @slash, @slash])
-  end
+  for name <- [:binary_full_escape, :binary_escape] do
+    defp unquote(name)(<<>>, _close, acc) do
+      IO.chardata_to_string(acc)
+    end
 
-  defp binary_escape(<<@slash, close::utf8, rest::binary>>, close, acc) do
-    binary_escape(rest, close, [acc, @slash, @slash, @slash, close])
-  end
+    defp unquote(name)(<<@slash, @slash, rest::binary>>, close, acc) do
+      unquote(name)(rest, close, [acc, @slash, @slash])
+    end
 
-  defp binary_escape(<<close::utf8, rest::binary>>, close, acc) do
-    binary_escape(rest, close, [acc, @slash, close])
-  end
+    defp unquote(name)(<<@slash, close::utf8, rest::binary>>, close, acc) do
+      unquote(name)(rest, close, [acc, @slash, @slash, @slash, close])
+    end
 
-  defp binary_escape(<<char::utf8, rest::binary>>, close, acc) do
-    binary_escape(rest, close, [acc, char])
-  end
+    defp unquote(name)(<<close::utf8, rest::binary>>, close, acc) do
+      unquote(name)(rest, close, [acc, @slash, close])
+    end
 
-  defp binary_escape(<<char::utf16, rest::binary>>, close, acc) do
-    binary_escape(rest, close, [acc, char])
+    defp unquote(name)(<<char::utf8, rest::binary>>, close, acc) do
+      unquote(name)(rest, close, [acc, char])
+    end
+
+    defp unquote(name)(<<char::utf16, rest::binary>>, close, acc) do
+      unquote(name)(rest, close, [acc, char])
+    end
   end
 
 

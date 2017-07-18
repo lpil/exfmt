@@ -88,4 +88,10 @@ defmodule Exfmt.Integration.BinaryTest do
     " \" #{name}"
     """
   end
+
+  test "strings with interpolation and escaped characters" do
+    assert_format ~S"""
+    "Error: Not enough memory to read file:\n   #{path}"
+    """
+  end
 end

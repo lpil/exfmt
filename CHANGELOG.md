@@ -20,6 +20,7 @@ Changelog
 - Fix: Parse comments from files containing `?\"`, `?\'`, or heredocs.
 - Fix: Avoid applying `do` syntactic sugar to unsupported block words.
 - Fix: Correctly escape sigils containing their close character.
+- Fix: Correctly escape strings containing interpolation and newlines.
 
 
 ## v0.2.3 - 2017-07-04
