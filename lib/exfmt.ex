@@ -110,10 +110,10 @@ defmodule Exfmt do
     end
   end
 
+
   #
   # Private
   #
-
   defp do_format(tree, comments, max_width) do
     new_tree = Ast.preprocess(tree)
     comments

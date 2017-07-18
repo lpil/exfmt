@@ -47,6 +47,7 @@ defmodule Exfmt.Ast.Util do
     do_split_do_block(tail, head, [])
   end
 
+
   defp do_split_do_block([], [{:do, _} | _] = prev, acc) do
     if Enum.all?(prev, &keyword_block?/1) do
       result = Enum.reverse(acc)

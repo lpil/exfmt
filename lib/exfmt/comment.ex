@@ -31,11 +31,13 @@ defmodule Exfmt.Comment do
     end
   end
 
+
   defmacrop is_upcase(c) do
     quote do
       unquote(c) >= ?A and unquote(c) <= ?Z
     end
   end
+
 
   defmacrop is_downcase(c) do
     quote do
@@ -43,11 +45,13 @@ defmodule Exfmt.Comment do
     end
   end
 
+
   defmacrop is_letter(c) do
     quote do
       is_upcase(unquote(c)) or is_downcase(unquote(c))
     end
   end
+
 
   defmacrop is_sigil_delim(c) do
     quote do
@@ -55,11 +59,13 @@ defmodule Exfmt.Comment do
     end
   end
 
+
   defmacrop is_horizontal_space(c) do
     quote do
       unquote(c) in [?\t, ?\s]
     end
   end
+
 
   @scope {:elixir_tokenizer, :filename, [], true, false}
 
@@ -247,7 +253,7 @@ defmodule Exfmt.Comment do
   # Discard spaces, then content
   #
   defp discard_heredoc_line([c | src], delim) when is_horizontal_space(c) do
-    discard_heredoc_line(src, delim)
+    discard_heredoc_line src, delim
   end
 
   defp discard_heredoc_line([delim, delim, delim | src], delim) do
@@ -255,7 +261,7 @@ defmodule Exfmt.Comment do
   end
 
   defp discard_heredoc_line(src, delim) do
-    discard_heredoc_line_content(src, delim)
+    discard_heredoc_line_content src, delim
   end
 
 
@@ -263,11 +269,11 @@ defmodule Exfmt.Comment do
   # Discard content
   #
   defp discard_heredoc_line_content([?\\, ?\\ | src], delim) do
-    discard_heredoc_line_content(src, delim)
+    discard_heredoc_line_content src, delim
   end
 
   defp discard_heredoc_line_content([?\\, delim | src], delim) do
-    discard_heredoc_line_content(src, delim)
+    discard_heredoc_line_content src, delim
   end
 
   defp discard_heredoc_line_content([delim, delim, delim | _], delim) do
@@ -283,7 +289,7 @@ defmodule Exfmt.Comment do
   end
 
   defp discard_heredoc_line_content([_ | src], delim) do
-    discard_heredoc_line_content(src, delim)
+    discard_heredoc_line_content src, delim
   end
 
   defp discard_heredoc_line_content(_, _) do

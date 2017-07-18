@@ -354,6 +354,9 @@ defmodule Exfmt.Integration.BasicsTest do
     assert_format """
     :ok == (@value 1)
     """
+    assert_format """
+    :ok == @value
+    """
   end
 
   test "infix op with block argument" do
