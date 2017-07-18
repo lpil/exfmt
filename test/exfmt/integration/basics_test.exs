@@ -355,4 +355,17 @@ defmodule Exfmt.Integration.BasicsTest do
     :ok == (@value 1)
     """
   end
+
+  test "infix op with block argument" do
+    assert_format """
+    _ = (nil
+      nil)
+    """
+  end
+
+  test "direct call to __aliases__/1" do
+    assert_format """
+    __aliases__(args)
+    """
+  end
 end

@@ -224,6 +224,13 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
+  # __aliases__/1
+  #
+  def to_algebra({:__aliases__, _, [{name, _, _}]}, _ctx) do
+    "__aliases__(#{name})"
+  end
+
+  #
   # Aliases
   #
   def to_algebra({:__aliases__, _, names}, ctx) do

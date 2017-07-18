@@ -56,7 +56,7 @@ defmodule Exfmt.Ast.Infix do
     end
   end
 
-  def wrap?({:@, _, [_]}, _, _) do
+  def wrap?({fun, _, _}, _, _) when fun in [:@, :__block__] do
     true
   end
 

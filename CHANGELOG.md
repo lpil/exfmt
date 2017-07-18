@@ -6,13 +6,15 @@ Changelog
 - Rendering of more expressions:
   - Unsugared sigils.
   - Calls to `__block__/0`
+  - Calls to `__aliases__/1`.
   - Aliases with a quoted base module.
   - Atoms starting with `Elixir.`.
   - Calls to function name atoms from another function.
   - Module attributes with values that have a block.
-  - Infix operators with module attribute assignment arguments.
   - Struct patterns with pinned types.
+  - Infix operators with module attribute assignment arguments.
   - Infix operators with captured fn arguments.
+  - Infix operators with block arguments.
   - Structs with unquoted types.
   - Range structs.
 - Fix: Parse comments from files containing `?\"`, `?\'`, or heredocs.

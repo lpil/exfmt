@@ -61,6 +61,14 @@ defmodule Exfmt.Integration.SigilTest do
     """
   end
 
+  test "sigil containing new close char that will need to be escaped, again!" do
+    ~S"""
+    ~R" \( \) / "
+    """ ~> ~S"""
+    ~R( \( \\\) / )
+    """
+  end
+
   test "sigil defintions" do
     assert_format """
     defmacro sigil_T(date, modifiers)
