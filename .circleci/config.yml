@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/dylan
     docker:
-      - image: bitwalker/alpine-elixir:1.4.2
+      - image: bitwalker/alpine-elixir:1.4.5
     environment:
       - MIX_ENV: test
     steps:
