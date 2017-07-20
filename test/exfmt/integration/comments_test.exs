@@ -60,6 +60,7 @@ defmodule Exfmt.Integration.CommentsTest do
     """ ~> """
     call arg()
     # Hello
+
     """
   end
 

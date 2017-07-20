@@ -3,29 +3,29 @@ defmodule Exfmt.Integration.SigilTest do
   import Support.Integration
 
   test "r sigils" do
-    assert_format "~r/hello/\n"
-    assert_format "~r/hello/ugi\n"
-    assert_format "~R/hello/\n"
-    assert_format "~R/hello/ugi\n"
-    "~r(hello)" ~> "~r/hello/\n"
-    "~r[hello]" ~> "~r/hello/\n"
-    "~r{hello}" ~> "~r/hello/\n"
-    ~S"~r/\//" ~> "~r(/)\n"
+    assert_format "~r/hello/"
+    assert_format "~r/hello/ugi"
+    assert_format "~R/hello/"
+    assert_format "~R/hello/ugi"
+    "~r(hello)" ~> "~r/hello/"
+    "~r[hello]" ~> "~r/hello/"
+    "~r{hello}" ~> "~r/hello/"
+    ~S"~r/\//" ~> "~r(/)"
   end
 
   test "r sigil 2" do
-    ~S"~r/\/()/" ~> ~S"~r(/(\))" <> "\n"
+    ~S"~r/\/()/" ~> ~S"~r(/(\))" <> ""
   end
 
   test "s sigils" do
-    assert_format ~s[~s(hello)\n]
-    ~S(~s"hello") ~> ~s[~s(hello)\n]
-    ~S(~s/hello/ugi) ~> ~s[~s(hello)ugi\n]
-    ~S(~S"hello") ~> ~s[~S(hello)\n]
-    ~S(~S/hello/ugi) ~> ~s[~S(hello)ugi\n]
-    ~S(~s[hello]) ~> ~s[~s(hello)\n]
-    ~S(~s{hello}) ~> ~s[~s(hello)\n]
-    ~S[~s"()"] ~> ~s{~s[()]\n}
+    assert_format ~s[~s(hello)]
+    ~S(~s"hello") ~> ~s[~s(hello)]
+    ~S(~s/hello/ugi) ~> ~s[~s(hello)ugi]
+    ~S(~S"hello") ~> ~s[~S(hello)]
+    ~S(~S/hello/ugi) ~> ~s[~S(hello)ugi]
+    ~S(~s[hello]) ~> ~s[~s(hello)]
+    ~S(~s{hello}) ~> ~s[~s(hello)]
+    ~S[~s"()"] ~> ~s{~s[()]}
   end
 
   test "multi-line sigils" do

@@ -3,28 +3,28 @@ defmodule Exfmt.Integration.FnTest do
   import Support.Integration
 
   test "captured functions" do
-    "&inspect/1" ~> "&inspect/1\n"
-    "&inspect(&1)" ~> "&inspect(&1)\n"
-    "&merge(&2, &1)" ~> "&merge(&2, &1)\n"
+    assert_format "&inspect/1"
+    assert_format "&inspect(&1)"
+    assert_format "&merge(&2, &1)"
   end
 
   test "captured infix operators" do
-    "&(&2 + &1)" ~> "& &2 + &1\n"
-    "(& &1.name)" ~> "& &1.name\n"
+    "&(&2 + &1)" ~> "& &2 + &1"
+    "(& &1.name)" ~> "& &1.name"
   end
 
   test "captured qualified function" do
-    assert_format "&A.info/0\n"
+    assert_format "&A.info/0"
   end
 
   test "calling captured functions" do
-    "(&inspect/1).()" ~> "(&inspect/1).()\n"
-    "(&(&1 <> x)).()" ~> "(& &1 <> x).()\n"
+    assert_format "(&inspect/1).()"
+    "(&(&1 <> x)).()" ~> "(& &1 <> x).()"
   end
 
   test "fn" do
-    assert_format "fn-> :ok end\n"
-    assert_format "fn(x) -> x end\n"
+    assert_format "fn-> :ok end"
+    assert_format "fn(x) -> x end"
     """
     fn(x) -> y = x + x; y end
     """ ~> """
@@ -68,15 +68,15 @@ defmodule Exfmt.Integration.FnTest do
   end
 
   test "captured map update fn" do
-    assert_format "& %{&1 | state: :ok}\n"
+    assert_format "& %{&1 | state: :ok}"
   end
 
   test "captured identity" do
-    assert_format "& &1\n"
+    assert_format "& &1"
   end
 
   test "captured Access" do
-    assert_format "& &1[:size]\n"
+    assert_format "& &1[:size]"
   end
 
   test "multi-arity fun with when guard" do

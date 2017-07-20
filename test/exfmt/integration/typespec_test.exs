@@ -3,8 +3,8 @@ defmodule Exfmt.Integration.TypespecTest do
   import Support.Integration
 
   test "@spec" do
-    "@spec bar() :: 1" ~> "@spec bar() :: 1\n"
-    "@spec ok :: :ok" ~> "@spec ok :: :ok\n"
+    "@spec bar() :: 1" ~> "@spec bar() :: 1"
+    "@spec ok :: :ok" ~> "@spec ok :: :ok"
     """
     @spec run(String.t, [tern]) :: atom
     """ ~> """
