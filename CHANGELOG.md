@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## Unreleased
+## v0.2.4 - 2017-07-20
 
 - Rendering of more expressions:
   - Unsugared sigils.
