@@ -6,6 +6,7 @@ defmodule Mix.Tasks.Exfmt do
 
   ## Command line options
 
+    * `--stdin` - Read from STDIN instead of a file
     * `--unsafe` - Disable the semantics check that verifies
       that `exmft` has not altered the semantic meaning of
       the input file.
@@ -19,72 +20,58 @@ defmodule Mix.Tasks.Exfmt do
   """
 
   use Mix.Task
-  alias Exfmt.{SyntaxError, SemanticsError}
 
   @doc false
   @spec run(OptionParser.argv) :: any
   def run([]) do
     @usage
-    |> red()
-    |> IO.write()
+    |> Mix.Shell.IO.error
   end
 
   def run(args) do
-    option_parser_options = [strict: [unsafe: :boolean]]
-    with {opts, [path], []} <- OptionParser.parse(args, option_parser_options),
-         {:file, _, {:ok, source}} <- {:file, path, File.read(path)},
-         {:ok, formatted} <- format(source, opts) do
-      IO.write formatted
-    else
-      {:file, path, {:error, :enoent}} ->
-        "Error: No such file or directory:\n    #{path}"
-        |> red()
-        |> IO.puts
-
-      {:file, path, {:error, :eisdir}} ->
-        "Error: Input is a directory, not an Elixir source file:\n   #{path}"
-        |> red()
-        |> IO.puts
-
-
-      {:file, path, {:error, :eacces}} ->
-        "Error: Incorrect permissions, unable to read file:\n   #{path}"
-        |> red()
-        |> IO.puts
-
-      {:file, path, {:error, :enomem}} ->
-        "Error: Not enough memory to read file:\n   #{path}"
-        |> red()
-        |> IO.puts
-
-      {:file, path, {:error, :enotdir}} ->
-        "Error: Unable to open a parent directory:\n   #{path}"
-        |> red()
-        |> IO.puts
-
-      %SemanticsError{message: message} ->
-        message
-        |> red()
-        |> IO.puts
-
-      %SyntaxError{message: message} ->
-        message
-        |> red()
-        |> IO.puts
-    end
+    args
+    |> parse
+    |> input
+    |> format
+    |> output
   end
 
-
-  defp format(source, opts) do
-    if opts[:unsafe] do
-      Exfmt.unsafe_format(source)
-    else
-      Exfmt.format(source, 100)
-    end
+  def parse(args) do
+    {switches, args, _errors} = OptionParser.parse(args, [strict: [unsafe: :boolean, stdin: :boolean]])
+    {Enum.into(switches, %{}), args}
   end
 
+  defp input({%{stdin: true}=switches, args}) do
+    source =
+      case IO.read(:stdio, :all) do
+        {:error, reason} -> {:error, reason}
+        data -> {:ok, data}
+      end
+    {switches, args, source}
+  end
+  defp input({switches, [path]=args}) do
+    {switches, args, File.read(path)}
+  end
 
-  defp red(msg) do
-    [IO.ANSI.red, msg, IO.ANSI.reset]
+  defp format({%{unsafe: true}, _args, {:ok, source}}) do
+    Exfmt.unsafe_format(source)
+  end
+  defp format({_switches, _args, {:ok, source}}) do
+    Exfmt.format(source)
+  end
+  defp format({switches, args, {:error, _reason}=error}) do
+    {switches, args, error}
+  end
+
+  def output({:ok, formatted}) do
+    IO.write(formatted)
+  end
+  def output(%{}=exception) do
+    Mix.Shell.IO.error(Exception.message(exception))
+  end
+  def output({switches, args, {:error, reason}}) do
+    Mix.Shell.IO.error("Error: #{:file.format_error(reason)}")
+    Mix.Shell.IO.error("Switches: #{inspect switches}")
+    Mix.Shell.IO.error("Args: #{inspect args}")
   end
 end
