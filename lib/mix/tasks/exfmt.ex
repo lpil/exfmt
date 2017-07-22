@@ -13,6 +13,10 @@ defmodule Mix.Tasks.Exfmt do
 
   """
 
+  defmodule Action do
+    defstruct [:stdout, :stderr, exit_code: 0]
+  end
+
   @shortdoc  "Format Elixir source code"
   @usage """
   USAGE:
@@ -24,11 +28,16 @@ defmodule Mix.Tasks.Exfmt do
   @doc false
   @spec run(OptionParser.argv) :: any
   def run([]) do
-    @usage
-    |> Mix.Shell.IO.error
+    Mix.Shell.IO.error(@usage)
   end
 
   def run(args) do
+    args
+    |> process
+    |> execute
+  end
+
+  def process(args) do
     args
     |> parse
     |> input
@@ -36,7 +45,7 @@ defmodule Mix.Tasks.Exfmt do
     |> output
   end
 
-  def parse(args) do
+  defp parse(args) do
     {switches, args, _errors} = OptionParser.parse(args, [strict: [unsafe: :boolean, stdin: :boolean]])
     {Enum.into(switches, %{}), args}
   end
@@ -64,14 +73,29 @@ defmodule Mix.Tasks.Exfmt do
   end
 
   def output({:ok, formatted}) do
-    IO.write(formatted)
+    %Action{stdout: formatted}
   end
-  def output(%{}=exception) do
-    Mix.Shell.IO.error(Exception.message(exception))
+  def output(%{__exception__: true}=exception) do
+    %Action{
+      exit_code: 1,
+      stderr: Exception.message(exception),
+    }
   end
   def output({switches, args, {:error, reason}}) do
-    Mix.Shell.IO.error("Error: #{:file.format_error(reason)}")
-    Mix.Shell.IO.error("Switches: #{inspect switches}")
-    Mix.Shell.IO.error("Args: #{inspect args}")
+    %Action{
+      exit_code: 1,
+      stderr: """
+        Error: #{:file.format_error(reason)}
+        Args: #{inspect switches} #{inspect args}
+      """,
+    }
+  end
+
+  def execute(%Action{exit_code: 1, stderr: stderr}) do
+    Mix.Shell.IO.error(stderr)
+    System.halt(1)
+  end
+  def execute(%Action{exit_code: 0, stdout: stdout}) do
+    IO.write(stdout)
   end
 end
