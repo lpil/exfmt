@@ -11,32 +11,14 @@ defmodule Mix.Tasks.ExfmtTest do
       assert io =~ "mix exfmt path/to/file.ex"
     end
 
-    test "path to unknown file" do
-      result = Mix.Tasks.Exfmt.process(["unknown-path-here"])
-      assert result.stderr =~ "no such file or directory"
-      assert result.stderr =~ "unknown-path-here"
-    end
-
-    test "file with syntax error" do
-      result = Mix.Tasks.Exfmt.process(["priv/examples/syntax_error.ex"])
-      assert result.stderr =~ "Error: syntax error before"
-    end
-
-    test "stdin with valid syntax" do
-      capture_io(" :ok ", fn ->
-        result = Mix.Tasks.Exfmt.process(["--stdin"])
-        assert result.stdout =~ ":ok\n"
-      end)
-    end
-
-    test "file with valid syntax via shell" do
+    test "file path" do
       io = capture_io(fn->
         Mix.Tasks.Exfmt.run(["priv/examples/ok.ex"])
       end)
       assert io == ":ok\n"
     end
 
-    test "stdin with valid syntax via shell" do
+    test "STDIN to STDOUT" do
       io = capture_io(" :ok ", fn->
         Mix.Tasks.Exfmt.run(["--stdin"])
       end)
