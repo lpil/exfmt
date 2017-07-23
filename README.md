@@ -17,8 +17,7 @@
 > release.**  If this will cause problems for you, please refrain from using
 > exfmt during the alpha- and beta-test periods.
 
-`exfmt` formats [Elixir][elixir] source code according to a standard set of
-rules. It is inspired by Aaron VonderHaar's [elm-format][elm-format].
+`exfmt` formats [Elixir][elixir] source code according to the standards defined in the [Elixir Style Guide][style-guide]. It is inspired by Aaron VonderHaar's [elm-format][elm-format].
 
 ```elixir
 # exfmt takes any Elixir code...
@@ -61,6 +60,7 @@ The benefits of `exfmt`:
 [prs]: https://github.com/lpil/exfmt/pulls
 [elixir]: https://elixir-lang.org/
 [elm-format]: https://github.com/avh4/elm-format
+[style-guide]: https://github.com/lexmag/elixir-style-guide
 
 
 ## Contents
