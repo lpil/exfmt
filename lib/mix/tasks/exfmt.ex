@@ -20,25 +20,30 @@ defmodule Mix.Tasks.Exfmt do
   """
 
   use Mix.Task
-
   alias Exfmt.Cli
 
   @doc false
   @spec run(OptionParser.argv) :: any
   def run([]) do
-    Mix.Shell.IO.error(@usage)
+    Mix.Shell.IO.error @usage
   end
+
   def run(argv) do
     argv
     |> Cli.run()
-    |> execute
+    |> execute_output()
   end
 
-  def execute(%Cli.Output{exit_code: 1, stderr: stderr}) do
-    Mix.Shell.IO.error(stderr)
-    System.halt(1)
-  end
-  def execute(%Cli.Output{exit_code: 0, stdout: stdout}) do
-    IO.write(stdout)
+
+  def execute_output(output) do
+    if output.stdout do
+      IO.write output.stdout
+    end
+    if output.stderr do
+      Mix.Shell.IO.error output.stderr
+    end
+    if output.exit_code && output.exit_code != 0 do
+      System.halt output.exit_code
+    end
   end
 end
