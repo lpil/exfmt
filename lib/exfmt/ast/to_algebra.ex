@@ -527,7 +527,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   defp fn_head_algebra(args, ctx) do
     case args do
       [] ->
-        "fn->"
+        "fn ->"
 
       _ ->
         glue(call_to_algebra("fn", args, ctx), "->")
