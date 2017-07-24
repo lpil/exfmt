@@ -1,6 +1,11 @@
 Changelog
 =========
 
+## Unreleased
+
+- Source code for formatting can be read from STDIN using the `--stdin`
+  flag. Thanks @binaryseed!
+
 ## v0.2.4 - 2017-07-20
 
 - Rendering of more expressions:
