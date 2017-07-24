@@ -5,6 +5,8 @@ Changelog
 
 - Source code for formatting can be read from STDIN using the `--stdin`
   flag. Thanks @binaryseed!
+- Rendering of more expressions:
+  - Captured `&&/2`.
 
 ## v0.2.4 - 2017-07-20
 

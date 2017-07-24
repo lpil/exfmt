@@ -8,9 +8,16 @@ defmodule Exfmt.Integration.FnTest do
     "&merge(&2, &1)" ~> "&merge(&2, &1)\n"
   end
 
-  test "captured infix operators" do
+  test "captured +/2" do
     "&(&2 + &1)" ~> "& &2 + &1\n"
+  end
+
+  test "captured &1.prop" do
     "(& &1.name)" ~> "& &1.name\n"
+  end
+
+  test "captured &&/2" do
+    "&(&&/2)" ~> "& &&/2\n"
   end
 
   test "captured qualified function" do

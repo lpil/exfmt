@@ -800,6 +800,10 @@ defmodule Exfmt.Ast.ToAlgebra do
     new_ctx = Context.push_stack(ctx, :&)
     arg_algebra = to_algebra(arg, new_ctx)
     case arg do
+      # & &&/2
+      {:/, _, [{:&&, _, _}, arity]} when is_integer(arity) ->
+        space("&", arg_algebra)
+
       # &run/1
       {:/, _, [_name, arity]} when is_integer(arity) ->
         concat("&", arg_algebra)
