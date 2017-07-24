@@ -69,8 +69,8 @@ The benefits of `exfmt`:
 ## Contents
 
 - [Usage](#usage)
+- [Editor integration](#editor-integration)
 - [Development](#development)
-
 
 ## Usage
 
@@ -78,6 +78,20 @@ The benefits of `exfmt`:
 # Preview the exfmt formatting of an Elixir source file
 mix exfmt path/to/file.ex
 ```
+
+## Editor integration
+
+**Vim using [Neoformat](https://github.com/sbdchd/neoformat)**:
+```viml
+let g:neoformat_elixir_exfmt = {
+      \ 'exe': 'mix',
+      \ 'args': ['exfmt']
+      \ }
+
+let g:neoformat_enabled_elixir = ['exfmt']
+```
+
+You can now format the current Elixir buffer using `:Neoformat`. For further instructions, please reference the Neoformat documentation.
 
 
 ## Development
