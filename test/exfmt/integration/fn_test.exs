@@ -30,7 +30,7 @@ defmodule Exfmt.Integration.FnTest do
   end
 
   test "fn" do
-    assert_format "fn-> :ok end\n"
+    assert_format "fn -> :ok end\n"
     assert_format "fn(x) -> x end\n"
     """
     fn(x) -> y = x + x; y end
