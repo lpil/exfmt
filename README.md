@@ -69,6 +69,7 @@ The benefits of `exfmt`:
 ## Contents
 
 - [Usage](#usage)
+- [Editor Integration](#editorintegration)
 - [Development](#development)
 
 
@@ -78,6 +79,14 @@ The benefits of `exfmt`:
 # Preview the exfmt formatting of an Elixir source file
 mix exfmt path/to/file.ex
 ```
+
+
+## Editor Integration
+
+### Atom
+
+Atom users can install the [exfmt-atom](https://atom.io/packages/exfmt-atom)
+package.
 
 
 ## Development
