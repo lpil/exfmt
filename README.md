@@ -69,7 +69,7 @@ The benefits of `exfmt`:
 ## Contents
 
 - [Usage](#usage)
-- [Editor Integration](#editorintegration)
+- [Editor Integration](#editor-integration)
 - [Development](#development)
 
 
