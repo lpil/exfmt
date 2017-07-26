@@ -69,9 +69,11 @@ The benefits of `exfmt`:
 ## Contents
 
 - [Usage](#usage)
-- [Editor integration](#editor-integration)
+- [Editor Integration](#editor-integration)
+  - [Atom](#atom)
   - [Vim using Neoformat](#vim-using-neoformat)
 - [Development](#development)
+
 
 ## Usage
 
@@ -81,6 +83,12 @@ mix exfmt path/to/file.ex
 ```
 
 ## Editor integration
+
+### Atom
+
+Atom users can install the [exfmt-atom](https://atom.io/packages/exfmt-atom)
+package.
+
 
 ### Vim using [Neoformat](https://github.com/sbdchd/neoformat)
 ```viml
