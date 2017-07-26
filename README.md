@@ -71,6 +71,7 @@ The benefits of `exfmt`:
 - [Usage](#usage)
 - [Editor Integration](#editor-integration)
   - [Atom](#atom)
+  - [Vim using Neoformat](#vim-using-neoformat)
 - [Development](#development)
 
 
@@ -81,13 +82,26 @@ The benefits of `exfmt`:
 mix exfmt path/to/file.ex
 ```
 
-
-## Editor Integration
+## Editor integration
 
 ### Atom
 
 Atom users can install the [exfmt-atom](https://atom.io/packages/exfmt-atom)
 package.
+
+
+### Vim using [Neoformat](https://github.com/sbdchd/neoformat)
+```viml
+let g:neoformat_elixir_exfmt = {
+      \ 'exe': 'mix',
+      \ 'args': ['exfmt', '--stdin'],
+      \ 'stdin': 1
+      \ }
+
+let g:neoformat_enabled_elixir = ['exfmt']
+```
+
+You can now format the current Elixir buffer using `:Neoformat`. For further instructions, please reference the Neoformat documentation.
 
 
 ## Development
