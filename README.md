@@ -70,6 +70,7 @@ The benefits of `exfmt`:
 
 - [Usage](#usage)
 - [Editor Integration](#editor-integration)
+  - [Atom](#atom)
 - [Development](#development)
 
 
