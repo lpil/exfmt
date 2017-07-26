@@ -1,12 +1,17 @@
 Changelog
 =========
 
-## Unreleased
+## v0.3.0 - 2017-07-26
 
 - Source code for formatting can be read from STDIN using the `--stdin`
   flag. Thanks @binaryseed!
-- Rendering of more expressions:
-  - Captured `&&/2`.
+- CLI now reports errors with STDERR and exit codes. Thanks @binaryseed!
+  flag. Thanks @binaryseed!
+- Editor integration for Atom. Thanks @rgreenjr!
+- Editor integration for Vim. Thanks @jfornoff!
+- Anon functions now always has a space between `fn` and `->`. Thanks
+  @jfornoff!
+- Rendering captured `&&/2`.
 
 ## v0.2.4 - 2017-07-20
 
