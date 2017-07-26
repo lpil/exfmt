@@ -86,8 +86,9 @@ mix exfmt path/to/file.ex
 
 ### Atom
 
-Atom users can install the [exfmt-atom](https://atom.io/packages/exfmt-atom)
-package.
+Atom users can install Ron Green's [exfmt-atom][exfmt-atom] package.
+
+[exfmt-atom]: https://atom.io/packages/exfmt-atom
 
 
 ### Vim
