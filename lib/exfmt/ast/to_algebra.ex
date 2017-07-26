@@ -78,7 +78,7 @@ defmodule Exfmt.Ast.ToAlgebra do
       fun = &keyword_to_algebra(&1, new_ctx)
       surround_many("", list, "", fun)
     else
-      {:kw, false} ->
+      {:kw, _} ->
         fun = fn(elem) -> to_algebra(elem, new_ctx) end
         surround_many("[", list, "]", fun)
 

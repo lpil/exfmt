@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/dylan
     docker:
-      - image: bitwalker/alpine-elixir:1.4.5
+      - image: bitwalker/alpine-elixir:1.5.0
     environment:
       - MIX_ENV: test
     steps:
@@ -18,7 +18,11 @@ jobs:
       - run: mix deps.compile
 
       # Compile
-      - run: mix compile --warnings-as-errors
+
+      # TODO: Re-enable with Elixir v1.5.1
+      # Elixir v1.5.0 has a bug where a warning can erroneously emitted for a
+      # with with an else block even.
+      - run: mix compile #--warnings-as-errors
 
       # Test
       - run: mix test --trace # TODO: use coveralls

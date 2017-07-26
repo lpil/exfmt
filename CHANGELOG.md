@@ -1,6 +1,12 @@
 Changelog
 =========
 
+## Unreleased
+
+- Support for Elixir v1.4 and lower has been dropped. This enables the use of
+  new features added to the Elixir tokenizer and parser in v1.5.
+
+
 ## v0.3.0 - 2017-07-26
 
 - Source code for formatting can be read from STDIN using the `--stdin`
