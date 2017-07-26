@@ -70,6 +70,7 @@ The benefits of `exfmt`:
 
 - [Usage](#usage)
 - [Editor integration](#editor-integration)
+  - [Vim using Neoformat](#vim-using-neoformat)
 - [Development](#development)
 
 ## Usage
@@ -81,7 +82,7 @@ mix exfmt path/to/file.ex
 
 ## Editor integration
 
-**Vim using [Neoformat](https://github.com/sbdchd/neoformat)**:
+### Vim using [Neoformat](https://github.com/sbdchd/neoformat)
 ```viml
 let g:neoformat_elixir_exfmt = {
       \ 'exe': 'mix',
