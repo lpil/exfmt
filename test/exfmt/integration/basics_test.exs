@@ -11,6 +11,10 @@ defmodule Exfmt.Integration.BasicsTest do
     assert_format "-2\n"
   end
 
+  test "large ints" do
+    assert_format "10_000\n"
+  end
+
   test "floats" do
     "0.000" ~> "0.0\n"
     "1.111" ~> "1.111\n"
