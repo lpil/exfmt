@@ -376,7 +376,6 @@ defmodule Exfmt.Ast.ToAlgebra do
   #
   # Integers
   #
-  #
   def to_algebra(value, _ctx) when is_integer(value) do
     to_doc(value)
     |> insert_readability_underscores
@@ -389,8 +388,6 @@ defmodule Exfmt.Ast.ToAlgebra do
                                    is_binary(value) or is_number(value) do
     to_doc(value)
   end
-
-
 
   #
   # Atoms
