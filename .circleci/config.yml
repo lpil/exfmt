@@ -3,10 +3,17 @@ jobs:
   build:
     working_directory: ~/dylan
     docker:
-      - image: bitwalker/alpine-elixir:1.5.0
+      - image: erlang:20.0.1
     environment:
-      - MIX_ENV: test
+      MIX_ENV: test
+      BASH_ENV: ~/.bashrc
     steps:
+      - run: apt-get update
+      - run: apt-get install git unzip --yes
+      - run: git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.3.0
+      - run: echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.bashrc
+      - run: asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git
+      - run: asdf install elixir master-otp-20
 
       # Clone project
       - checkout
@@ -25,4 +32,4 @@ jobs:
       - run: mix compile #--warnings-as-errors
 
       # Test
-      - run: mix test --trace # TODO: use coveralls
+      - run: mix test --trace # TODO: Check coverage

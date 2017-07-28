@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## Unreleased
+
+- exfmt now targets the unreleased master (v1.6) branch of the Elixir
+  compiler. This allows use of new Elixir parser features such as preservation
+  of sigil terminators, character literals and line numbers for AST literals.
+
+
 ## v0.4.0 - 2017-08-02
 
 - Support for Elixir v1.4 and lower has been dropped. This enables the use of
@@ -26,6 +33,7 @@ Changelog
 - Editor integration for Vim. (@jfornoff)
 - Anon functions now always has a space between `fn` and `->`. (@jfornoff)
 - Rendering captured `&&/2`.
+
 
 ## v0.2.4 - 2017-07-20
 
@@ -74,6 +82,7 @@ Map updates wand captured map update functions.
 - Fix: Avoid truncating large collections.
 - Fix: Avoid corrupting utf8 characters in string interpolation
   and sigils.
+
 
 ## v0.2.2 - 2017-06-13
 
