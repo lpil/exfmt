@@ -108,7 +108,10 @@ defmodule Exfmt.Ast.ToAlgebra do
   def to_algebra({:%{}, _, contents}, ctx) do
     new_ctx = Context.push_stack(ctx, :map)
     body_doc = map_body_to_algebra(contents, new_ctx)
-    group(nest(glue("%{", "", concat(body_doc, "}")), 2))
+    "%{"
+    |> glue("", body_doc)
+    |> nest(2)
+    |> glue("", "}")
   end
 
   #

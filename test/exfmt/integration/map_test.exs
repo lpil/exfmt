@@ -10,6 +10,26 @@ defmodule Exfmt.Integration.MapTest do
     "%{1 => 1, 2 => 2}" ~> "%{1 => 1, 2 => 2}\n"
   end
 
+  test "multiline maps" do
+    assert_format """
+    %{
+      foo: 1,
+      bar: 2,
+      baz: 3,
+      somereallylongkey: 4
+    }
+    """
+
+    assert_format """
+    var = %{
+      foo: 1,
+      bar: 2,
+      baz: 3,
+      somereallylongkey: 4
+    }
+    """
+  end
+
   test "map upsert %{map | key: value}" do
     "%{map | key: value}" ~> "%{map | key: value}\n"
   end
