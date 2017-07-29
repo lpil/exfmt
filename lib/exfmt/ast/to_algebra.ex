@@ -112,6 +112,7 @@ defmodule Exfmt.Ast.ToAlgebra do
     |> glue("", body_doc)
     |> nest(2)
     |> glue("", "}")
+    |> group
   end
 
   #
@@ -212,6 +213,19 @@ defmodule Exfmt.Ast.ToAlgebra do
 
       {:.., _} ->
         concat(lhs, concat("..", rhs))
+
+      {:=, _} ->
+        case r do
+          # For Maps, we want to hold the opening brace next to the assignments
+          # even when space constraints force a line break
+          {:%{}, _, _} ->
+            lhs
+            |> space(to_string(op))
+            |> space(rhs)
+            |> group
+          _ ->
+            group(nest(glue(space(lhs, to_string(op)), rhs), 2))
+        end
 
       _ ->
         group(nest(glue(space(lhs, to_string(op)), rhs), 2))
