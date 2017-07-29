@@ -72,6 +72,7 @@ The benefits of `exfmt`:
 - [Editor Integration](#editor-integration)
   - [Atom](#atom)
   - [Vim](#vim)
+  - [VS Code](#visual-studio-code)
 - [Development](#development)
 
 
@@ -110,6 +111,12 @@ let g:neoformat_elixir_exfmt = {
 
 let g:neoformat_enabled_elixir = ['exfmt']
 ```
+
+### Visual Studio Code
+
+VSCode users can use exfmt with James Hrisho's [vscode-exfmt][vscode-exfmt] package.
+
+[vscode-exfmt]: https://github.com/securingsincity/vscode-exfmt
 
 
 ## Development
