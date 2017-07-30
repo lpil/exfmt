@@ -42,7 +42,7 @@ defmodule Exfmt.Integration.FnTest do
     """
   end
 
-  test "anonymous fn in long function calls" do
+  test "fn in long function calls" do
     """
     Enum.find([1,2,3,4], fn(num) -> rem(num, 2) == 0 end)
     """ ~> """
@@ -50,6 +50,14 @@ defmodule Exfmt.Integration.FnTest do
               fn(num) ->
                 rem(num, 2) == 0
               end
+    """
+
+    """
+    Logger.debug fn -> "Hey this is a long log message!" end
+    """ ~> """
+    Logger.debug fn ->
+                   "Hey this is a long log message!"
+                 end
     """
   end
 
