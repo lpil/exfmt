@@ -42,6 +42,17 @@ defmodule Exfmt.Integration.FnTest do
     """
   end
 
+  test "anonymous fn in long function calls" do
+    """
+    Enum.find([1,2,3,4], fn(num) -> rem(num, 2) == 0 end)
+    """ ~> """
+    Enum.find [1, 2, 3, 4],
+              fn(num) ->
+                rem(num, 2) == 0
+              end
+    """
+  end
+
   test "multi-clause fn" do
     assert_format """
     fn

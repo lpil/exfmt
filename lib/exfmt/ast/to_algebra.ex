@@ -158,7 +158,7 @@ defmodule Exfmt.Ast.ToAlgebra do
         line(nest(line(head, body_algebra), 2), "end")
 
       _single_expr ->
-        glue(glue(head, body_algebra), "end")
+        glue(nest(glue(head, body_algebra), 2), "end")
     end
   end
 
@@ -530,7 +530,7 @@ defmodule Exfmt.Ast.ToAlgebra do
         "fn ->"
 
       _ ->
-        glue(call_to_algebra("fn", args, ctx), "->")
+        space(call_to_algebra("fn", args, ctx), "->")
     end
   end
 
