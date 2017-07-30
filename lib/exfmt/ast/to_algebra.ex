@@ -374,6 +374,14 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
+  # Integers
+  #
+  def to_algebra(value, _ctx) when is_integer(value) do
+    to_doc(value)
+    |> insert_readability_underscores
+  end
+
+  #
   # Strings, numbers, nil, booleans
   #
   def to_algebra(value, _ctx) when is_nil(value) or is_boolean(value) or
@@ -849,5 +857,14 @@ defmodule Exfmt.Ast.ToAlgebra do
 
   defp struct_name_to_algebra(name, ctx) do
     to_algebra(name, ctx)
+  end
+
+  defp insert_readability_underscores(string_integer) do
+    string_integer
+    |> String.to_charlist
+    |> Enum.reverse
+    |> Enum.chunk_every(3, 3, [])
+    |> Enum.join("_")
+    |> String.reverse
   end
 end
