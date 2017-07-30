@@ -29,6 +29,39 @@ defmodule Exfmt.CliTest do
       result = Exfmt.Cli.run(["--stdin"])
       assert result.stderr =~ "Error: syntax error before"
     end
+
+    test "check with correctly formatted code" do
+      result = Exfmt.Cli.run(["--check", "priv/examples/ok.ex"])
+      assert result.exit_code == 0
+      assert result.stdout == nil
+    end
+
+    test "check with incorrectly formatted code" do
+      result = Exfmt.Cli.run(["--check", "priv/examples/format_me.ex"])
+      assert result.exit_code == 1
+      assert result.stdout == nil
+    end
+
+    test "stdin check with correctly formatted code" do
+      provide_stdin("[1, 2, 3]\n")
+      result = Exfmt.Cli.run(["--check", "--stdin"])
+      assert result.exit_code == 0
+      assert result.stdout == nil
+    end
+
+    test "stdin check with incorrectly formatted code" do
+      provide_stdin("[1,\n2]\n")
+      result = Exfmt.Cli.run(["--check", "--stdin"])
+      assert result.exit_code == 1
+      assert result.stdout == nil
+    end
+
+    test "check stdin with syntax error" do
+      provide_stdin(" - , = ")
+      result = Exfmt.Cli.run(["--stdin", "--check"])
+      assert result.exit_code == 1
+      assert result.stderr =~ "Error: syntax error before"
+    end
   end
 
   def provide_stdin(string) do

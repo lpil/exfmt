@@ -6,6 +6,7 @@ defmodule Mix.Tasks.Exfmt do
 
   ## Command line options
 
+    * `--check` - Check if file is formatted, sets exit status to 1 if false
     * `--stdin` - Read from STDIN instead of a file
     * `--unsafe` - Disable the semantics check that verifies
       that `exmft` has not altered the semantic meaning of
