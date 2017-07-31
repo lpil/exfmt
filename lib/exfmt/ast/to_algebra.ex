@@ -472,6 +472,10 @@ defmodule Exfmt.Ast.ToAlgebra do
         arg_list = args_to_algebra(args, ctx, parens: args_with_block?, space: !args_with_block?)
         concat(name, nest(arg_list, :current))
 
+      %{stack: [:fn | _], args: args} ->
+        arg_list = args_to_algebra(args, ctx, parens: false)
+        space(name, nest(arg_list, :current))
+
       _ ->
         arg_list = args_to_algebra(args, ctx)
         concat(name, nest(arg_list, :current))
