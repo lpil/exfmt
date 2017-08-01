@@ -108,7 +108,11 @@ defmodule Exfmt.Ast.ToAlgebra do
   def to_algebra({:%{}, _, contents}, ctx) do
     new_ctx = Context.push_stack(ctx, :map)
     body_doc = map_body_to_algebra(contents, new_ctx)
-    group(nest(glue("%{", "", concat(body_doc, "}")), 2))
+    "%{"
+    |> glue("", body_doc)
+    |> nest(2)
+    |> glue("", "}")
+    |> group
   end
 
   #
@@ -209,6 +213,19 @@ defmodule Exfmt.Ast.ToAlgebra do
 
       {:.., _} ->
         concat(lhs, concat("..", rhs))
+
+      {:=, _} ->
+        case r do
+          # For Maps, we want to hold the opening brace next to the assignments
+          # even when space constraints force a line break
+          {:%{}, _, _} ->
+            lhs
+            |> space(to_string(op))
+            |> space(rhs)
+            |> group
+          _ ->
+            group(nest(glue(space(lhs, to_string(op)), rhs), 2))
+        end
 
       _ ->
         group(nest(glue(space(lhs, to_string(op)), rhs), 2))
