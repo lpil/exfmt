@@ -10,7 +10,8 @@ Changelog
   (@thetamind)
 - Large integers are now `_` delimited for readability. (@jfornoff)
 - Multi-line map braces are now placed on own line. (@jfornoff)
-- Multi-line map are rendered with trailing newlines.
+- Multi-line maps are rendered with trailing newlines.
+- `fn`s are now rendered without parens around their arguments (@jfornoff)
 - Fix: Prevent `fn` arrows from wrapping onto next line. (@jfornoff)
 
 
@@ -66,7 +67,7 @@ Changelog
 Map updates wand captured map update functions.
 - Fix: Correctly render multi-arity and multi-clause fns that have
   guard clauses.
-- Fix: Surround call args with parems when any argument is a call
+- Fix: Surround call arguments with parems when any argument is a call
   with block arguments. This prevents the block being mistakenly
   assigned to the top level call instead of the child call.
 - Fix: Avoid truncating large collections.
