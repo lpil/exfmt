@@ -31,11 +31,11 @@ defmodule Exfmt.Integration.FnTest do
 
   test "fn" do
     assert_format "fn -> :ok end\n"
-    assert_format "fn(x) -> x end\n"
+    assert_format "fn x -> x end\n"
     """
-    fn(x) -> y = x + x; y end
+    fn x -> y = x + x; y end
     """ ~> """
-    fn(x) ->
+    fn x ->
       y = x + x
       y
     end
@@ -44,10 +44,10 @@ defmodule Exfmt.Integration.FnTest do
 
   test "fn in long function calls" do
     """
-    Enum.find([1,2,3,4], fn(num) -> rem(num, 2) == 0 end)
+    Enum.find([1,2,3,4], fn num -> rem(num, 2) == 0 end)
     """ ~> """
     Enum.find [1, 2, 3, 4],
-              fn(num) ->
+              fn num ->
                 rem(num, 2) == 0
               end
     """
@@ -107,7 +107,7 @@ defmodule Exfmt.Integration.FnTest do
 
   test "multi-arity fun with when guard" do
     assert_format """
-    fn(:ok, x) when is_map(x) -> x end
+    fn :ok, x when is_map(x) -> x end
     """
   end
 
