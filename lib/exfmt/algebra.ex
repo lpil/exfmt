@@ -202,6 +202,16 @@ defmodule Exfmt.Algebra do
   end
 
 
+  @doc """
+  Insert a new line
+
+  """
+  @spec line :: t
+  def line do
+    :doc_line
+  end
+
+
   @doc ~S"""
   Glues two documents together inserting `" "` as a break between them.
 

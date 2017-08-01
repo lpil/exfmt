@@ -8,7 +8,8 @@ Changelog
 - Editor integration for Visual Studio Code. (@securingsincity)
 - Source code can be checked for correct formatting using the `--check` flag.
   (@thetamind)
-- Large integers are now `_` delimited for readability.
+- Large integers are now `_` delimited for readability. (@jfornoff)
+- Multi-line map braces are now placed on own line. (@jfornoff)
 - Fix: Prevent `fn` arrows from wrapping onto next line. (@jfornoff)
 
 

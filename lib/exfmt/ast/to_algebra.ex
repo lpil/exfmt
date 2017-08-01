@@ -63,7 +63,7 @@ defmodule Exfmt.Ast.ToAlgebra do
     res_doc = to_algebra(result, ctx)
     fun = fn(elem) -> to_algebra(elem, new_ctx) end
     args_doc = surround_many("(", args, ")", fun)
-    fun_doc = glue(space(args_doc, "->"), res_doc)
+    fun_doc = concat([args_doc, " ->", break(), res_doc])
     surround("(", fun_doc, ")")
   end
 
@@ -97,9 +97,12 @@ defmodule Exfmt.Ast.ToAlgebra do
   def to_algebra({:%, _, [name, {:%{}, _, args}]}, ctx) do
     name_ctx = Context.push_stack(ctx, :struct_name)
     name = struct_name_to_algebra(name, name_ctx)
-    start = concat(concat("%", name), "{")
-    body_doc = map_body_to_algebra(args, ctx)
-    group(surround(start, nest(body_doc, :current), "}"))
+    body_doc =
+      args
+      |> map_body_to_algebra(ctx)
+      |> nest(:current)
+    surround(concat(["%", name, "{"]), body_doc, "}")
+    |> group()
   end
 
   #
@@ -108,11 +111,9 @@ defmodule Exfmt.Ast.ToAlgebra do
   def to_algebra({:%{}, _, contents}, ctx) do
     new_ctx = Context.push_stack(ctx, :map)
     body_doc = map_body_to_algebra(contents, new_ctx)
-    "%{"
-    |> glue("", body_doc)
-    |> nest(2)
-    |> glue("", "}")
-    |> group
+    ["%{", nest(concat(break(""), body_doc), 2), break(""), "}"]
+    |> concat()
+    |> group()
   end
 
   #
@@ -191,7 +192,8 @@ defmodule Exfmt.Ast.ToAlgebra do
     rhs_ctx = Context.push_stack(ctx, :spec_rhs)
     lhs = to_algebra(fun, lhs_ctx)
     rhs = to_algebra(result, rhs_ctx)
-    glue(lhs, space("::", group(rhs)))
+    [lhs, break(), ":: ", group(rhs)]
+    |> concat()
   end
 
   #
@@ -203,32 +205,41 @@ defmodule Exfmt.Ast.ToAlgebra do
     rhs = infix_child_to_algebra(r, :right, new_ctx)
     case {op, ctx.stack} do
       {:/, [:& | _]} ->
-        surround(lhs, "/", rhs)
+        [lhs, "/", rhs]
+        |> concat()
 
       {:|>, _} ->
-        glue(line(lhs, "|>"), rhs)
+        [lhs, line(), "|> ", rhs]
+        |> concat()
 
       {:|, _} ->
-        glue(lhs, space("|", rhs))
+        [lhs, break(), "| ", rhs]
+        |> concat()
 
       {:.., _} ->
-        concat(lhs, concat("..", rhs))
+        [lhs, "..", rhs]
+        |> concat()
 
       {:=, _} ->
         case r do
           # For Maps, we want to hold the opening brace next to the assignments
           # even when space constraints force a line break
           {:%{}, _, _} ->
-            lhs
-            |> space(to_string(op))
-            |> space(rhs)
-            |> group
+            [lhs, " = ", rhs]
+            |> concat()
+            |> group()
           _ ->
-            group(nest(glue(space(lhs, to_string(op)), rhs), 2))
+            [lhs, " ", to_string(op), break(), rhs]
+            |> concat()
+            |> group()
+            |> nest(2)
         end
 
       _ ->
-        group(nest(glue(space(lhs, to_string(op)), rhs), 2))
+        [lhs, " ", to_string(op), break(), rhs]
+        |> concat()
+        |> group()
+        |> nest(2)
     end
   end
 
@@ -275,9 +286,9 @@ defmodule Exfmt.Ast.ToAlgebra do
   def to_algebra({{:., _, [name]}, _, args}, ctx) do
     new_ctx = Context.push_stack(ctx, :call)
     name_doc = to_algebra(name, new_ctx)
-    head_doc = concat(name_doc, ".")
     args_doc = args_to_algebra(args, new_ctx, parens: true)
-    concat(head_doc, nest(args_doc, :current))
+    [name_doc, ".", nest(args_doc, :current)]
+    |> concat()
   end
 
   #
@@ -322,7 +333,9 @@ defmodule Exfmt.Ast.ToAlgebra do
   def to_algebra({{:., _, [{:.., _, _} = range, name]}, _, []}, ctx) do
     new_ctx = Context.push_stack(ctx, :call)
     range_doc = to_algebra(range, new_ctx)
-    concat("(", concat(range_doc, ").#{name}"))
+    ["(", range_doc, ").#{name}"]
+    |> concat()
+
   end
 
   #
@@ -351,7 +364,6 @@ defmodule Exfmt.Ast.ToAlgebra do
     new_ctx = Context.push_stack(ctx, :call)
     module = to_algebra(aliases, new_ctx)
     call = call_to_algebra(to_string(name), args, new_ctx)
-    # TODO: We want to nest by the size of the module name here
     concat(concat(module, "."), call)
   end
 
@@ -506,8 +518,9 @@ defmodule Exfmt.Ast.ToAlgebra do
     new_ctx = Context.push_stack(ctx, :when)
     {call_args, [guard]} = Enum.split(args, -1)
     args_doc = args_to_algebra(call_args, ctx, opts)
-    guard_doc = space("when", to_algebra(guard, new_ctx))
-    space(args_doc, guard_doc)
+    guard_doc = to_algebra(guard, new_ctx)
+    [args_doc, " when ", guard_doc]
+    |> concat()
   end
 
   defp args_to_algebra(args, ctx, opts) do
@@ -621,8 +634,9 @@ defmodule Exfmt.Ast.ToAlgebra do
   defp clause_to_algebra({:->, _, [args, body]}, ctx) do
     lhs = args_to_algebra(args, ctx, parems: false)
     rhs = to_algebra(body, ctx)
-    stab = space(lhs, "->")
-    nest(line(stab, rhs), 2)
+    [lhs, " ->", line(), rhs]
+    |> concat()
+    |> nest(2)
   end
 
   defp clause_to_algebra({:"#comment_block", _, [first | rest]}, ctx) do
@@ -644,7 +658,8 @@ defmodule Exfmt.Ast.ToAlgebra do
   def map_body_to_algebra([{:|, _, [name, pairs]}], ctx) do
     name_doc = to_algebra(name, ctx)
     pairs_doc = map_pairs_to_algebra(pairs, ctx)
-    glue(space(name_doc, "|"), pairs_doc)
+    [name_doc, " |", break(), pairs_doc]
+    |> concat()
   end
 
   def map_body_to_algebra(pairs, ctx) do
@@ -671,7 +686,8 @@ defmodule Exfmt.Ast.ToAlgebra do
     first_doc = pair_formatter.(first, ctx)
     reducer = fn(pair, acc) ->
       doc = pair_formatter.(pair, ctx)
-      glue(concat(acc, ","), doc)
+      [acc, ",", break(), doc]
+      |> concat()
     end
     Enum.reduce(pairs, first_doc, reducer)
   end
@@ -735,8 +751,6 @@ defmodule Exfmt.Ast.ToAlgebra do
       unquote(name)(rest, close, [acc, char])
     end
   end
-
-
 
 
   defp alias_to_string({:__MODULE__, _, _}, _ctx) do
@@ -874,6 +888,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   defp struct_name_to_algebra(name, ctx) do
     to_algebra(name, ctx)
   end
+
 
   defp integer_to_algebra(int) when int < 100_000 do
     to_doc int
