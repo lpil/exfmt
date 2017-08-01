@@ -20,6 +20,9 @@ defmodule Exfmt.Algebra do
   - `nest/1` can take the atom `:current` instead of an integer. With
     this value the formatter will set the indentation level to the
     current column position.
+  - `break/2` allows the user to specify a string that can be rendered in the
+    document when the break is rendering in a flat layout. This was added to
+    insert trailing newlines.
   """
 
   alias Inspect, as: I
@@ -67,9 +70,9 @@ defmodule Exfmt.Algebra do
   # Lifted from `Inspect.Algebra.doc_break/1`
   #
   @typep doc_break :: {:doc_break, binary}
-  defmacrop doc_break(break) do
+  defmacrop doc_break(unbroken, broken) do
     quote do
-      {:doc_break, unquote(break)}
+      {:doc_break, unquote(unbroken), unquote(broken)}
     end
   end
 
@@ -120,8 +123,6 @@ defmodule Exfmt.Algebra do
   #
 
   defdelegate empty(), to: I.Algebra
-  defdelegate break(), to: I.Algebra
-  defdelegate break(doc), to: I.Algebra
   defdelegate fold_doc(docs, fun), to: I.Algebra
   defdelegate group(doc), to: I.Algebra
   defdelegate line(doc1, doc2), to: I.Algebra
@@ -137,6 +138,60 @@ defmodule Exfmt.Algebra do
   @spec to_doc(term) :: t
   def to_doc(term) do
     Inspect.Algebra.to_doc(term, %Inspect.Opts{})
+  end
+
+
+  @doc ~S"""
+  Returns a document entity representing a break based on the given
+  `string`.
+
+  This break can be rendered as a `broken` followed by a linebreak and or as
+  the given `unbroken`, depending on the `mode` of the chosen layout or the
+  provided separator.
+
+  ## Examples
+
+  Let's create a document by concatenating two strings with a break between
+  them:
+
+      iex> doc = Inspect.Algebra.concat(["a", Inspect.Algebra.break("\t"), "b"])
+      iex> Inspect.Algebra.format(doc, 80)
+      ["a", "\t", "b"]
+
+  Notice the break was represented with the given string, because we didn't
+  reach a line limit. Once we do, it is replaced by a newline:
+
+      iex> break = Inspect.Algebra.break("\t")
+      iex> doc = Inspect.Algebra.concat([String.duplicate("a", 20), break, "b"])
+      iex> Inspect.Algebra.format(doc, 10)
+      ["aaaaaaaaaaaaaaaaaaaa", "\n", "b"]
+
+  """
+  @spec break(binary, binary) :: doc_break
+  def break(unbroken, broken) when is_binary(unbroken) and is_binary(broken) do
+    doc_break(unbroken, broken)
+  end
+
+
+  @doc ~S"""
+  Returns a document entity with the `" "` string as break.
+
+  See `break/2` for more information.
+  """
+  @spec break(binary) :: doc_break
+  def break(unbroken) do
+    doc_break(unbroken, "")
+  end
+
+
+  @doc ~S"""
+  Returns a document entity with the `" "` string as break.
+
+  See `break/2` for more information.
+  """
+  @spec break() :: doc_break
+  def break() do
+    doc_break(" ", "")
   end
 
 
@@ -351,11 +406,11 @@ defmodule Exfmt.Algebra do
     fits?((limit - byte_size(s)), t)
   end
 
-  defp fits?(limit, [{_, :flat, doc_break(s)} | t]) do
+  defp fits?(limit, [{_, :flat, doc_break(s, _)} | t]) do
     fits?((limit - byte_size(s)), t)
   end
 
-  defp fits?(_, [{_, :break, doc_break(_)} | _]) do
+  defp fits?(_, [{_, :break, doc_break(_, _)} | _]) do
     true
   end
 
@@ -397,13 +452,13 @@ defmodule Exfmt.Algebra do
     [s | format(limit, new_width, t)]
   end
 
-  defp format(limit, width, [{_, :flat, doc_break(s)} | t]) do
+  defp format(limit, width, [{_, :flat, doc_break(s, _)} | t]) do
     new_width = width + byte_size(s)
     [s | format(limit, new_width, t)]
   end
 
-  defp format(limit, _width, [{indent, :break, doc_break(_s)} | t]) do
-    [line_indent(indent) | format(limit, indent, t)]
+  defp format(limit, _width, [{indent, :break, doc_break(_, s)} | t]) do
+    [s, line_indent(indent) | format(limit, indent, t)]
   end
 
   defp format(limit, width, [{indent, _mode, doc_group(doc)} | t]) do

@@ -16,7 +16,7 @@ defmodule Exfmt.Integration.MapTest do
       foo: 1,
       bar: 2,
       baz: 3,
-      somereallylongkey: 4
+      somereallylongkey: 4,
     }
     """
 
@@ -28,7 +28,7 @@ defmodule Exfmt.Integration.MapTest do
       bar: 2,
       baz: 3,
       somereallylongkey: 4,
-      theotherkey: 5
+      theotherkey: 5,
     }
     """
 
@@ -37,7 +37,7 @@ defmodule Exfmt.Integration.MapTest do
       foo: 1,
       bar: 2,
       baz: 3,
-      somereallylongkey: 4
+      somereallylongkey: 4,
     }
     """
   end

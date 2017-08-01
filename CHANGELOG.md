@@ -10,6 +10,7 @@ Changelog
   (@thetamind)
 - Large integers are now `_` delimited for readability. (@jfornoff)
 - Multi-line map braces are now placed on own line. (@jfornoff)
+- Multi-line map are rendered with trailing newlines.
 - Fix: Prevent `fn` arrows from wrapping onto next line. (@jfornoff)
 
 
