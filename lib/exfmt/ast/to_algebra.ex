@@ -10,7 +10,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   require Algebra
   require Infix
 
-  defmacro is_block(name) do
+  defmacrop is_block(name) do
     quote do
       unquote(name) in [:__block__, :"#comment_block"]
     end
@@ -659,14 +659,14 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
 
-  def map_body_to_algebra([{:|, _, [name, pairs]}], ctx) do
+  defp map_body_to_algebra([{:|, _, [name, pairs]}], ctx) do
     name_doc = to_algebra(name, ctx)
     pairs_doc = map_pairs_to_algebra(pairs, ctx)
     [name_doc, " |", break(), pairs_doc]
     |> concat()
   end
 
-  def map_body_to_algebra(pairs, ctx) do
+  defp map_body_to_algebra(pairs, ctx) do
     map_pairs_to_algebra(pairs, ctx)
   end
 
