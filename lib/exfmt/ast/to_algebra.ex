@@ -376,9 +376,8 @@ defmodule Exfmt.Ast.ToAlgebra do
   #
   # Integers
   #
-  def to_algebra(value, _ctx) when is_integer(value) do
-    to_doc(value)
-    |> insert_readability_underscores
+  def to_algebra(int, _ctx) when is_integer(int) do
+    integer_to_algebra(int)
   end
 
   #
@@ -859,12 +858,17 @@ defmodule Exfmt.Ast.ToAlgebra do
     to_algebra(name, ctx)
   end
 
-  defp insert_readability_underscores(string_integer) do
-    string_integer
-    |> String.to_charlist
-    |> Enum.reverse
+  defp integer_to_algebra(int) when int < 100_000 do
+    to_doc int
+  end
+
+  defp integer_to_algebra(int) do
+    int
+    |> to_doc()
+    |> String.to_charlist()
+    |> Enum.reverse()
     |> Enum.chunk_every(3, 3, [])
     |> Enum.join("_")
-    |> String.reverse
+    |> String.reverse()
   end
 end

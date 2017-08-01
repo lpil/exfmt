@@ -12,11 +12,13 @@ defmodule Exfmt.Integration.BasicsTest do
   end
 
   test "large ints" do
-    assert_format "10_000\n"
+    assert_format "10000\n"
     assert_format "100_000\n"
     assert_format "1_000_000\n"
 
-    "1000" ~> "1_000\n"
+    "1000" ~> "1000\n"
+    "10000" ~> "10000\n"
+    "99999" ~> "99999\n"
     "100000" ~> "100_000\n"
     "1000000" ~> "1_000_000\n"
   end
