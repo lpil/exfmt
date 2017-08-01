@@ -5,19 +5,22 @@ Changelog
 
 - Support for Elixir v1.4 and lower has been dropped. This enables the use of
   new features added to the Elixir tokenizer and parser in v1.5.
-- Editor integration for Visual Studio Code. Thanks @securingsincity!
+- Editor integration for Visual Studio Code. (@securingsincity)
+- Source code can be checked for correct formatting using the `--check` flag.
+  (@thetamind)
+- Large integers are now `_` delimited for readability.
+- Fix: Prevent `fn` arrows from wrapping onto next line. (@jfornoff)
 
 
 ## v0.3.0 - 2017-07-26
 
 - Source code for formatting can be read from STDIN using the `--stdin`
-  flag. Thanks @binaryseed!
-- CLI now reports errors with STDERR and exit codes. Thanks @binaryseed!
-  flag. Thanks @binaryseed!
-- Editor integration for Atom. Thanks @rgreenjr!
-- Editor integration for Vim. Thanks @jfornoff!
-- Anon functions now always has a space between `fn` and `->`. Thanks
-  @jfornoff!
+  flag. (@binaryseed)
+- CLI now reports errors with STDERR and exit codes. (@binaryseed)
+  flag. (@binaryseed)
+- Editor integration for Atom. (@rgreenjr)
+- Editor integration for Vim. (@jfornoff)
+- Anon functions now always has a space between `fn` and `->`. (@jfornoff)
 - Rendering captured `&&/2`.
 
 ## v0.2.4 - 2017-07-20
