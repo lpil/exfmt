@@ -9,10 +9,6 @@
 > `exfmt` is in alpha.  If you run into any problems, please
 > [report them][issues].
 >
-> Currently exfmt does not always produce semantically identical formatted
-> Elixir. There are checks to prevent data loss, but please ensure you have
-> backed up your code before running `exfmt` during this alpha stage.
->
 > **The format produced by exfmt will change significantly before the 1.0.0
 > release.**  If this will cause problems for you, please refrain from using
 > exfmt during the alpha- and beta-test periods.
