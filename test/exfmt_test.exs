@@ -7,6 +7,11 @@ defmodule ExfmtTest do
       assert Exfmt.format("[1,2,3]") == {:ok, "[1, 2, 3]\n"}
     end
 
+    test "formats empty source" do
+      assert Exfmt.format("") == {:ok, "\n"}
+      assert Exfmt.format("\n\n\n\n\n") == {:ok, "\n"}
+    end
+
     test "returns error on invalid syntax" do
       message = "Error: syntax error before: ','"
       error = Exfmt.format(",")

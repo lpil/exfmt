@@ -82,7 +82,17 @@ defmodule Exfmt do
 
   """
   @spec unsafe_format(String.t, integer) :: {:ok, String.t} | SyntaxError.t
-  def unsafe_format(source, max_width \\ @max_width) do
+  def unsafe_format(source, max_width \\ @max_width)
+
+  def unsafe_format("", _) do
+    {:ok, "\n"}
+  end
+
+  def unsafe_format("\n" <> rest, max_width) do
+    unsafe_format(rest, max_width)
+  end
+
+  def unsafe_format(source, max_width) do
     with {:ok, tree} <- Code.string_to_quoted(source),
          {:ok, comments} <- Comment.extract_comments(source) do
       {:ok, do_format(tree, comments, max_width)}

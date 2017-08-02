@@ -13,6 +13,7 @@ Changelog
 - Multi-line maps are rendered with trailing newlines.
 - `fn`s are now rendered without parens around their arguments (@jfornoff)
 - Fix: Prevent `fn` arrows from wrapping onto next line. (@jfornoff)
+- Fix: Don't insert `__block__()` when formatting an empty string.
 
 
 ## v0.3.0 - 2017-07-26
