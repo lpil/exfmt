@@ -73,9 +73,11 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   def to_algebra({name, _, exprs}, ctx) when is_block(name) do
-    exprs
-    |> Enum.map(&to_algebra(&1, ctx))
-    |> Enum.reduce(&line(&2, &1))
+    block =
+      exprs
+      |> Enum.map(&to_algebra(&1, ctx))
+      |> Enum.reduce(&line(&2, &1))
+    concat(break_parent(), block)
   end
 
   #

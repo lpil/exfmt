@@ -333,7 +333,8 @@ defmodule Exfmt.Integration.BasicsTest do
 
   test "infix op with block argument" do
     assert_format """
-    _ = (nil
+    _ =
+      (nil
       nil)
     """
   end
@@ -372,6 +373,16 @@ defmodule Exfmt.Integration.BasicsTest do
             :ok
         end
     end
+    """
+  end
+
+  test "comments within list" do
+    assert_format """
+    [
+      :one_one_one,
+      # hi
+      :two_two_two,
+    ]
     """
   end
 end

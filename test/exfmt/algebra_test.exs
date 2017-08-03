@@ -70,5 +70,16 @@ defmodule Exfmt.AlgebraTest do
       doc = nest(line("a", "b"), 2)
       assert fmt(doc, 40) == "a\n  b\n"
     end
+
+    test "break_parent" do
+      inner = group(concat(break_parent(), "b"))
+      doc = group(glue(glue(glue("a", inner), "c"), "d"))
+      assert fmt(doc, 10000) == """
+      a
+      b
+      c
+      d
+      """
+    end
   end
 end

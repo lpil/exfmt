@@ -23,6 +23,10 @@ defmodule Exfmt.Algebra do
   - `break/2` allows the user to specify a string that can be rendered in the
     document when the break is rendering in a flat layout. This was added to
     insert trailing newlines.
+  - `break_parent/0` can be used to force all parent groups to break. Inspired
+    by [Prettier][0]'s `breakParent`.
+
+  [0]: https://github.com/prettier/prettier
   """
 
   alias Inspect, as: I
@@ -38,6 +42,7 @@ defmodule Exfmt.Algebra do
   @type t
     :: :doc_nil
     | :doc_line
+    | :doc_break_parent
     | doc_cons
     | doc_nest
     | doc_break
@@ -69,7 +74,7 @@ defmodule Exfmt.Algebra do
   #
   # Lifted from Elixir 1.4's `Inspect.Algebra.doc_break/1`
   #
-  @typep doc_break :: {:doc_break, binary}
+  @typep doc_break :: {:doc_break, binary, binary}
   defmacrop doc_break(unbroken, broken) do
     quote do
       {:doc_break, unquote(unbroken), unquote(broken)}
@@ -110,7 +115,7 @@ defmodule Exfmt.Algebra do
   defp do_is_doc(doc) do
     quote do
       is_binary(unquote(doc)) or
-      unquote(doc) in [:doc_nil, :doc_line] or
+      unquote(doc) in [:doc_nil, :doc_line, :doc_break_parent] or
       (is_tuple(unquote(doc)) and
        elem(unquote(doc), 0) in
         [:doc_cons, :doc_nest, :doc_break, :doc_group])
@@ -186,9 +191,19 @@ defmodule Exfmt.Algebra do
 
   See `break/2` for more information.
   """
-  @spec break() :: doc_break
-  def break() do
+  @spec break :: doc_break
+  def break do
     doc_break(" ", "")
+  end
+
+
+  @doc ~S"""
+  Forces all parent groups to break.
+
+  """
+  @spec break_parent :: :doc_break_parent
+  def break_parent do
+    :doc_break_parent
   end
 
 
@@ -436,6 +451,10 @@ defmodule Exfmt.Algebra do
     true
   end
 
+  defp fits?(_, [{_, _, :doc_break_parent} | _]) do
+    false
+  end
+
   defp fits?(limit, [{_, _, :doc_nil} | t]) do
     fits?(limit, t)
   end
@@ -478,6 +497,10 @@ defmodule Exfmt.Algebra do
 
   defp format(limit, _, [{indent, _, :doc_line} | t]) do
     [line_indent(indent) | format(limit, indent, t)]
+  end
+
+  defp format(limit, width, [{_, _, :doc_break_parent} | t]) do
+    format(limit, width, t)
   end
 
   defp format(limit, width, [{_, _, :doc_nil} | t]) do
