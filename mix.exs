@@ -2,7 +2,6 @@ defmodule Exfmt.Mixfile do
   use Mix.Project
 
   @version "0.4.0"
-
   def project do
     [
       app: :exfmt,
@@ -10,9 +9,9 @@ defmodule Exfmt.Mixfile do
       description: "An opinionated Elixir source code formatter",
       version: @version,
       elixir: "~> 1.6-dev",
-      elixirc_paths: elixirc_paths(Mix.env),
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
       deps: deps(),
       docs: [extras: ["README.md"]],
       dialyzer: [ignore_warnings: ".dialyzerignore"],

@@ -2,7 +2,6 @@
 [![Hex version](https://img.shields.io/hexpm/v/exfmt.svg "Hex version")](https://hex.pm/packages/exfmt)
 [![API Docs](https://img.shields.io/badge/api-docs-green.svg?style=flat)](https://hexdocs.pm/exfmt/)
 [![Licence](https://img.shields.io/github/license/lpil/exfmt.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-<!-- [![Hex downloads](https://img.shields.io/hexpm/dt/exfmt.svg "Hex downloads")](https://hex.pm/packages/exfmt) -->
 
 # exfmt 🌸
 
@@ -16,7 +15,7 @@
 [issues]: https://github.com/lpil/exfmt/issues
 
 `exfmt` is inspired by Aaron VonderHaar's [elm-format][elm-format], and aims
-to formats [Elixir][elixir] source code largely according to the standards
+to format [Elixir][elixir] source code largely according to the standards
 defined in Aleksei Magusev's [Elixir Style Guide][style-guide].
 
 
