@@ -55,8 +55,6 @@ The benefits of `exfmt`:
  - It **saves you time** because you don't have to nitpick over formatting
    details of your code.
 
-[issues]: https://github.com/lpil/exfmt/issues
-[prs]: https://github.com/lpil/exfmt/pulls
 [elixir]: https://elixir-lang.org/
 [elm-format]: https://github.com/avh4/elm-format
 [style-guide]: https://github.com/lexmag/elixir-style-guide
@@ -78,6 +76,7 @@ The benefits of `exfmt`:
 # Preview the exfmt formatting of an Elixir source file
 mix exfmt path/to/file.ex
 ```
+
 
 ## Editor integration
 
@@ -108,35 +107,9 @@ let g:neoformat_elixir_exfmt = {
 let g:neoformat_enabled_elixir = ['exfmt']
 ```
 
+
 ### Visual Studio Code
 
 VSCode users can use exfmt with James Hrisho's [vscode-exfmt][vscode-exfmt] package.
 
 [vscode-exfmt]: https://github.com/securingsincity/vscode-exfmt
-
-
-## Development
-
-`exfmt` is an open project, contributions are very much welcomed. If you have
-feedback or have found a bug, please open [an issue][issues]. If you wish to
-make a code contribution please open a [pull request][prs], though for larger
-code changes it may be good to open an issue first so we can work out the best
-way to move forward.
-
-Please note that this project is released with a [Contributor Code of
-Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree to
-abide by its terms.
-
-```sh
-# Install the deps
-mix deps.get
-
-# Run the tests
-mix test
-
-# Run the tests when files change
-mix test.watch
-
-# Run the type checker
-mix dialyzer
-```
