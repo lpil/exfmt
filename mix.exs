@@ -8,7 +8,7 @@ defmodule Exfmt.Mixfile do
      name: "exfmt",
      description: "An opinionated Elixir source code formatter",
      version: @version,
-     elixir: "~> 1.5",
+     elixir: "~> 1.6-dev",
      elixirc_paths: elixirc_paths(Mix.env),
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
