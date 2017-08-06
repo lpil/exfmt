@@ -42,28 +42,26 @@ defmodule Exfmt.Ast do
 
 
   @doc """
-  Preprocess an AST before printing.
-
-  - Introduces empty lines where desired.
+  Introduces empty lines to group related expressions.
 
   """
-  @spec preprocess(Macro.t) :: Macro.t
-  def preprocess(ast) do
-    Macro.postwalk(ast, &preprocess_node/1)
+  @spec insert_empty_lines(Macro.t) :: Macro.t
+  def insert_empty_lines(ast) do
+    Macro.postwalk(ast, &node_insert_empty_lines/1)
   end
 
 
-  defp preprocess_node({:__block__, meta, args}) do
-    new_args = pp_block(args)
+  defp node_insert_empty_lines({:__block__, meta, args}) do
+    new_args = block_insert_empty_lines(args)
     {:__block__, meta, new_args}
   end
 
-  defp preprocess_node(tree) do
+  defp node_insert_empty_lines(tree) do
     tree
   end
 
 
-  defp pp_block(exprs) do
+  defp block_insert_empty_lines(exprs) do
     exprs
     |> group_by_def()
     |> Enum.map(&space_group(&1, [], nil))
@@ -208,5 +206,23 @@ defmodule Exfmt.Ast do
 
   defp group_id(_) do
     nil
+  end
+
+
+  @doc """
+  Compact block wrapped literals into specialised forms.
+
+  """
+  @spec compact_wrapped_literals(Macro.t) :: Macro.t
+  def compact_wrapped_literals(ast)  do
+    Macro.postwalk(ast, &node_compact_wrapped_literals/1)
+  end
+
+  defp node_compact_wrapped_literals({:__block__, _meta, [ast]}) do
+    ast
+  end
+
+  defp node_compact_wrapped_literals(ast) do
+    ast
   end
 end

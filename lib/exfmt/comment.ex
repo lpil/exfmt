@@ -60,6 +60,10 @@ defmodule Exfmt.Comment do
     {:"#comment_block", [], Enum.reverse(comments)}
   end
 
+  def merge(comments, {:__block__, _, [nil]}) do
+    {:"#comment_block", [], Enum.reverse(comments)}
+  end
+
   def merge(comments, ast) do
     case Macro.prewalk(ast, Enum.reverse(comments), &merge_node/2) do
       {merged, []} ->

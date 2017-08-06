@@ -6,7 +6,7 @@ defmodule Exfmt.AstTest do
 
   @newline {:"#newline", [], []}
 
-  describe "preprocess/1" do
+  describe "insert_empty_lines/1" do
     test "newline insertion between function clauses" do
       ast = Code.string_to_quoted! """
         defmodule App do
@@ -20,7 +20,7 @@ defmodule Exfmt.AstTest do
         end
       """
       assert {:defmodule, _, [{:__aliases__, _, [:App]}, [do: body]]} =
-        preprocess(ast)
+        insert_empty_lines(ast)
       assert {:__block__, [], [one, @newline, two]} = body
       assert {:def, _, [{:int, _, [:one]}, [do: 1]]} = one
       assert {:def, _, [{:int, _, [:two]}, [do: 2]]} = two
@@ -39,7 +39,7 @@ defmodule Exfmt.AstTest do
         end
       """
       assert {:defmodule, _, [{:__aliases__, _, [:App]}, [do: body]]} =
-        preprocess(ast)
+        insert_empty_lines(ast)
       assert {:__block__, [], [one, @newline, @newline, two]} = body
       assert {:def, _, [{:one, _, nil}, [do: 1]]} = one
       assert {:def, _, [{:two, _, nil}, [do: 2]]} = two

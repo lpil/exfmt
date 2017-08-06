@@ -93,7 +93,8 @@ defmodule Exfmt do
   end
 
   def unsafe_format(source, max_width) do
-    with {:ok, tree} <- Code.string_to_quoted(source),
+    parse_opts = [wrap_literals_in_blocks: true]
+    with {:ok, tree} <- Code.string_to_quoted(source, parse_opts),
          {:ok, comments} <- Comment.extract_comments(source) do
       {:ok, do_format(tree, comments, max_width)}
     else
@@ -125,9 +126,10 @@ defmodule Exfmt do
   # Private
   #
   defp do_format(tree, comments, max_width) do
-    new_tree = Ast.preprocess(tree)
+    new_tree = Ast.insert_empty_lines(tree)
     comments
     |> Comment.merge(new_tree)
+    |> Ast.compact_wrapped_literals()
     |> Ast.to_algebra(Context.new)
     |> Algebra.format(max_width)
     |> IO.chardata_to_string()
