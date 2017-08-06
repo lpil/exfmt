@@ -55,6 +55,10 @@ defmodule Exfmt.Ast.Infix do
     end
   end
 
+  def wrap?({:__block__, _, [ast]}, side, context) do
+    wrap?(ast, side, context)
+  end
+
   def wrap?({:__block__, _, _}, _, _) do
     true
   end
