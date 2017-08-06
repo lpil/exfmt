@@ -9,9 +9,7 @@ defmodule Exfmt.Integration.BinaryTest do
     assert_format """
     " "
     """
-    # TODO: Use heredocs
     ~s("\n") ~> ~s("\\n"\n)
-    ~s("""\nhello\n""") ~> ~s("hello\\n"\n)
   end
 
   test "string interpolation" do
@@ -93,5 +91,21 @@ defmodule Exfmt.Integration.BinaryTest do
     assert_format ~S"""
     "Error: Not enough memory to read file:\n   #{path}"
     """
+  end
+
+  test "empty heredoc" do
+    assert_format ~s("""\n"""\n)
+  end
+
+  test "1 line heredoc" do
+    assert_format ~s("""\none\n"""\n)
+  end
+
+  test "2 line heredoc" do
+    assert_format ~s("""\none\ntwo\n"""\n)
+  end
+
+  test "heredoc with preceeding spaces" do
+    assert_format ~s("""\none\n  two\n"""\n)
   end
 end

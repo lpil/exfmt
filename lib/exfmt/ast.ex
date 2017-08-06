@@ -215,11 +215,11 @@ defmodule Exfmt.Ast do
   """
   @spec compact_wrapped_literals(Macro.t) :: Macro.t
   def compact_wrapped_literals(ast)  do
-    Macro.postwalk(ast, &node_compact_wrapped_literals/1)
+    Macro.postwalk(ast, &node_compact/1)
   end
 
-  defp node_compact_wrapped_literals({:__block__, meta, [int]})
-       when is_integer(int) do
+
+  defp node_compact({:__block__, meta, [int]}) when is_integer(int) do
     case meta[:format] do
       :char ->
         {:"#char", meta, [int]}
@@ -229,11 +229,21 @@ defmodule Exfmt.Ast do
     end
   end
 
-  defp node_compact_wrapped_literals({:__block__, _meta, [ast]}) do
+  defp node_compact({:__block__, meta, [binary]}) when is_binary(binary) do
+    case meta[:format] do
+      :bin_heredoc ->
+        {:"#bin_heredoc", meta, [binary]}
+
+      _ ->
+        binary
+    end
+  end
+
+  defp node_compact({:__block__, _meta, [ast]}) do
     ast
   end
 
-  defp node_compact_wrapped_literals(ast) do
+  defp node_compact(ast) do
     ast
   end
 end

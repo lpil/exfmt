@@ -8,6 +8,7 @@ Changelog
   of sigil terminators, character literals and line numbers for AST literals.
 - Rendering of more expressions:
   - Character literals.
+  - Heredoc strings.
 
 
 ## v0.4.0 - 2017-08-02

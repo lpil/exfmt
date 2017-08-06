@@ -53,6 +53,19 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
+  # Char literals
+  #
+  def to_algebra({:"#bin_heredoc", _, [bin]}, _ctx) do
+    lines =
+      bin
+      |> String.split("\n")
+      |> Enum.intersperse(line())
+      |> concat()
+    [~s("""), line(), lines, ~s(""")]
+    |> concat()
+  end
+
+  #
   # Blocks
   #
   def to_algebra({name, _, []}, ctx) when is_block(name) do
@@ -909,7 +922,7 @@ defmodule Exfmt.Ast.ToAlgebra do
 
 
   defp struct_name_to_algebra({:^, _, [name]}, ctx) do
-    concat("^", to_algebra(name, ctx))
+    "^#{to_algebra(name, ctx)}"
   end
 
   defp struct_name_to_algebra(name, ctx) do
