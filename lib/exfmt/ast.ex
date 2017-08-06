@@ -218,6 +218,17 @@ defmodule Exfmt.Ast do
     Macro.postwalk(ast, &node_compact_wrapped_literals/1)
   end
 
+  defp node_compact_wrapped_literals({:__block__, meta, [int]})
+       when is_integer(int) do
+    case meta[:format] do
+      :char ->
+        {:"#char", meta, [int]}
+
+      _ ->
+        int
+    end
+  end
+
   defp node_compact_wrapped_literals({:__block__, _meta, [ast]}) do
     ast
   end

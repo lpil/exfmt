@@ -6,6 +6,8 @@ Changelog
 - exfmt now targets the unreleased master (v1.6) branch of the Elixir
   compiler. This allows use of new Elixir parser features such as preservation
   of sigil terminators, character literals and line numbers for AST literals.
+- Rendering of more expressions:
+  - Character literals.
 
 
 ## v0.4.0 - 2017-08-02
