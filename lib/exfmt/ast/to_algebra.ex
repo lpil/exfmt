@@ -42,6 +42,17 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
+  # Char literals
+  #
+  def to_algebra({:"#char", _, [?\\]}, _ctx) do
+    ~S"?\\"
+  end
+
+  def to_algebra({:"#char", _, [int]}, _ctx) do
+    to_string [?? | escape_char(int)]
+  end
+
+  #
   # Blocks
   #
   def to_algebra({name, _, []}, ctx) when is_block(name) do
@@ -729,6 +740,18 @@ defmodule Exfmt.Ast.ToAlgebra do
       binary_escape(rest, close, [acc, @slash, unquote(escaped)])
     end
   end
+
+
+  for {char, escaped} <- @escape_chars do
+    defp escape_char(unquote(char)) do
+      [@slash, unquote(escaped)]
+    end
+  end
+
+  defp escape_char(c) do
+    [c]
+  end
+
 
   for name <- [:binary_full_escape, :binary_escape] do
     defp unquote(name)(<<>>, _close, acc) do

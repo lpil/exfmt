@@ -79,6 +79,21 @@ defmodule Exfmt.Integration.BasicsTest do
     "'a'" ~> "[97]\n" # TODO: Hmm...
   end
 
+  test "chars" do
+    assert_format "?a\n"
+    assert_format "??\n"
+    assert_format ~S"?\\" <> "\n"
+    assert_format ~S"?\n" <> "\n"
+    assert_format ~S"?\r" <> "\n"
+    assert_format ~S"?\t" <> "\n"
+    assert_format ~S"?\v" <> "\n"
+    assert_format ~S"?\b" <> "\n"
+    assert_format ~S"?\f" <> "\n"
+    assert_format ~S"?\e" <> "\n"
+    assert_format ~S"?\d" <> "\n"
+    assert_format ~S"?\a" <> "\n"
+  end
+
   test "lists" do
     "[ ]" ~> "[]\n"
     """
