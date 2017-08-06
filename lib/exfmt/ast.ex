@@ -219,28 +219,17 @@ defmodule Exfmt.Ast do
   end
 
 
-  defp node_compact({:__block__, meta, [int]}) when is_integer(int) do
+  defp node_compact({:__block__, meta, [value]}) do
     case meta[:format] do
       :char ->
-        {:"#char", meta, [int]}
+        {:"#char", meta, [value]}
 
-      _ ->
-        int
-    end
-  end
-
-  defp node_compact({:__block__, meta, [binary]}) when is_binary(binary) do
-    case meta[:format] do
       :bin_heredoc ->
-        {:"#bin_heredoc", meta, [binary]}
+        {:"#bin_heredoc", meta, [value]}
 
       _ ->
-        binary
+        value
     end
-  end
-
-  defp node_compact({:__block__, _meta, [ast]}) do
-    ast
   end
 
   defp node_compact(ast) do

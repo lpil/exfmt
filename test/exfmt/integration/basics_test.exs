@@ -398,4 +398,21 @@ defmodule Exfmt.Integration.BasicsTest do
     __aliases__(args)
     """
   end
+
+  test "assignment with case" do
+    assert_format """
+    x = case y do
+        :ok ->
+          :ok
+      end
+    """
+    assert_format """
+    defp read_source do
+      source = case :ok do
+          :ok ->
+            :ok
+        end
+    end
+    """
+  end
 end

@@ -56,8 +56,8 @@ defmodule Exfmt.Ast.Infix do
   end
 
 
-  def wrap?({:__block__, _, [ast]}, side, context) do
-    wrap? ast, side, context
+  def wrap?({:__block__, _, [ast]}, side, ctx) do
+    wrap? ast, side, ctx
   end
 
   def wrap?({:__block__, _, _}, _, _) do
@@ -74,8 +74,17 @@ defmodule Exfmt.Ast.Infix do
   end
 
 
-  def wrap?(ast, _, _) do
-    Util.call_with_block? ast
+  def wrap?(ast, _, ctx) do
+    case ctx.stack do
+      [_, :do | _] ->
+        false
+
+      [_, _, :call | _] ->
+        Util.call_with_block? ast
+
+      _ ->
+        false
+    end
   end
 
 
