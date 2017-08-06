@@ -553,7 +553,7 @@ defmodule Exfmt.Ast.ToAlgebra do
     {call_args, [guard]} = Enum.split(args, -1)
     args_doc = args_to_algebra(call_args, ctx, opts)
     guard_doc = to_algebra(guard, new_ctx)
-    [args_doc, group(nest(glue("", group(glue("when", guard_doc))), 1))]
+    [args_doc, group(nest(glue("", group(space("when", guard_doc))), 1))]
     |> concat()
   end
 
