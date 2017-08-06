@@ -105,10 +105,12 @@ defmodule Exfmt.Ast.ToAlgebra do
       {:kw, _} ->
         fun = fn(elem) -> to_algebra(elem, new_ctx) end
         surround_many("[", list, "]", fun)
+        |> nest(:current)
 
       {:la, _} ->
         fun = &keyword_to_algebra(&1, new_ctx)
         surround_many("[", list, "]", fun)
+        |> nest(:current)
 
       {:"[]", _} ->
         "[]"
@@ -325,8 +327,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   def to_algebra({:@, _, [{name, _, [value]}]}, ctx) do
     new_ctx = Context.push_stack(ctx, :module_attribute)
     head_doc = "@#{name}"
-    len = String.length(head_doc) + 1
-    value_doc = nest(to_algebra(value, new_ctx), len)
+    value_doc = to_algebra(value, new_ctx)
     safe_value_doc = if Util.call_with_block?(value) do
       surround("(", value_doc, ")")
     else
@@ -486,6 +487,11 @@ defmodule Exfmt.Ast.ToAlgebra do
     call_to_algebra(IO.chardata_to_string(["sigil_", char]), args, new_ctx)
   end
 
+
+  defp call_to_algebra("not", [arg], ctx) do
+    new_ctx = Context.push_stack(ctx, :call)
+    space("not", to_algebra(arg, new_ctx))
+  end
 
   defp call_to_algebra(name, all_args, ctx) do
     {args, blocks} = Util.split_do_block(all_args)

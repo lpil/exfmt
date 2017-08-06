@@ -209,9 +209,9 @@ defmodule Exfmt.Integration.BasicsTest do
   test "module attribute with block call arg" do
     assert_format """
     @ok (case ok do
-           _ ->
-             :ok
-         end)
+       _ ->
+         :ok
+     end)
     """
   end
 

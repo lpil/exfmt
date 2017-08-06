@@ -14,16 +14,16 @@ defmodule Exfmt.Integration.TypespecTest do
     @spec run(String.t) :: atom | String.t | :hello
     """ ~> """
     @spec run(String.t)
-          :: atom | String.t | :hello
+    :: atom | String.t | :hello
     """
+  end
+
+  test "@spec 2" do
     """
     @spec run(String.t) :: atom | String.t | :hello | :world
     """ ~> """
     @spec run(String.t)
-          :: atom
-          | String.t
-          | :hello
-          | :world
+    :: atom | String.t | :hello | :world
     """
   end
 

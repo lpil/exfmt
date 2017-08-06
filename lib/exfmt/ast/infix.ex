@@ -24,9 +24,9 @@ defmodule Exfmt.Ast.Infix do
   alias Exfmt.Context
   alias Exfmt.Ast.Util
 
-  @infix_ops ~W[=== !== == != <= >= && || <> ++ -- \\ :: <- .. |> =~ < > -> +
+  @infix_ops ~W(=== !== == != <= >= && || <> ++ -- \\ :: <- .. |> =~ < > -> +
                 - * / = | . and or when in ~>> <<~ ~> <~ <~> <|> <<< >>> |||
-                &&& ^^^ ~~~]a
+                &&& ^^^ ~~~)a
 
   @doc """
   A compile time list of all the infix operator atoms.
@@ -55,13 +55,15 @@ defmodule Exfmt.Ast.Infix do
     end
   end
 
+
   def wrap?({:__block__, _, [ast]}, side, context) do
-    wrap?(ast, side, context)
+    wrap? ast, side, context
   end
 
   def wrap?({:__block__, _, _}, _, _) do
     true
   end
+
 
   def wrap?({:@, _, [{_, _, value}]}, _, _) when value != nil do
     true
@@ -70,6 +72,7 @@ defmodule Exfmt.Ast.Infix do
   def wrap?({:&, _, [arg]}, _, _) when not is_integer(arg) do
     true
   end
+
 
   def wrap?(ast, _, _) do
     Util.call_with_block? ast
@@ -89,7 +92,8 @@ defmodule Exfmt.Ast.Infix do
   # This function has been adapted from
   # `elixir-lang/elixir/lib/elixir/lib/macro.ex`
   #
-  @spec binary_op_props(atom) :: {:left | :right, precedence :: integer} | :not_op
+  @spec binary_op_props(atom) :: {:left | :right, precedence :: integer}
+  | :not_op
   defp binary_op_props(o) do
     case o do
       o when o in [:<-, :\\] ->

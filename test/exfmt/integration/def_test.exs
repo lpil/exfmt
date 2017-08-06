@@ -52,4 +52,12 @@ defmodule Exfmt.Integration.DefTest do
     end
     """
   end
+
+  test "negated guard" do
+    assert_format """
+    def run(x) when not is_binary(x) do
+      x
+    end
+    """
+  end
 end
