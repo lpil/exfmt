@@ -13,6 +13,8 @@
 > release.**  If this will cause problems for you, please refrain from using
 > exfmt during the alpha- and beta-test periods.
 
+[issues]: https://github.com/lpil/exfmt/issues
+
 `exfmt` is inspired by Aaron VonderHaar's [elm-format][elm-format], and aims
 to formats [Elixir][elixir] source code largely according to the standards
 defined in Aleksei Magusev's [Elixir Style Guide][style-guide].
