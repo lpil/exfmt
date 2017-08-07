@@ -16,9 +16,11 @@ defmodule Exfmt.Integration.CallTest do
     """
     very_long_function_name_here([100, 200, 300])
     """ ~> """
-    very_long_function_name_here [100,
-                                  200,
-                                  300]
+    very_long_function_name_here [
+                                   100,
+                                   200,
+                                   300,
+                                 ]
     """
   end
 

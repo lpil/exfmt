@@ -94,26 +94,16 @@ defmodule Exfmt.Ast.ToAlgebra do
   #
   # Lists
   #
+  def to_algebra([], _ctx) do
+    "[]"
+  end
+
   def to_algebra(list, ctx) when is_list(list) do
     new_ctx = Context.push_stack(ctx, :list)
-    with {:"[]", [_|_]} <- {:"[]", list},
-         {:kw, true} <- {:kw, Inspect.List.keyword?(list)},
-         {:la, [:last_arg | _]} <- {:la, ctx.stack} do
-      fun = &keyword_to_algebra(&1, new_ctx)
-      surround_many("", list, "", fun)
+    if Inspect.List.keyword?(list) do
+      keyword_list_to_algebra(list, new_ctx)
     else
-      {:kw, _} ->
-        fun = fn(elem) -> to_algebra(elem, new_ctx) end
-        surround_many("[", list, "]", fun)
-        |> nest(:current)
-
-      {:la, _} ->
-        fun = &keyword_to_algebra(&1, new_ctx)
-        surround_many("[", list, "]", fun)
-        |> nest(:current)
-
-      {:"[]", _} ->
-        "[]"
+      list_to_algebra(list, new_ctx)
     end
   end
 
@@ -948,5 +938,44 @@ defmodule Exfmt.Ast.ToAlgebra do
     |> Enum.chunk_every(3, 3, [])
     |> Enum.join("_")
     |> String.reverse()
+  end
+
+  defp keyword_list_to_algebra(list, ctx) do
+    case ctx.stack do
+      [:list, :last_arg | _] ->
+        list
+        |> Enum.map(&keyword_to_algebra(&1, ctx))
+        |> elem_docs_to_algebra()
+        |> group()
+
+      _ ->
+        list
+        |> Enum.map(&keyword_to_algebra(&1, ctx))
+        |> elem_docs_to_algebra()
+        |> wrap_list_algebra()
+    end
+  end
+
+  defp list_to_algebra(list, ctx) do
+    list
+    |> Enum.map(&to_algebra(&1, ctx))
+    |> elem_docs_to_algebra()
+    |> wrap_list_algebra()
+  end
+
+  defp wrap_list_algebra(elems_doc) do
+    contents_doc =
+      [break(""), elems_doc]
+      |> concat
+      |> nest(2)
+    ["[", contents_doc, break("", ","), "]"]
+    |> concat()
+    |> group()
+  end
+
+  defp elem_docs_to_algebra(elems) do
+    elems
+    |> Enum.intersperse(concat(",", break()))
+    |> concat()
   end
 end
