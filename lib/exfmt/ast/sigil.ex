@@ -16,8 +16,7 @@ defmodule Exfmt.Ast.Sigil do
   """
   @spec delimiters(char, [Macro.t]) :: {char, char}
   def delimiters(char, parts) do
-    {primary_open, primary_close, alt_open, alt_close} =
-      case char do
+    {primary_open, primary_close, alt_open, alt_close} = case char do
         c when c in [?r, ?R] ->
           {?/, ?/, ?(, ?)}
 
@@ -36,6 +35,7 @@ defmodule Exfmt.Ast.Sigil do
   defp contain_char?(part, char) when is_binary(part) do
     String.contains? part, char
   end
+
 
   defp contain_char?(_, _) do
     false

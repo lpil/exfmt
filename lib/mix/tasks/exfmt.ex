@@ -15,12 +15,11 @@ defmodule Mix.Tasks.Exfmt do
 
   """
 
-  @shortdoc  "Format Elixir source code"
+  @shortdoc "Format Elixir source code"
   @usage """
   USAGE:
       mix exfmt path/to/file.ex
   """
-
   use Mix.Task
   alias Exfmt.Cli
 
@@ -32,7 +31,7 @@ defmodule Mix.Tasks.Exfmt do
 
   def run(argv) do
     argv
-    |> Cli.run()
+    |> Cli.run
     |> execute_output()
   end
 

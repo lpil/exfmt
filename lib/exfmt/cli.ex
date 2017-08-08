@@ -25,8 +25,8 @@ defmodule Exfmt.Cli do
 
 
   defp parse_argv(args) do
-    {switches, args, _errors} =
-      OptionParser.parse(args, strict: [check: :boolean, unsafe: :boolean, stdin: :boolean])
+    opts =[check: :boolean, unsafe: :boolean, stdin: :boolean]
+    {switches, args, _errors} = OptionParser.parse(args, strict: opts)
     {Enum.into(switches, %{}), args}
   end
 

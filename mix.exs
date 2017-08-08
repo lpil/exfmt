@@ -4,21 +4,25 @@ defmodule Exfmt.Mixfile do
   @version "0.4.0"
 
   def project do
-    [app: :exfmt,
-     name: "exfmt",
-     description: "An opinionated Elixir source code formatter",
-     version: @version,
-     elixir: "~> 1.6-dev",
-     elixirc_paths: elixirc_paths(Mix.env),
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     deps: deps(),
-     docs: [extras: ["README.md"]],
-     dialyzer: [ignore_warnings: ".dialyzerignore"],
-     package: [maintainers: ["Louis Pilfold"],
-               licenses: ["apache-2.0"],
-               links: %{"GitHub" => "https://github.com/lpil/exfmt"},
-               files: ~w(LICENCE README.md lib mix.exs)]]
+    [
+      app: :exfmt,
+      name: "exfmt",
+      description: "An opinionated Elixir source code formatter",
+      version: @version,
+      elixir: "~> 1.6-dev",
+      elixirc_paths: elixirc_paths(Mix.env),
+      build_embedded: Mix.env == :prod,
+      start_permanent: Mix.env == :prod,
+      deps: deps(),
+      docs: [extras: ["README.md"]],
+      dialyzer: [ignore_warnings: ".dialyzerignore"],
+      package: [
+        maintainers: ["Louis Pilfold"],
+        licenses: ["apache-2.0"],
+        links: %{"GitHub" => "https://github.com/lpil/exfmt"},
+        files: ~w(LICENCE README.md lib mix.exs),
+      ],
+    ]
   end
 
 
@@ -37,13 +41,15 @@ defmodule Exfmt.Mixfile do
 
 
   defp deps do
-    [# Automatic test runner
-     {:mix_test_watch, "~> 0.4", only: :dev, runtime: false},
-     # Markdown processor
-     {:earmark, "~> 1.2", only: :dev, runtime: false},
-     # Documentation generator
-     {:ex_doc, "~> 0.15", only: :dev, runtime: false},
-     # Static type checker
-     {:dialyxir, "~> 0.5", only: :dev, runtime: false}]
+    [
+      # Automatic test runner
+      {:mix_test_watch, "~> 0.4", [only: :dev, runtime: false]},
+      # Markdown processor
+      {:earmark, "~> 1.2", [only: :dev, runtime: false]},
+      # Documentation generator
+      {:ex_doc, "~> 0.15", [only: :dev, runtime: false]},
+      # Static type checker
+      {:dialyxir, "~> 0.5", [only: :dev, runtime: false]},
+    ]
   end
 end

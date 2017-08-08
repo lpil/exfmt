@@ -44,7 +44,7 @@ defmodule Exfmt.Ast.Util do
   end
 
   def split_do_block([head | tail]) do
-    do_split_do_block(tail, head, [])
+    do_split_do_block tail, head, []
   end
 
 
@@ -59,7 +59,7 @@ defmodule Exfmt.Ast.Util do
   end
 
   defp do_split_do_block([head | tail], prev, acc) do
-    do_split_do_block(tail, head, [prev | acc])
+    do_split_do_block tail, head, [prev | acc]
   end
 
   defp do_split_do_block([], prev, acc) do
@@ -75,7 +75,6 @@ defmodule Exfmt.Ast.Util do
   defp keyword_block?(false) do
     false
   end
-
 
 
   @doc """
@@ -104,6 +103,7 @@ defmodule Exfmt.Ast.Util do
         false
     end
   end
+
 
   def call_with_block?(_) do
     false
