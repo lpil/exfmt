@@ -1,6 +1,6 @@
 defmodule Exfmt.Ast.Infix do
   @moduledoc """
-  Handling the conversion of infix operators to Algebgra.
+  Handling the conversion of infix operators to Algebra.
 
   We need to be especially careful when rendering infix
   operators because we may need to render them differently
