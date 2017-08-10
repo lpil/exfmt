@@ -235,7 +235,7 @@ defmodule Exfmt.Integration.BasicsTest do
     """ ~> """
     1
     |> double()
-    |> Number.triple
+    |> Number.triple()
     """
   end
 

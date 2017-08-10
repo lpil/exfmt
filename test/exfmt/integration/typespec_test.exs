@@ -16,6 +16,19 @@ defmodule Exfmt.Integration.TypespecTest do
     @spec run(String.t)
     :: atom | String.t | :hello
     """
+    """
+    @spec start_link(module(), term(number), Keyword.t()) :: on_start()
+    """ ~> """
+    @spec start_link(module,
+                     term(number),
+                     Keyword.t)
+    :: on_start
+    """
+    """
+    @spec break() :: doc_break()
+    """ ~> """
+    @spec break() :: doc_break
+    """
   end
 
   test "@spec 2" do

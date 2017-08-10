@@ -354,12 +354,40 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
-  # Zero arity qualified function calls
+  # Zero arity type calls
+  #   e.g. String.t
+  #
+  def to_algebra({{:., _, [aliases, :t]}, _, []}, ctx) do
+    zero_arity_call_to_algebra(".t", aliases, ctx)
+  end
+
+  #
+  # Zero arity qualified function calls to alias
+  #   e.g. Mix.env(), List.flatten/1
+  #
+  def to_algebra({{:., _, [aliases = {:__aliases__, _, _}, name]}, _, []}, ctx) do
+    case arity_labeled_function?(ctx) do
+      true ->
+        zero_arity_call_to_algebra(".#{name}", aliases, ctx)
+      _ ->
+        zero_arity_call_to_algebra(".#{name}()", aliases, ctx)
+    end
+  end
+
+  #
+  # Zero arity qualified function calls to atom
+  #   e.g. :random.uniform()
+  #
+  def to_algebra({{:., _, [aliases, name]}, _, []}, ctx) when is_atom(aliases) do
+    zero_arity_call_to_algebra(".#{name}()", aliases, ctx)
+  end
+
+  #
+  # Chained zero arity qualified function calls
+  #   e.g. Mix.new().key
   #
   def to_algebra({{:., _, [aliases, name]}, _, []}, ctx) do
-    new_ctx = Context.push_stack(ctx, :call)
-    module = to_algebra(aliases, new_ctx)
-    concat(module, ".#{name}")
+    zero_arity_call_to_algebra(".#{name}", aliases, ctx)
   end
 
   #
@@ -501,7 +529,13 @@ defmodule Exfmt.Ast.ToAlgebra do
 
       # Zero arity call
       %{args: []} ->
-        concat(name, "()")
+        case nested_spec_lhs_call?(ctx) || includes_spec_rhs?(ctx) do
+          true ->
+            to_string(name)
+
+          _ ->
+            concat(name, "()")
+        end
 
       # Block arg
       %{args: [{arg_name, _, _} | _]} when is_block(arg_name) ->
@@ -530,6 +564,48 @@ defmodule Exfmt.Ast.ToAlgebra do
     end
   end
 
+  defp zero_arity_call_to_algebra(name, aliases, ctx) do
+    new_ctx = Context.push_stack(ctx, :call)
+    module = to_algebra(aliases, new_ctx)
+    concat(module, name)
+  end
+
+  #
+  # Returns true if context contains right hand side of @spec call
+  #   e.g. @spec break() :: doc_break
+  #                         ^^^^^^^^^
+  #
+  defp includes_spec_rhs?(ctx) do
+    Enum.any?(ctx.stack, fn value -> value == :spec_rhs end)
+  end
+
+  #
+  # Returns true if context contains left hand side of @spec call
+  #   e.g. @spec break() :: doc_break
+  #              ^^^^^^^
+  #
+  defp includes_spec_lhs?(ctx) do
+    Enum.any?(ctx.stack, fn value -> value == :spec_lhs end)
+  end
+
+  #
+  # Returns true if context has nested call on left hand side of @spec call
+  #   e.g. @spec start_link(module(), Keyword.t) :: on_start
+  #                         ^^^^^^^^
+  #
+  defp nested_spec_lhs_call?(ctx) do
+    includes_spec_lhs?(ctx) &&
+    Enum.count(ctx.stack) > 1 &&
+    Enum.at(ctx.stack, 1) != :spec_lhs
+  end
+
+  #
+  # Returns true if context contains arity labeled function
+  #   e.g. List.flatten/1
+  #
+  defp arity_labeled_function?(ctx) do
+    Enum.any?(ctx.stack, fn value -> value == :/  end)
+  end
 
   #
   # TODO: The `space` and `parens` options are pretty grim.

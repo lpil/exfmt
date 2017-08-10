@@ -51,7 +51,7 @@ defmodule Exfmt.Integration.MapTest do
   end
 
   test "qualified call into map get" do
-    assert_format "Map.new.key\n"
+    "Map.new.key" ~> "Map.new().key\n"
   end
 
   test "structs" do

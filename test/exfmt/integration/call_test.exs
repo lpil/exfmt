@@ -46,13 +46,14 @@ defmodule Exfmt.Integration.CallTest do
   end
 
   test "qualified calls" do
-    "Process.get()" ~> "Process.get\n"
-    assert_format "Process.get\n"
+    "Process.get" ~> "Process.get()\n"
+    assert_format "Process.get()\n"
     assert_format "my_mod.get\n"
     "my_mod.get(0)" ~> "my_mod.get 0\n"
     assert_format "my_mod.get 0\n"
     "String.length( my_string )" ~> "String.length my_string\n"
     assert_format ":lists.reverse my_list\n"
+    ":my_mod.run" ~> ":my_mod.run()\n"
   end
 
   test "calls with keyword args" do
@@ -134,7 +135,7 @@ defmodule Exfmt.Integration.CallTest do
   end
 
   test "call qualified by atom from another call" do
-    assert_format "Mix.shell.info :ok\n"
+    "Mix.shell.info :ok" ~> "Mix.shell().info :ok\n"
   end
 
   test "call with keyword list not as last arg" do
