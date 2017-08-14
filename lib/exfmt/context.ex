@@ -39,4 +39,8 @@ defmodule Exfmt.Context do
   def push_stack(ctx, value) when value in @valid_layers do
     %{ctx | stack: [value | ctx.stack]}
   end
+
+  def stack_contains?(ctx, value) do
+    Enum.any?(ctx.stack, fn v -> v == value end)
+  end
 end

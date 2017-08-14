@@ -19,15 +19,13 @@ defmodule Exfmt.Integration.TypespecTest do
     """
     @spec start_link(module(), term(number), Keyword.t()) :: on_start()
     """ ~> """
-    @spec start_link(module,
+    @spec start_link(module(),
                      term(number),
                      Keyword.t)
-    :: on_start
+    :: on_start()
     """
-    """
+    assert_format """
     @spec break() :: doc_break()
-    """ ~> """
-    @spec break() :: doc_break
     """
   end
 

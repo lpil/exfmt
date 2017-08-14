@@ -13,7 +13,7 @@ defmodule Exfmt.Integration.FnTest do
   end
 
   test "captured &1.prop" do
-    "(& &1.name)" ~> "& &1.name\n"
+    "(& &1.name)" ~> "& &1.name()\n"
   end
 
   test "captured &&/2" do
