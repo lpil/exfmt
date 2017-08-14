@@ -363,18 +363,10 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
-  # Zero arity qualified access function calls
-  #   e.g. conn.assigns[:safe_mode_active]
-  #
-  def to_algebra({{:., _, [aliases, name]}, _, []}, %{stack: [:access | _]} = ctx) do
-    zero_arity_call_to_algebra(".#{name}", aliases, ctx)
-  end
-
-  #
   # Zero arity qualified function calls
-  #   e.g. Mix.env(), :random.uniform()
+  #   e.g. Mix.env(), String.t
   #
-  def to_algebra({{:., _, [aliases, name]}, _, []}, ctx) do
+  def to_algebra({{:., _, [aliases = {:__aliases__, _, _}, name]}, _, []}, ctx) do
     name = case Context.stack_contains?(ctx, :spec_lhs) ||
                 Context.stack_contains?(ctx, :spec_rhs) do
       true ->
@@ -383,8 +375,31 @@ defmodule Exfmt.Ast.ToAlgebra do
       _ ->
         ".#{name}()"
     end
-
     zero_arity_call_to_algebra(name, aliases, ctx)
+  end
+
+  #
+  # Zero arity qualified function calls to atoms
+  #   e.g. :random.uniform()
+  #
+  def to_algebra({{:., _, [aliases, name]}, _, []}, ctx) when is_atom(aliases) do
+    zero_arity_call_to_algebra(".#{name}()", aliases, ctx)
+  end
+
+  #
+  # Zero arity qualified access function calls
+  #   e.g. conn.assigns[:safe_mode_active]
+  #
+  def to_algebra({{:., _, [aliases, name]}, _, []}, %{stack: [:access | _]} = ctx) do
+    zero_arity_call_to_algebra(".#{name}", aliases, ctx)
+  end
+
+  #
+  # Zero arity non-qualified function calls
+  #   e.g. my_mod.get
+  #
+  def to_algebra({{:., _, [aliases, name]}, _, []}, ctx) do
+    zero_arity_call_to_algebra(".#{name}", aliases, ctx)
   end
 
   #

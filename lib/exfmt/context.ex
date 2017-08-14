@@ -41,6 +41,6 @@ defmodule Exfmt.Context do
   end
 
   def stack_contains?(ctx, value) do
-    Enum.any?(ctx.stack, fn v -> v == value end)
+    Enum.member?(ctx.stack, value)
   end
 end

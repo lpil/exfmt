@@ -48,7 +48,7 @@ defmodule Exfmt.Integration.CallTest do
   test "qualified calls" do
     "Process.get" ~> "Process.get()\n"
     assert_format "Process.get()\n"
-    "my_mod.get" ~> "my_mod.get()\n"
+    assert_format "my_mod.get\n"
     "my_mod.get(0)" ~> "my_mod.get 0\n"
     assert_format "my_mod.get 0\n"
     "String.length( my_string )" ~> "String.length my_string\n"

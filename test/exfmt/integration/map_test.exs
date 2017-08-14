@@ -47,11 +47,11 @@ defmodule Exfmt.Integration.MapTest do
   end
 
   test "chained map get" do
-    "map.key.another.a_third" ~> "map.key().another().a_third()\n"
+    assert_format "map.key.another.a_third\n"
   end
 
   test "qualified call into map get" do
-    "Map.new.key" ~> "Map.new().key()\n"
+    "Map.new.key" ~> "Map.new().key\n"
   end
 
   test "structs" do
