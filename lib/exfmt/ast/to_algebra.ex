@@ -327,13 +327,6 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
-  # Zero arity calls and variables
-  #
-  def to_algebra({name, _, nil}, _ctx) do
-    to_string(name)
-  end
-
-  #
   # Access protocol
   #
   def to_algebra({{:., _, [Access, :get]}, _, [structure, key]}, ctx) do
@@ -354,12 +347,59 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
   #
+  # Zero arity non-qualified calls and variables
+  #   e.g. run, x
+  #
+  def to_algebra({name, _, nil}, _ctx) do
+    to_string(name)
+  end
+
+  #
+  # Zero arity qualified function calls to arity labeled function
+  #   e.g. List.flatten/1
+  #
+  def to_algebra({{:., _, [aliases = {:__aliases__, _, _}, name]}, _, []}, ctx = %{stack: [:/ | _]}) do
+    zero_arity_call_to_algebra(".#{name}", aliases, ctx)
+  end
+
+  #
   # Zero arity qualified function calls
+  #   e.g. Mix.env(), String.t
+  #
+  def to_algebra({{:., _, [aliases = {:__aliases__, _, _}, name]}, _, []}, ctx) do
+    name = case Context.stack_contains?(ctx, :spec_lhs) ||
+                Context.stack_contains?(ctx, :spec_rhs) do
+      true ->
+        ".#{name}"
+
+      _ ->
+        ".#{name}()"
+    end
+    zero_arity_call_to_algebra(name, aliases, ctx)
+  end
+
+  #
+  # Zero arity qualified function calls to atoms
+  #   e.g. :random.uniform()
+  #
+  def to_algebra({{:., _, [aliases, name]}, _, []}, ctx) when is_atom(aliases) do
+    zero_arity_call_to_algebra(".#{name}()", aliases, ctx)
+  end
+
+  #
+  # Zero arity qualified access function calls
+  #   e.g. conn.assigns[:safe_mode_active]
+  #
+  def to_algebra({{:., _, [aliases, name]}, _, []}, %{stack: [:access | _]} = ctx) do
+    zero_arity_call_to_algebra(".#{name}", aliases, ctx)
+  end
+
+  #
+  # Zero arity non-qualified function calls
+  #   e.g. my_mod.get
   #
   def to_algebra({{:., _, [aliases, name]}, _, []}, ctx) do
-    new_ctx = Context.push_stack(ctx, :call)
-    module = to_algebra(aliases, new_ctx)
-    concat(module, ".#{name}")
+    zero_arity_call_to_algebra(".#{name}", aliases, ctx)
   end
 
   #
@@ -404,15 +444,6 @@ defmodule Exfmt.Ast.ToAlgebra do
   #
   def to_algebra({{_, _, _} = fun, _, args}, ctx) do
     new_ctx = Context.push_stack(ctx, :chain_call)
-    fun_doc = to_algebra(fun, new_ctx)
-    call_to_algebra(fun_doc, args, new_ctx)
-  end
-
-  #
-  # Any other function calls
-  #
-  def to_algebra({fun, _, args}, ctx) do
-    new_ctx = Context.push_stack(ctx, :call)
     fun_doc = to_algebra(fun, new_ctx)
     call_to_algebra(fun_doc, args, new_ctx)
   end
@@ -530,6 +561,11 @@ defmodule Exfmt.Ast.ToAlgebra do
     end
   end
 
+  defp zero_arity_call_to_algebra(name, aliases, ctx) do
+    new_ctx = Context.push_stack(ctx, :call)
+    module = to_algebra(aliases, new_ctx)
+    concat(module, name)
+  end
 
   #
   # TODO: The `space` and `parens` options are pretty grim.

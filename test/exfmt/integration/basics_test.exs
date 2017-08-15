@@ -55,9 +55,7 @@ defmodule Exfmt.Integration.BasicsTest do
   end
 
   test "aliases with variable part" do
-    assert_format """
-    One.x.Three
-    """
+    "One.x.Three" ~> "One.x().Three\n"
   end
 
   test "keyword lists" do
@@ -235,7 +233,7 @@ defmodule Exfmt.Integration.BasicsTest do
     """ ~> """
     1
     |> double()
-    |> Number.triple
+    |> Number.triple()
     """
   end
 
