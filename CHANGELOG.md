@@ -7,6 +7,7 @@ Changelog
   compiler. This allows use of new Elixir parser features such as preservation
   of sigil terminators, character literals and line numbers for AST literals.
 - Multi-line lists are now rendered with braces on their own lines.
+- Qualified zero arity function calls are rendered with parens. (@rgreenjr)
 - Indentation improvements.
 - Rendering of more expressions:
   - Character literals.
