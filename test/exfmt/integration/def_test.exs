@@ -23,6 +23,66 @@ defmodule Exfmt.Integration.DefTest do
     """
   end
 
+  test "def with zero arity" do
+    """
+    def one do
+      1
+    end
+    """ ~> """
+    def one() do
+      1
+    end
+    """
+  end
+
+  test "defp with zero arity" do
+    """
+    defp one do
+      1
+    end
+    """ ~> """
+    defp one() do
+      1
+    end
+    """
+  end
+
+  test "defmacro with zero arity" do
+    """
+    defmacro one do
+      1
+    end
+    """ ~> """
+    defmacro one() do
+      1
+    end
+    """
+  end
+
+  test "defmacrop with zero arity" do
+    """
+    defmacrop one do
+      1
+    end
+    """ ~> """
+    defmacrop one() do
+      1
+    end
+    """
+  end
+
+  test "defdelegate with zero arity" do
+    """
+    defdelegate one do
+      1
+    end
+    """ ~> """
+    defdelegate one() do
+      1
+    end
+    """
+  end
+
   test "def spacing" do
     assert_format """
     def one(1) do
@@ -47,12 +107,12 @@ defmodule Exfmt.Integration.DefTest do
   test "def spacing with comments" do
     assert_format """
     # One comment
-    def one do
+    def one() do
       2
     end
 
 
-    def two do
+    def two() do
       1
     end
     """

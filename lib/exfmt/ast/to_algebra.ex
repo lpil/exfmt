@@ -17,6 +17,13 @@ defmodule Exfmt.Ast.ToAlgebra do
   end
 
 
+  defmacrop is_func_def(name) do
+    quote do
+      unquote(name) in [:def, :defp, :defmacro, :defmacrop, :defdelegate]
+    end
+  end
+
+
   @doc """
   Converts Elixir AST into algebra that can be pretty printed.
 
@@ -422,6 +429,18 @@ defmodule Exfmt.Ast.ToAlgebra do
     concat(concat(module, "."), call)
   end
 
+
+  #
+  # Zero arity function definitions without parens
+  #   def say_hi do
+  #     "hi"
+  #   end
+  #
+  def to_algebra({name, _, args = [{_, _, nil}, _]}, ctx) when is_func_def(name) do
+    args = List.replace_at(args, 0, put_elem(List.first(args), 2, []))
+    new_ctx = Context.push_stack(ctx, :call)
+    call_to_algebra(to_string(name), args, new_ctx)
+  end
 
   #
   # Function calls and sigils

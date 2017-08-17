@@ -25,6 +25,8 @@ defmodule Exfmt.Ast do
 
 
   def eq?({x_name, _, x_args}, {y_name, _, y_args}) do
+    x_args = convert_nil_args(x_args)
+    y_args = convert_nil_args(y_args)
     eq?(x_name, y_name) and eq?(x_args, y_args)
   end
 
@@ -40,6 +42,14 @@ defmodule Exfmt.Ast do
     x == y
   end
 
+  # converts nil args to empty list
+  defp convert_nil_args([{_, _, nil}, _] = args) do
+    List.replace_at(args, 0, put_elem(List.first(args), 2, []))
+  end
+
+  defp convert_nil_args(args) do
+    args
+  end
 
   @doc """
   Introduces empty lines to group related expressions.

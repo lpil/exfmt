@@ -344,7 +344,7 @@ defmodule Exfmt.Integration.BasicsTest do
       end
     """
     assert_format """
-    defp read_source do
+    defp read_source() do
       source = case :ok do
           :ok ->
             :ok

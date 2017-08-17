@@ -68,14 +68,14 @@ defmodule Exfmt.Integration.CommentsTest do
     # one a
     # one b
     # one c
-    defp one do
+    defp one() do
       1
     end
     """ ~> """
     # one a
     # one b
     # one c
-    defp one do
+    defp one() do
       1
     end
     """
