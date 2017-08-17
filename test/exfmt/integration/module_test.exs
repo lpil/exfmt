@@ -5,12 +5,12 @@ defmodule Exfmt.Integration.ModuleTest do
   test "multiple functions" do
     assert_format """
     defmodule App do
-      def run do
+      def run() do
         :ok
       end
 
 
-      def stop do
+      def stop() do
         :ok
       end
     end
@@ -35,13 +35,13 @@ defmodule Exfmt.Integration.ModuleTest do
     assert_format """
     defmodule App do
       @doc false
-      def run do
+      def run() do
         :ok
       end
 
 
       @doc false
-      def stop do
+      def stop() do
         :ok
       end
     end
@@ -57,7 +57,7 @@ defmodule Exfmt.Integration.ModuleTest do
       require Bar
 
       @doc false
-      def run do
+      def run() do
         :ok
       end
     end
@@ -71,7 +71,7 @@ defmodule Exfmt.Integration.ModuleTest do
       @bar 2
 
       @doc false
-      def run do
+      def run() do
         :ok
       end
     end
@@ -87,7 +87,7 @@ defmodule Exfmt.Integration.ModuleTest do
       @bar 2
 
       @doc false
-      def run do
+      def run() do
         :ok
       end
     end
