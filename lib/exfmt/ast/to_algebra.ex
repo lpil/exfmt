@@ -244,6 +244,15 @@ defmodule Exfmt.Ast.ToAlgebra do
             [lhs, " = ", rhs]
             |> concat()
             |> group()
+
+          # When assigning the result of a multi-line expression,
+          # begin the expression on a new line
+          {:|>, _, [_, {_, _, _}]} ->
+            [lhs, " =", line(), rhs]
+            |> concat()
+            |> group()
+            |> nest(2)
+
           _ ->
             [lhs, " ", to_string(op), break(), rhs]
             |> concat()
