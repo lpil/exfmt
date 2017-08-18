@@ -62,6 +62,11 @@ defmodule Exfmt.CliTest do
       assert result.exit_code == 1
       assert result.stderr =~ "Error: syntax error before"
     end
+
+    test "maxwidth switch" do
+      result = Exfmt.Cli.run(["--maxwidth", "40", "priv/examples/ok.ex"])
+      assert result.stdout == ":ok\n"
+    end
   end
 
   def provide_stdin(string) do
