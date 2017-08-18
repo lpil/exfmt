@@ -330,6 +330,18 @@ defmodule Exfmt.Integration.BasicsTest do
     """
   end
 
+  test "infix assignment with multiline pipelines" do
+    """
+    sanitized = string |> String.downcase() |> String.strip()
+    """ ~>
+    """
+    sanitized =
+      string
+      |> String.downcase()
+      |> String.strip()
+    """
+  end
+
   test "direct call to __aliases__/1" do
     assert_format """
     __aliases__(args)
