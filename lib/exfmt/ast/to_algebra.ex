@@ -245,9 +245,15 @@ defmodule Exfmt.Ast.ToAlgebra do
             |> concat()
             |> group()
 
-          # When assigning the result of a multi-line expression,
-          # begin the expression on a new line
+          # assignment of multi-line pipeline expression
           {:|>, _, [_, {_, _, _}]} ->
+            [lhs, " =", line(), rhs]
+            |> concat()
+            |> group()
+            |> nest(2)
+
+          # assignment of multi-line case expression
+          {:case, _, [_, [do: _]]} ->
             [lhs, " =", line(), rhs]
             |> concat()
             |> group()

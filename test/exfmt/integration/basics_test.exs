@@ -350,14 +350,16 @@ defmodule Exfmt.Integration.BasicsTest do
 
   test "assignment with case" do
     assert_format """
-    x = case y do
+    x =
+      case y do
         :ok ->
           :ok
       end
     """
     assert_format """
     defp read_source do
-      source = case :ok do
+      source =
+        case :ok do
           :ok ->
             :ok
         end
