@@ -11,14 +11,12 @@ defmodule Exfmt.Integration.DefTest do
   end
 
   test "def with long guard" do
-    """
-    def one?(x) when x in [:one, "one", 1, "1"] do
-      true
-    end
-    """ ~> """
-    def one?(x)
-        when x in [:one, "one", 1, "1"] do
-      true
+    assert_format """
+    defp valid?(left, doc, right)
+         when is_doc(left)
+         when is_doc(doc)
+         when is_doc(right) do
+      :ok
     end
     """
   end

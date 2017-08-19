@@ -266,6 +266,10 @@ defmodule Exfmt.Ast.ToAlgebra do
             |> nest(2)
         end
 
+      {:when, _} ->
+        [lhs, break(), "when ", rhs]
+        |> concat()
+
       _ ->
         [lhs, " ", to_string(op), break(), rhs]
         |> concat()
@@ -592,10 +596,11 @@ defmodule Exfmt.Ast.ToAlgebra do
   defp args_to_algebra([{:when, _, args}], ctx, opts) do
     new_ctx = Context.push_stack(ctx, :when)
     {call_args, [guard]} = Enum.split(args, -1)
-    args_doc = args_to_algebra(call_args, ctx, opts)
-    guard_doc = to_algebra(guard, new_ctx)
-    [args_doc, group(nest(glue("", group(space("when", guard_doc))), 1))]
-    |> concat()
+    guard_doc = space("when", to_algebra(guard, new_ctx))
+    args_to_algebra(call_args, ctx, opts)
+    |> glue(guard_doc)
+    |> nest(1)
+    |> group()
   end
 
   defp args_to_algebra(args, ctx, opts) do
