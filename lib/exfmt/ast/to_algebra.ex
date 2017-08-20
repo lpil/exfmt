@@ -245,6 +245,12 @@ defmodule Exfmt.Ast.ToAlgebra do
             |> concat()
             |> group()
 
+          # hold opening list bracket next to assignment
+          [_ | _] ->
+            [lhs, " = ", rhs]
+            |> concat()
+            |> group()
+
           # assignment of multi-line pipeline expression
           {:|>, _, [_, {_, _, _}]} ->
             [lhs, " =", line(), rhs]

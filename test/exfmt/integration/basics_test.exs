@@ -105,6 +105,14 @@ defmodule Exfmt.Integration.BasicsTest do
       :elem_four,
     ]
     """
+    assert_format """
+    options = [
+      :elem_one,
+      :elem_two,
+      :elem_three,
+      :elem_four,
+    ]
+    """
   end
 
   test "tuples" do
