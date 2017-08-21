@@ -276,6 +276,21 @@ defmodule Exfmt.Ast.ToAlgebra do
         [lhs, break(), "when ", rhs]
         |> concat()
 
+      {:and, _} ->
+        [lhs, " and", nest(concat(break(), rhs), 5)]
+        |> concat()
+        |> group()
+
+      {:or, _} ->
+        [lhs, " or", nest(concat(break(), rhs), 5)]
+        |> concat()
+        |> group()
+
+      {:in, _} ->
+        [lhs, " in ", rhs]
+        |> concat()
+        |> group()
+
       _ ->
         [lhs, " ", to_string(op), break(), rhs]
         |> concat()

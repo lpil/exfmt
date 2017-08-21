@@ -19,6 +19,21 @@ defmodule Exfmt.Integration.DefTest do
       :ok
     end
     """
+    assert_format """
+    defp valid_operation?(op, args, ref)
+         when is_atom(op) and
+              not op in @unary_ops and
+              not op in @binary_ops
+         when is_map(args) and
+              map_size(map) > 2
+         when is_list(ref) or
+              not is_nil(level) or
+              is_float(args) or
+              is_integer(ref) or
+              rem(ref, 2) == 0 do
+      true
+    end
+    """
   end
 
   test "def spacing" do
