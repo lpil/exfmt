@@ -1,1 +1,1 @@
-%{foo: :bar,  \n ping:  "pong"}
+%{foo: :bar,  ping:  "pong"}

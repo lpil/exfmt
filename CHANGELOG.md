@@ -13,6 +13,7 @@ Changelog
 - Rendering of more expressions:
   - Character literals.
   - Heredoc strings.
+- Fix: Avoid crashing when no file path given to CLI with the `--check` flag.
 
 
 ## v0.4.0 - 2017-08-02
