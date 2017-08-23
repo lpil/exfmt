@@ -24,9 +24,9 @@ defmodule Exfmt.Cli do
   end
 
 
-  defp parse_argv(args) do
-    opts =[check: :boolean, unsafe: :boolean, stdin: :boolean]
-    {switches, args, _errors} = OptionParser.parse(args, strict: opts)
+  defp parse_argv(argv) do
+    opts = [check: :boolean, maxwidth: :integer, stdin: :boolean, unsafe: :boolean]
+    {switches, args, _errors} = OptionParser.parse(argv, strict: opts)
     {Enum.into(switches, %{}), args}
   end
 
@@ -47,12 +47,21 @@ defmodule Exfmt.Cli do
     {switches, args, File.read(path)}
   end
 
+
   defp format_source({%{check: true}, _args, {:ok, source}}) do
     Exfmt.check source
   end
 
+  defp format_source({%{unsafe: true, maxwidth: width}, _args, {:ok, source}}) do
+    Exfmt.unsafe_format source, width
+  end
+
   defp format_source({%{unsafe: true}, _args, {:ok, source}}) do
     Exfmt.unsafe_format source
+  end
+
+  defp format_source({%{maxwidth: width}, _args, {:ok, source}}) do
+    Exfmt.format source, width
   end
 
   defp format_source({_switches, _args, {:ok, source}}) do
