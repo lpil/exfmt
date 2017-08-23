@@ -7,8 +7,7 @@ defmodule Mix.Tasks.ExfmtTest do
       io = capture_io(:stderr, fn->
         Mix.Tasks.Exfmt.run([])
       end)
-      assert io =~ "USAGE"
-      assert io =~ "mix exfmt path/to/file.ex"
+      assert io =~ "--check"
     end
 
     test "file path" do
