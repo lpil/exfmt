@@ -47,7 +47,7 @@ defmodule Exfmt.Cli do
   end
 
 
-  defp read_source(%{stdin: true} = switches, args) do
+  defp read_source(%{stdin: true}, _args) do
     case IO.read(:stdio, :all) do
       {:error, reason} ->
         {:error, reason}
