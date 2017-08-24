@@ -14,7 +14,7 @@ defmodule Exfmt.Integration.TypespecTest do
     @spec run(String.t) :: atom | String.t | :hello
     """ ~> """
     @spec run(String.t)
-    :: atom | String.t | :hello
+      :: atom | String.t | :hello
     """
     """
     @spec start_link(module(), term(number), Keyword.t()) :: on_start()
@@ -22,7 +22,7 @@ defmodule Exfmt.Integration.TypespecTest do
     @spec start_link(module(),
                      term(number),
                      Keyword.t)
-    :: on_start()
+      :: on_start()
     """
     assert_format """
     @spec break() :: doc_break()
@@ -34,7 +34,17 @@ defmodule Exfmt.Integration.TypespecTest do
     @spec run(String.t) :: atom | String.t | :hello | :world
     """ ~> """
     @spec run(String.t)
-    :: atom | String.t | :hello | :world
+      :: atom | String.t | :hello | :world
+    """
+    """
+    @spec run(String.t, term, opts) :: atom | String.t | :hello | :world | number
+    """ ~> """
+    @spec run(String.t, term, opts)
+      :: atom
+      | String.t
+      | :hello
+      | :world
+      | number
     """
   end
 
