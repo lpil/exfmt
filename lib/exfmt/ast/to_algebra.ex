@@ -115,11 +115,9 @@ defmodule Exfmt.Ast.ToAlgebra do
   def to_algebra({:%, _, [name, {:%{}, _, args}]}, ctx) do
     name_ctx = Context.push_stack(ctx, :struct_name)
     name = struct_name_to_algebra(name, name_ctx)
-    body_doc =
-      args
-      |> map_body_to_algebra(ctx)
-      |> nest(:current)
-    surround(concat(["%", name, "{"]), body_doc, "}")
+    body_doc = map_body_to_algebra(args, ctx)
+    ["%", name, "{", nest(concat([break(""), body_doc]), 2), break(""), "}"]
+    |> concat()
     |> group()
   end
 
@@ -244,6 +242,12 @@ defmodule Exfmt.Ast.ToAlgebra do
           # even when space constraints force a line break
           {:%{}, _, _} ->
             [lhs, " = ", rhs]
+            |> concat()
+            |> group()
+
+          # structs
+          {:%, _, [{:__aliases__, _, _}, {:%{}, _, _}]} ->
+            [lhs, " =", nest(concat(break(), rhs), 2)]
             |> concat()
             |> group()
 

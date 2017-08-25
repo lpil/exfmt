@@ -61,11 +61,46 @@ defmodule Exfmt.Integration.MapTest do
     """
     %LongerNamePerson{timmy | name: "Timmy", age: 1}
     """ ~> """
-    %LongerNamePerson{timmy |
-                      name: "Timmy",
-                      age: 1}
+    %LongerNamePerson{
+      timmy |
+      name: "Timmy",
+      age: 1
+    }
     """
     assert_format "%Inspect.Opts{}\n"
+  end
+
+  test "struct assignments" do
+    assert_format "datetime = %NaiveDateTime{year: 2017}\n"
+    """
+    datetime = %NaiveDateTime{calendar: Calendar.ISO}
+    """ ~> """
+    datetime =
+      %NaiveDateTime{calendar: Calendar.ISO}
+    """
+    """
+    %NaiveDateTime{calendar: Calendar.ISO} = datetime_struct
+    """ ~> """
+    %NaiveDateTime{calendar: Calendar.ISO} =
+      datetime_struct
+    """
+    """
+    %NaiveDateTime{calendar: calendar, day: day, month: month, year: year } =
+    %NaiveDateTime{ calendar: Calendar.ISO, day: 1, month: 1, year: 2017}
+    """ ~> """
+    %NaiveDateTime{
+      calendar: calendar,
+      day: day,
+      month: month,
+      year: year
+    } =
+      %NaiveDateTime{
+        calendar: Calendar.ISO,
+        day: 1,
+        month: 1,
+        year: 2017
+      }
+    """
   end
 
   test "__MODULE__ structs" do
