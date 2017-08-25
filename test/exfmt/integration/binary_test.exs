@@ -108,4 +108,20 @@ defmodule Exfmt.Integration.BinaryTest do
   test "heredoc with preceeding spaces" do
     assert_format ~s("""\none\n  two\n"""\n)
   end
+
+  @tag :skip
+  test "heredoc with scaped slash" do
+    assert_format ~S("""
+Hi \\ hello
+"""
+)
+  end
+
+  @tag :skip
+  test "heredoc with scaped slash on own line" do
+    assert_format ~S("""
+\\
+"""
+)
+  end
 end
