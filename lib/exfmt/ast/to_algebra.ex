@@ -210,7 +210,7 @@ defmodule Exfmt.Ast.ToAlgebra do
     rhs_ctx = Context.push_stack(ctx, :spec_rhs)
     lhs = to_algebra(fun, lhs_ctx)
     rhs = to_algebra(result, rhs_ctx)
-    [lhs, nest(concat(break(), group(concat(":: ", rhs))), 2)]
+    [lhs, nest(group(concat([break(), ":: ", group(rhs)])), 2)]
     |> concat()
   end
 
