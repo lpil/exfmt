@@ -11,12 +11,6 @@ defmodule Exfmt.Integration.TypespecTest do
     @spec run(String.t, [tern]) :: atom
     """
     """
-    @spec run(String.t) :: atom | String.t | :hello
-    """ ~> """
-    @spec run(String.t)
-      :: atom | String.t | :hello
-    """
-    """
     @spec start_link(module(), term(number), Keyword.t()) :: on_start()
     """ ~> """
     @spec start_link(module(),
@@ -29,22 +23,37 @@ defmodule Exfmt.Integration.TypespecTest do
     """
   end
 
-  test "@spec 2" do
-    """
-    @spec run(String.t) :: atom | String.t | :hello | :world
-    """ ~> """
+  test "@spec wrapping" do
+    # right side too long
+    assert_format """
     @spec run(String.t)
-      :: atom | String.t | :hello | :world
-    """
-    """
-    @spec run(String.t, term, opts) :: atom | String.t | :hello | :world | number
-    """ ~> """
-    @spec run(String.t, term, opts)
       :: atom
-      | String.t
-      | :hello
-      | :world
-      | number
+      | atom
+      | atom
+      | atom
+      | atom
+      | atom
+    """
+    # left side too long
+    assert_format """
+    @spec run(String.t,
+              term,
+              [meta],
+              options)
+      :: atom | atom | atom | atom | atom
+    """
+    # right and left sides too long
+    assert_format """
+    @spec run(String.t,
+              term,
+              [meta],
+              options)
+      :: atom
+      | atom
+      | atom
+      | atom
+      | atom
+      | atom
     """
   end
 
