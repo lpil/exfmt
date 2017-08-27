@@ -245,6 +245,19 @@ defmodule Exfmt.Integration.BasicsTest do
     """
   end
 
+  test "pipe |> argument nesting" do
+    assert_format """
+    valid =
+      changeset
+      |> split_emails
+      |> Changeset.validate_format(
+           field,
+           regex,
+           message: invalid_email_msg
+         )
+    """
+  end
+
   test "case" do
     """
     case number do

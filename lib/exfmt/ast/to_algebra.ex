@@ -140,7 +140,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   def to_algebra({:{}, _, elems}, ctx) do
     new_ctx = Context.push_stack(ctx, :tuple)
     fun = fn(elem) -> to_algebra(elem, new_ctx) end
-    surround_many("{", elems, "}", fun)
+    group(surround_many("{", elems, "}", fun))
   end
 
   def to_algebra({a, b}, ctx) do
@@ -210,8 +210,9 @@ defmodule Exfmt.Ast.ToAlgebra do
     rhs_ctx = Context.push_stack(ctx, :spec_rhs)
     lhs = to_algebra(fun, lhs_ctx)
     rhs = to_algebra(result, rhs_ctx)
-    [lhs, nest(group(concat([break(), ":: ", group(rhs)])), 2)]
+    [nest(lhs, 2), nest(concat([break(), ":: ", group(rhs)]), 2)]
     |> concat()
+    |> group()
   end
 
   #
@@ -227,7 +228,7 @@ defmodule Exfmt.Ast.ToAlgebra do
         |> concat()
 
       {:|>, _} ->
-        [lhs, line(), "|> ", rhs]
+        [lhs, line(), "|> ", nest(rhs, 3)]
         |> concat()
 
       {:|, _} ->
@@ -344,7 +345,7 @@ defmodule Exfmt.Ast.ToAlgebra do
   def to_algebra({{:., _, [name]}, _, args}, ctx) do
     new_ctx = Context.push_stack(ctx, :call)
     name_doc = to_algebra(name, new_ctx)
-    args_doc = args_to_algebra(args, new_ctx, parens: true)
+    args_doc = args_to_algebra(args, new_ctx, parens: true, nest: true)
     [name_doc, ".", nest(args_doc, :current)]
     |> concat()
   end
@@ -568,7 +569,7 @@ defmodule Exfmt.Ast.ToAlgebra do
       # Call with block args
       %{blocks: b} when b != [] ->
         args_with_block? = Enum.any?(args, &Util.call_with_block?/1)
-        arg_list = args_to_algebra(args, ctx, parens: args_with_block?, space: !args_with_block?)
+        arg_list = args_to_algebra(args, ctx, parens: args_with_block?, space: !args_with_block?, nest: true)
         blocks_algebra = do_block_algebra(blocks, ctx)
         space(concat(name, nest(arg_list, :current)), blocks_algebra)
 
@@ -584,22 +585,24 @@ defmodule Exfmt.Ast.ToAlgebra do
       # Top level call
       %{stack: [:call]} ->
         args_with_block? = Enum.any?(args, &Util.call_with_block?/1)
-        arg_list = args_to_algebra(args, ctx, parens: args_with_block?, space: !args_with_block?)
-        concat(name, nest(arg_list, :current))
+        arg_list = args_to_algebra(args, ctx, parens: args_with_block?, space: !args_with_block?, nest: true)
+        concat(name, nest(group(arg_list), :current))
 
       # Call inside a do end block
       %{stack: [:call, :do | _]} ->
         args_with_block? = Enum.any?(args, &Util.call_with_block?/1)
-        arg_list = args_to_algebra(args, ctx, parens: args_with_block?, space: !args_with_block?)
-        concat(name, nest(arg_list, :current))
+        arg_list = args_to_algebra(args, ctx, parens: args_with_block?, space: !args_with_block?, nest: false)
+        concat(name, nest(group(arg_list), 2))
 
       %{stack: [:fn | _], args: args} ->
-        arg_list = args_to_algebra(args, ctx, parens: false)
+        arg_list = args_to_algebra(args, ctx, parens: false, nest: true)
         space(name, nest(arg_list, :current))
 
       _ ->
-        arg_list = args_to_algebra(args, ctx)
-        concat(name, nest(arg_list, :current))
+        arg_list = args_to_algebra(args, ctx, parens: false, space: false, nest: false)
+        [name, "(", nest(concat(break(""), arg_list), 2), concat(break(""), ")")]
+        |> concat()
+        |> group()
     end
   end
 
@@ -614,15 +617,17 @@ defmodule Exfmt.Ast.ToAlgebra do
   # Perhaps split this out into just forming of the arguments,
   # and leave the wrapping of parens to another function.
   #
-  defp args_to_algebra(args, ctx, opts \\ [parens: true])
+  defp args_to_algebra(args, ctx, opts \\ [nest: true, parens: true])
 
   defp args_to_algebra([{:when, _, args}], ctx, opts) do
     new_ctx = Context.push_stack(ctx, :when)
     {call_args, [guard]} = Enum.split(args, -1)
-    guard_doc = space("when", to_algebra(guard, new_ctx))
+    guard_doc =
+      [break(" "), "when ", to_algebra(guard, new_ctx)]
+      |> concat()
+      |> nest(1)
     args_to_algebra(call_args, ctx, opts)
-    |> glue(guard_doc)
-    |> nest(1)
+    |> concat(guard_doc)
     |> group()
   end
 
@@ -635,7 +640,7 @@ defmodule Exfmt.Ast.ToAlgebra do
     end
     indexed = Enum.with_index(args, 1)
     fun = fn(arg) -> arg_to_algebra(count, arg, ctx) end
-    doc = surround_many(open, indexed, close, fun)
+    doc = surround_many(open, indexed, close, fun, opts)
     if opts[:space] do
       concat(" ", doc)
     else

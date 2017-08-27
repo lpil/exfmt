@@ -13,9 +13,11 @@ defmodule Exfmt.Integration.TypespecTest do
     """
     @spec start_link(module(), term(number), Keyword.t()) :: on_start()
     """ ~> """
-    @spec start_link(module(),
-                     term(number),
-                     Keyword.t)
+    @spec start_link(
+        module(),
+        term(number),
+        Keyword.t
+      )
       :: on_start()
     """
     assert_format """
@@ -36,18 +38,22 @@ defmodule Exfmt.Integration.TypespecTest do
     """
     # left side too long
     assert_format """
-    @spec run(String.t,
-              term,
-              [meta],
-              options)
+    @spec run(
+        String.t,
+        term,
+        [meta],
+        options
+      )
       :: atom | atom | atom | atom | atom
     """
     # right and left sides too long
     assert_format """
-    @spec run(String.t,
-              term,
-              [meta],
-              options)
+    @spec run(
+        String.t,
+        term,
+        [meta],
+        options
+      )
       :: atom
       | atom
       | atom

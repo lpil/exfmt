@@ -86,4 +86,35 @@ defmodule Exfmt.Integration.DefTest do
     end
     """
   end
+
+  test "def with many arguments" do
+    assert_format """
+    def generate_buffer(
+          start_expr,
+          start_line,
+          mark,
+          chars,
+          buffer
+        ) do
+      :ok
+    end
+    """
+  end
+
+  test "def with many arguments and complex guard" do
+    assert_format """
+    def generate_buffer(
+          start_expr,
+          start_line,
+          mark,
+          chars,
+          buffer
+        )
+        when is_atom(mark) and
+             not op in @unary_ops
+        when is_atom(mark) do
+      :ok
+    end
+    """
+  end
 end

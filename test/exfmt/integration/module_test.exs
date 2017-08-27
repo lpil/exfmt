@@ -142,6 +142,28 @@ defmodule Exfmt.Integration.ModuleTest do
   end
 
   test "grouping use, import, alias, require calls" do
+    """
+    use GenServer
+    use PortMapper
+    import Bitwise
+    import Kernel, except: [length: 1]
+    alias Mix.Utils
+    alias MapSet, as: Set
+    require Logger
+    require Printer
+    """ ~> """
+    use GenServer
+    use PortMapper
+
+    import Bitwise
+    import Kernel, except: [length: 1]
+
+    alias Mix.Utils
+    alias MapSet, as: Set
+
+    require Logger
+    require Printer
+    """
     assert_format """
     defmodule App do
       use GenServer

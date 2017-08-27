@@ -220,20 +220,20 @@ defmodule Exfmt.Algebra do
       "[1,\n 2,\n 3,\n 4,\n 5]"
 
   """
-  def surround_many(open, args, close, fun)
+  def surround_many(open, args, close, fun, opts \\ [nest: true])
 
-  def surround_many(open, [], close, _) do
+  def surround_many(open, [], close, _, _) do
     concat(open, close)
   end
 
-  def surround_many(open, args, close, fun) do
+  def surround_many(open, args, close, fun, opts) do
     args_doc =
       args
       |> Enum.map(fun)
       |> Enum.reduce(fn(e, acc) ->
         glue(concat(acc, ","), e)
       end)
-    surround(open, args_doc, close)
+    surround(open, args_doc, close, opts)
   end
 
 
@@ -393,9 +393,15 @@ defmodule Exfmt.Algebra do
       iex> Inspect.Algebra.format(doc, 3)
       ["[", "a", "\n ", "b", "]"]
   """
-  @spec surround(t, t, t) :: t
-  def surround(left, doc, right) when is_doc(left) and is_doc(doc) and is_doc(right) do
-    group(concat(left, concat(nest(doc, @nesting), right)))
+  @spec surround(t, t, t, Keyword.t) :: t
+  def surround(left, doc, right, opts \\ [nest: true])
+  def surround(left, doc, right, opts)
+      when is_doc(left) and is_doc(doc) and is_doc(right) do
+    if opts[:nest] do
+      concat(left, concat(nest(doc, @nesting), right))
+    else
+      concat(left, concat(doc, right))
+    end
   end
 
   #
