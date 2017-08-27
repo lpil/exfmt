@@ -48,22 +48,6 @@ defmodule Exfmt.Integration.ModuleTest do
     """
   end
 
-  test "modules with aliases and defs" do
-    assert_format """
-    defmodule App do
-      alias Foo.Bar
-      use Bar
-      import Bar
-      require Bar
-
-      @doc false
-      def run do
-        :ok
-      end
-    end
-    """
-  end
-
   test "modules with attrs and defs" do
     assert_format """
     defmodule App do
@@ -148,12 +132,6 @@ defmodule Exfmt.Integration.ModuleTest do
   test "calls at top level of do block" do
     assert_format """
     defmodule FooMod do
-      use Foo
-      import Foo
-      require Foo
-      alias Foo
-      doctest Foo
-
       save use(Foo)
       save import(Foo)
       save require(Foo)
@@ -163,4 +141,25 @@ defmodule Exfmt.Integration.ModuleTest do
     """
   end
 
+  test "grouping use, import, alias, require calls" do
+    assert_format """
+    defmodule App do
+      use GenServer
+      use PortMapper
+
+      import Bitwise
+      import Kernel, except: [length: 1]
+
+      alias Mix.Utils
+      alias MapSet, as: Set
+
+      require Logger
+      require Printer
+
+      def run() do
+        :ok
+      end
+    end
+    """
+  end
 end
