@@ -147,6 +147,15 @@ defmodule Exfmt.Ast do
         {:import, :import} ->
           [expr | acc]
 
+        {:use, :use} ->
+          [expr | acc]
+
+        {:require, :require} ->
+          [expr | acc]
+
+        {:alias, :alias} ->
+          [expr | acc]
+
         {:defdelegate, :defdelegate} ->
           [expr | acc]
 
@@ -154,6 +163,15 @@ defmodule Exfmt.Ast do
           [expr, @newline | acc]
 
         {:import, _} ->
+          [expr, @newline | acc]
+
+        {:use, _} ->
+          [expr, @newline | acc]
+
+        {:require, _} ->
+          [expr, @newline | acc]
+
+        {:alias, _} ->
           [expr, @newline | acc]
 
         {:moduledoc, _} ->
@@ -180,7 +198,7 @@ defmodule Exfmt.Ast do
   end
 
   defp expr_id({type, _, _}) when type in @imports do
-    :import
+    type
   end
 
 
