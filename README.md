@@ -62,7 +62,7 @@ The benefits of `exfmt`:
 
 
 ## Contents
-
+- [Installation](#installation)
 - [Usage](#usage)
 - [Installation](#editor-integration)
 - [Editor Integration](#editor-integration)
@@ -71,6 +71,9 @@ The benefits of `exfmt`:
   - [VS Code](#visual-studio-code)
 - [Development](#development)
 
+## Installation
+
+If you run Elixir 1.4+, you can use `mix archive.install hex exfmt`, otherwise add it to your project as a dependancy.
 
 ## Usage
 
