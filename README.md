@@ -64,6 +64,7 @@ The benefits of `exfmt`:
 ## Contents
 
 - [Usage](#usage)
+- [Installation](#editor-integration)
 - [Editor Integration](#editor-integration)
   - [Atom](#atom)
   - [Vim](#vim)
@@ -74,9 +75,28 @@ The benefits of `exfmt`:
 ## Usage
 
 ```sh
-# Preview the exfmt formatting of an Elixir source file
 mix exfmt path/to/file.ex
 ```
+
+### Command line options
+
+* `--check` - Check if file is formatted, sets exit status
+  to 1 if false.
+* `--stdin` - Read from STDIN instead of a file.
+* `--unsafe` - Disable the semantics check that verifies
+  that `exmft` has not altered the semantic meaning of
+  the input file.
+
+
+## Installation
+
+`exfmt` makes use of Elixir compiler features coming in Elixir v1.6.0 and as a
+result can only be run with Elixir v1.6-dev off the Elixir master branch,
+which you will need to download and compile yourself. Use with earlier
+versions may work without crashing, but the output format will be incorrect.
+
+An easier method of installation will be availible when Elixir v1.6.0 is
+released. Or sooner, perhaps!
 
 
 ## Editor integration
