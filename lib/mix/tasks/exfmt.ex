@@ -26,7 +26,7 @@ defmodule Mix.Tasks.Exfmt do
 
   def run(argv) do
     argv
-    |> Cli.run
+    |> Cli.run()
     |> execute_output()
   end
 
