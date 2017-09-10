@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## Unreleased
+## v0.5.0 - 2017-09-10
 
 - exfmt now targets the unreleased master (v1.6) branch of the Elixir
   compiler. This allows use of new Elixir parser features such as preservation
