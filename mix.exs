@@ -21,12 +21,13 @@ defmodule Exfmt.Mixfile do
         links: %{"GitHub" => "https://github.com/lpil/exfmt"},
         files: ~w(LICENCE README.md lib mix.exs),
       ],
+      escript: [main_module: Exfmt.Escript],
     ]
   end
 
 
   def application do
-    [extra_applications: []]
+    [extra_applications: [:mix]]
   end
 
 

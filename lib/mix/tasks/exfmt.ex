@@ -27,7 +27,7 @@ defmodule Mix.Tasks.Exfmt do
   def run(argv) do
     check_version()
     argv
-    |> Cli.run
+    |> Cli.run()
     |> execute_output()
   end
 
