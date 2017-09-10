@@ -25,9 +25,19 @@ defmodule Mix.Tasks.Exfmt do
   end
 
   def run(argv) do
+    check_version()
     argv
     |> Cli.run
     |> execute_output()
+  end
+
+
+  defp check_version do
+    if Version.match?(System.version(), "< 1.6.0-dev", allow_pre: true) do
+      Mix.shell().error """
+      Warning: exfmt supports Elixir >= v1.6.0-dev. You are using #{System.version()}
+      """
+    end
   end
 
 

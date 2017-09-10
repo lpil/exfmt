@@ -10,6 +10,7 @@ Changelog
 - Qualified zero arity function calls are rendered with parens. (@rgreenjr)
 - Code containing comments is rendered on multiple lines.
 - Indentation improvements.
+- Warn if run with an unsupported version of Elixir.
 - Rendering of more expressions:
   - Character literals.
   - Heredoc strings.
