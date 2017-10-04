@@ -93,7 +93,7 @@ defmodule Exfmt do
   end
 
   def unsafe_format(source, max_width) do
-    parse_opts = [wrap_literals_in_blocks: true]
+    parse_opts = [formatter_metadata: true]
     with {:ok, tree} <- Code.string_to_quoted(source, parse_opts),
          {:ok, comments} <- Comment.extract_comments(source) do
       {:ok, do_format(tree, comments, max_width)}
