@@ -60,6 +60,10 @@ defmodule Exfmt.Comment do
     {:"#comment_block", [], Enum.reverse(comments)}
   end
 
+  def merge(comments, {:__block__, _, []}) do
+    {:"#comment_block", [], Enum.reverse(comments)}
+  end
+
   def merge(comments, {:__block__, _, [nil]}) do
     {:"#comment_block", [], Enum.reverse(comments)}
   end
