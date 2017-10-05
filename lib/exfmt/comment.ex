@@ -17,7 +17,7 @@ defmodule Exfmt.Comment do
   @spec extract_comments(String.t) :: {:ok, [t]} | :error
   def extract_comments(src) do
     case tokenize(src) do
-      {:ok, _line, _column, tokens} ->
+      {:ok, tokens} ->
         comments =
           tokens
           |> Enum.filter(&match?({:comment, _, _}, &1))
@@ -31,10 +31,33 @@ defmodule Exfmt.Comment do
   end
 
 
-  defp tokenize(src) do
+  def tokenize(src) do
+    pid = spawn_link(fn -> store([]) end)
     src
     |> String.to_charlist()
-    |> :elixir_tokenizer.tokenize(1, preserve_comments: true)
+    |> :elixir_tokenizer.tokenize(1, preserve_comments: send_comment(pid))
+    send pid, {:gets, self()}
+    receive do
+      tokens ->
+        {:ok, tokens}
+    end
+  end
+
+  def send_comment(pid) do
+    fn (line, column, _tokens, comment, _rest) ->
+        length = length(comment)
+        comment_token = {:comment, {line, {column, column + length}, nil}, comment}
+        send pid, {:put, comment_token}
+    end
+  end
+
+  def store(tokens) do
+    receive do
+      {:put, token} ->
+        store([token | tokens])
+      {:gets, pid} ->
+        send pid, Enum.reverse(tokens)
+    end
   end
 
   defp transform_comment({:comment, {line, _, _}, chars}) do

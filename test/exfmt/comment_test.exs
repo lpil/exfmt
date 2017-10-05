@@ -66,9 +66,6 @@ defmodule Exfmt.CommentTest do
       assert extract_comments(code) == {:ok, [{:"#", [line: 4], [" Hi!"]}]}
     end
 
-    #
-    # FIXME: Comments inside interpolation are currently discarded.
-    #
     test "comment in interp in string" do
       code = ~S(
       """
@@ -76,7 +73,7 @@ defmodule Exfmt.CommentTest do
       }
       """
       )
-      assert extract_comments(code) == {:ok, []}
+      assert extract_comments(code) == {:ok, [{:"#", [line: 3], [" A comment!"]}]}
     end
 
     test "\" char literals" do
