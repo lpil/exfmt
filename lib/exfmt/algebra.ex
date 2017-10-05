@@ -165,6 +165,7 @@ defmodule Exfmt.Algebra do
 
       iex> break = Inspect.Algebra.break("\t")
       iex> doc = Inspect.Algebra.concat([String.duplicate("a", 20), break, "b"])
+      iex> doc = Inspect.Algebra.group(doc)
       iex> Inspect.Algebra.format(doc, 10)
       ["aaaaaaaaaaaaaaaaaaaa", "\n", "b"]
 
@@ -324,6 +325,7 @@ defmodule Exfmt.Algebra do
   ## Examples
 
       iex> doc = Inspect.Algebra.nest(Inspect.Algebra.glue("hello", "world"), 5)
+      iex> doc = Inspect.Algebra.group(doc)
       iex> Inspect.Algebra.format(doc, 5)
       ["hello", "\n     ", "world"]
 
@@ -357,15 +359,19 @@ defmodule Exfmt.Algebra do
       ...>     Inspect.Algebra.group(
       ...>       Inspect.Algebra.concat(
       ...>         "Hello,",
-      ...>         Inspect.Algebra.concat(
-      ...>           Inspect.Algebra.break,
-      ...>           "A"
+      ...>         Inspect.Algebra.group(
+      ...>           Inspect.Algebra.concat(
+      ...>             Inspect.Algebra.break,
+      ...>             "A"
+      ...>           )
       ...>         )
       ...>       )
       ...>     ),
-      ...>     Inspect.Algebra.concat(
-      ...>       Inspect.Algebra.break,
-      ...>       "B"
+      ...>     Inspect.Algebra.group(
+      ...>       Inspect.Algebra.concat(
+      ...>         Inspect.Algebra.break,
+      ...>         "B"
+      ...>       )
       ...>     )
       ...> ))
       iex> Inspect.Algebra.format(doc, 80)
@@ -390,6 +396,7 @@ defmodule Exfmt.Algebra do
   possible concisely together.
   ## Examples
       iex> doc = Inspect.Algebra.surround("[", Inspect.Algebra.glue("a", "b"), "]")
+      iex> doc = Inspect.Algebra.group(doc)
       iex> Inspect.Algebra.format(doc, 3)
       ["[", "a", "\n ", "b", "]"]
   """
