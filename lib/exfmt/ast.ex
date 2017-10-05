@@ -240,11 +240,14 @@ defmodule Exfmt.Ast do
 
 
   defp node_compact({:__block__, meta, [value]}) do
-    case meta[:format] do
-      :char ->
-        {:"#char", meta, [value]}
+    case meta do
+      [{:original, [?? | _]} | _] ->
+        meta[:original]
+        |> to_string()
+        |> Code.string_to_quoted!()
+        |> (&({:"#char", meta, [&1]})).()
 
-      :bin_heredoc ->
+      [{:format, :bin_heredoc} | _] ->
         {:"#bin_heredoc", meta, [value]}
 
       _ ->
