@@ -31,7 +31,7 @@ defmodule Exfmt.Comment do
   end
 
 
-  def tokenize(src) do
+  defp tokenize(src) do
     pid = spawn_link(fn -> store([]) end)
     src
     |> String.to_charlist()
@@ -43,7 +43,7 @@ defmodule Exfmt.Comment do
     end
   end
 
-  def send_comment(pid) do
+  defp send_comment(pid) do
     fn (line, column, _tokens, comment, _rest) ->
         length = length(comment)
         comment_token = {:comment, {line, {column, column + length}, nil}, comment}
@@ -51,7 +51,7 @@ defmodule Exfmt.Comment do
     end
   end
 
-  def store(tokens) do
+  defp store(tokens) do
     receive do
       {:put, token} ->
         store([token | tokens])
