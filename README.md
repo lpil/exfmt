@@ -5,6 +5,14 @@
 
 # exfmt 🌸
 
+## This tool has been deprecated
+
+With the new [formatter](https://hexdocs.pm/mix/master/Mix.Tasks.Format.html)
+in Elixir v1.6 there is no need for this formatter any more. Thanks for
+checking out exfmt, it's been fun. :)
+
+## Intro
+
 > `exfmt` is in alpha.  If you run into any problems, please
 > [report them][issues].
 >
