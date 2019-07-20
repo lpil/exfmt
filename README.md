@@ -103,7 +103,7 @@ result can only be run with Elixir v1.6-dev off the Elixir master branch,
 which you will need to download and compile yourself. Use with earlier
 versions may work without crashing, but the output format will be incorrect.
 
-An easier method of installation will be availible when Elixir v1.6.0 is
+An easier method of installation will be available when Elixir v1.6.0 is
 released. Or sooner, perhaps!
 
 
